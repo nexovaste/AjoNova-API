@@ -47,6 +47,7 @@ class Staff extends Authenticatable
         'last_login_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'password' => 'hashed',
     ];
     
     public function status()

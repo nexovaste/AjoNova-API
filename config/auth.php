@@ -107,7 +107,7 @@ return [
         'admins' => [
             'provider' => 'admins',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'reset_password_tokens'),
-            'expire' => 60,
+            'expire' => 10,
             'throttle' => 60,
         ],
     ],

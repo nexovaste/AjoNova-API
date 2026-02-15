@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\v1\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Admin\AdminResource;
-use App\Jobs\ActivityLogJob;
+use App\Services\Config;
 use App\Models\Admin\Staff;
-use App\Models\Setup\SetupCounter;
-use App\Services\Cache\ClearCacheService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use App\Jobs\ActivityLogJob;
+use Illuminate\Http\Request;
+use App\Jobs\StaffRegistrationJob;
+use App\Models\Setup\SetupCounter;
+use Spatie\Permission\Models\Role;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Spatie\Permission\Models\Role;
+use App\Services\Cache\ClearCacheService;
+use App\Http\Resources\Admin\AdminResource;
+use App\Notifications\Admin\StaffRegistration;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AdminController extends Controller
@@ -97,6 +101,10 @@ class AdminController extends Controller
         $role = Role::findById($request->roleId, 'admin');
         $staff->assignRole($role);
         ClearCacheService::clearListCache('staff_list');
+        $fullName = $staff->first_name . ' ' . ($staff->middle_name ? $staff->middle_name . ' ' : '') . $staff->last_name;
+        $titleName= Config::getTitleNameById($request->titleId);
+        $staff->notify(new StaffRegistration(Str::title($fullName), $staffId, Str::title($titleName)));
+
         $registeredData = $staff->only([
             'staff_id',
             'title_id',
