@@ -9,7 +9,7 @@ class SetupStateSeeder extends Seeder
 {
 
     // Run the database seeds.
-     public function run(): void
+    public function run(): void
     {
         $states = [
             'Abia',
@@ -51,13 +51,14 @@ class SetupStateSeeder extends Seeder
             'Federal Capital Territory',
         ];
 
+        $insertData = [];
         foreach ($states as $state) {
-            SetupState::updateOrCreate(
-                [
-                    'country_id' => 1,
-                    'state_name' => $state,
-                ], 
-            );
+            $insertData[] = [
+                'country_id' => 1,   // Nigeria
+                'state_name' => $state,
+            ];
         }
+
+        SetupState::insertOrIgnore($insertData);
     }
 }

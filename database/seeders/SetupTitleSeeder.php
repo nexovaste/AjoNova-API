@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Setup\SetupTitle;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class SetupTitleSeeder extends Seeder
 {
@@ -12,8 +11,15 @@ class SetupTitleSeeder extends Seeder
     public function run(): void
     {
         $titles = ['MR', 'MRS', 'MISS', 'DR', 'PROF', 'ENGR', 'HON', 'CHIEF', 'REV', 'PASTOR'];
+        $insertData = [];
         foreach ($titles as $title) {
-            SetupTitle::firstOrCreate(['title_name' => $title]);
+            $insertData[] = [
+                'title_name' => $title,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
         }
+
+        SetupTitle::insertOrIgnore($insertData);
     }
 }

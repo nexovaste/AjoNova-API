@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Models\Admin;
-use App\Models\Setup\LedgerType;
+
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
 
@@ -10,12 +11,21 @@ class LedgerEntry extends Model
     protected $primaryKey = 'ledger_entry_id';
 
     protected $fillable = [
-        'ledger_type_id',
+        'user_id',
         'wallet_id',
+        'entry_type',
         'amount',
         'balance_before',
         'balance_after',
+        'reference',
+        'description',
         'created_by',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'balance_before' => 'decimal:2',
+        'balance_after' => 'decimal:2',
     ];
 
     public function wallet()
@@ -23,8 +33,13 @@ class LedgerEntry extends Model
         return $this->belongsTo(Wallet::class, 'wallet_id', 'wallet_id');
     }
 
-    public function ledgerType()
+    public function user()
     {
-        return $this->belongsTo(LedgerType::class, 'ledger_type_id', 'ledger_type_id');
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
     }
 }

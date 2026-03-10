@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\v1\Admin;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\ActivitiesResource;
+use App\Models\Admin\ActivityLog;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use App\Models\Setup\SetupLogActivity;
+
 
 class ActivitiesController extends Controller
 {
@@ -19,7 +20,7 @@ class ActivitiesController extends Controller
         $cursor = $request->get('cursor', 'first_page');
         $cacheKey = "activities_list_{$cursor}";
         $activitiesData = Cache::tags('activities_list')->flexible($cacheKey, [now()->addMonth(), null], function () use ($admin) {
-            return SetupLogActivity::orderBy('id', 'desc')
+            return ActivityLog::orderBy('id', 'desc')
                 ->cursorPaginate(30);
                 
         });
@@ -50,7 +51,7 @@ class ActivitiesController extends Controller
 
     $activitiesData = Cache::remember("activity_{$id}", now()->addMonth(), function () use ($id) {
         return new ActivitiesResource(
-        SetupLogActivity::with(['staff', 'user'])->findOrFail($id)
+        ActivityLog::with(['staff', 'user'])->findOrFail($id)
         );
     });    
 

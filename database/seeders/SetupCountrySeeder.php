@@ -12,14 +12,14 @@ class SetupCountrySeeder extends Seeder
     public function run(): void
     {
         $countries = [
-            ['country_name' => 'Nigeria', 'country_code' => 'NG'],
+            [
+                'country_name' => 'Nigeria',
+                'country_code' => 'NG',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
-        foreach ($countries as $country) {
-            SetupCountry::firstOrCreate([
-                'country_name' => $country['country_name'],
-                'country_code' => $country['country_code']
-            ]);
-        }
+        SetupCountry::insertOrIgnore($countries);
     }
 }

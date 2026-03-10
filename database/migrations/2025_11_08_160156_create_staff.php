@@ -31,10 +31,7 @@ return new class extends Migration
             $table->dateTime('last_login_at')->nullable();
             $table->timestamps();
 
-            $table->index('title_id');
-            $table->index('gender_id');
-            $table->index('status_id');
-            $table->index('lga_id');
+            $table->index(['title_id', 'gender_id', 'status_id', 'lga_id']);
             $table->foreign('title_id')->references('title_id')->on('setup_titles')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('gender_id')->references('gender_id')->on('setup_genders')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('status_id')->references('status_id')->on('setup_statuses')->onDelete('restrict')->onUpdate('cascade');

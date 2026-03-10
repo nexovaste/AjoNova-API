@@ -1,17 +1,17 @@
 <?php
 
 namespace App\Models\Admin;
-use App\Models\User\User;;
-use Predis\Response\Status;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
+use Predis\Response\Status;
 
 class MemberTargetSaving extends Model
 {
     protected $primaryKey = 'member_target_saving_id';
 
     protected $fillable = [
+         'user_id',
         'target_name',
-        'user_id',
         'target_amount',
         'monthly_amount',
         'current_balance',

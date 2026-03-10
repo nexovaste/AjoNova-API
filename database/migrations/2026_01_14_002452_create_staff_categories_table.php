@@ -6,19 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    
     // Run the migrations.
     public function up(): void
     {
-        Schema::create('loan_interest_types', function (Blueprint $table) {// E.G FLAT_RATE, REDUCING_BALANCE, AND DECLINING_BALANCE
-            $table->id('loan_interest_type_id');
-            $table->string('loan_interest_type_name', 100)->unique();
+        Schema::create('staff_categories', function (Blueprint $table) {//E.G ACADEMIC, NON-ACADEMIC
+            $table->id('staff_category_id');
+            $table->string('staff_category_name')->unique();
             $table->timestamps();
         });
     }
 
-   // Reverse the migrations.
+    // Reverse the migrations.
     public function down(): void
     {
-        Schema::dropIfExists('loan_interest_types');
+        Schema::dropIfExists('staff_categories');
     }
 };

@@ -11,12 +11,14 @@ class Loan extends Model
     protected $fillable = [
         'user_id',
         'loan_policy_id',
+        'duration_months',
         'principal_amount',
         'interest_amount',
         'total_payable',
-        'monthly_repayment',
-        'duration_months',
         'outstanding_balance',
+        'disbursed_at',
+        'approved_by',
+        'approved_at',
         'status_id',
     ];
 

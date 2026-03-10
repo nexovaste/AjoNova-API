@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Seeders;
+
 use App\Models\Setup\SetupLga;
 use Illuminate\Database\Seeder;
 
@@ -932,15 +933,20 @@ class SetupLgaSeeder extends Seeder
                 'Municipal Area Council',
             ],
 
-        ];
+        ]; {
+            $data = [];
 
-        foreach ($localGovernmentAreas as $stateId => $lgas) {
-            foreach ($lgas as $lga) {
-                SetupLga::updateOrCreate([
-                    'state_id' => $stateId,
-                    'lga_name' => $lga,
-                ]);
+            foreach ($localGovernmentAreas as $stateId => $lgas) {
+                foreach ($lgas as $lga) {
+                    $data[] = [
+                        'state_id' => $stateId,
+                        'lga_name' => $lga,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
             }
+            SetupLga::insertOrIgnore($data);
         }
     }
 }

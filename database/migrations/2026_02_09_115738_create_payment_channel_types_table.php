@@ -9,7 +9,7 @@ return new class extends Migration
     // Run the migrations.
     public function up(): void
     {
-        Schema::create('payment_channel_types', function (Blueprint $table) {// E.G CASH, BANK_TRANSFER,ONLINE_PAYMENT
+        Schema::create('payment_channel_types', function (Blueprint $table) {// E.G salary, manual, transfer
             $table->id('payment_channel_type_id');
             $table->string('payment_channel_type_name', 100)->unique();
             $table->timestamps();
