@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('garantors', function (Blueprint $table) {
             $table->id('garantor_id');
-            $table->unsignedBigInteger('loan_id');
+            $table->string('loan_id');
             $table->string('guarantor_user_id');
             $table->decimal('guaranteed_amount', 14, 2);
             $table->unsignedBigInteger('status_id');

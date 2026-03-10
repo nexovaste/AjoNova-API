@@ -12,11 +12,13 @@ return new class extends Migration
     {
         Schema::create('user_devices', function (Blueprint $table) {
             $table->id();
-            $table->string('user_id');
-            $table->string('device_id')->unique();
+            $table->string('user_id')->index();
+            $table->string('device_id')->index();
             $table->string('device_type')->nullable();
             $table->timestamp('verified_at');
             $table->timestamps();
+
+            $table->unique(['user_id','device_id']);
         });
     }
 

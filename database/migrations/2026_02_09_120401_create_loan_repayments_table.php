@@ -11,10 +11,12 @@ return new class extends Migration
     {
         Schema::create('loan_repayments', function (Blueprint $table) {
             $table->id('loan_repayment_id');
-            $table->unsignedBigInteger('loan_id');
-            $table->decimal('amount', 14, 2);
-            $table->decimal('interest_amount', 14, 2);
+            $table->string('loan_id');
+            $table->unsignedBigInteger('duration_months');
             $table->decimal('principal_amount', 14, 2);
+            $table->decimal('interest_amount', 14, 2);
+            $table->decimal('monthly_repayment', 14, 2);
+            $table->decimal('total_payable', 14, 2);
             $table->date('repayment_date');
             $table->unsignedBigInteger('status_id')->default(22);//UNPAID
             $table->string('payment_reference')->unique();

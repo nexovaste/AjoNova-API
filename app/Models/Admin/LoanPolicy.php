@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Models\Admin;
-use App\Models\Setup\LoanInterestType;
+
 use Illuminate\Database\Eloquent\Model;
+use Predis\Response\Status;
 
 class LoanPolicy extends Model
 {
@@ -15,22 +16,27 @@ class LoanPolicy extends Model
         'min_duration_months',
         'max_duration_months',
         'interest_rate',
-        'loan_interest_type_id',
         'eligibility_months',
         'allow_multiple_loans',
+        'status_id',
         'created_by',
+        'updated_by',
     ];
 
-    public function interestType()
-    {
-        return $this->belongsTo(LoanInterestType::class, 'loan_interest_type_id');
-    }
 
     public function loans()
     {
-        return $this->hasMany(Loan::class, 'loan_policy_id');
+        return $this->hasMany(Loan::class, 'loan_policy_id', 'loan_policy_id');
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(Status::class, 'status_id', 'status_id');
+    }
+
+    public function isValidDuration($months)
+    {
+        return $months >= $this->min_duration_months &&
+            $months <= $this->max_duration_months;
     }
 }
-
-
-

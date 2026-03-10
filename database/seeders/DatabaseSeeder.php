@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+
+
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -22,11 +23,9 @@ class DatabaseSeeder extends Seeder
         SetupStateSeeder::class,
         SetupLgaSeeder::class,
         PermissionSeeder::class,
-        EmployementTypeSeeder::class,
-        LoanInterestTypeSeeder::class,
-        MemberContributionTypeSeeder::class,
+        MembershipTypeSeeder::class,
+        StaffCategorySeeder::class,
         PaymentChannelTypeSeeder::class,
-        LedgerTypeSeeder::class,
         ]);
     }
 }

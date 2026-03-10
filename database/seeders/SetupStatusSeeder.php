@@ -35,11 +35,14 @@ class SetupStatusSeeder extends Seeder
             'UNPAID',
         ];
 
+        $insertData = [];
+
         foreach ($statuses as $status) {
-            SetupStatus::firstOrCreate([
+            $insertData[] = [
                 'status_name' => $status,
-            ]);
+            ];
         }
+
+        SetupStatus::insertOrIgnore($insertData);
     }
 }
-

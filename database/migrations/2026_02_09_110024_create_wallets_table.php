@@ -11,14 +11,17 @@ return new class extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->id('wallet_id');
-            $table->string('user_id');
-            $table->decimal('balance', 14, 2)->default(0);
-            $table->decimal('locked_balance', 14, 2)->default(0);
+            $table->string('user_id')->unique(); // One wallet per member
+            $table->decimal('savings_balance', 14, 2)->default(0.00);
+            $table->decimal('outstanding_loan_balance', 14, 2)->default(0.00);
+            $table->decimal('locked_balance', 14, 2)->default(0.00);
             $table->unsignedBigInteger('status_id')->default(1);
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('status_id')->references('status_id')->on('setup_statuses')->onDelete('restrict')->onUpdate('cascade');
+            $table->index('status_id');
+            $table->foreign('user_id')->references('user_id')->on('users')->OnDelete('restrict')->OnUpdate('cascade');
+            $table->foreign('status_id')->references('status_id')->on('setup_statuses')->OnDelete('restrict')->OnUpdate('cascade');
         });
     }
 

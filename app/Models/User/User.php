@@ -9,8 +9,6 @@ use App\Models\Admin\Guarantor;
 use App\Models\Setup\SetupTitle;
 use App\Models\Setup\SetupGender;
 use App\Models\Setup\SetupStatus;
-use Laravel\Sanctum\HasApiTokens;
-use App\Models\Setup\EmployementType;
 use App\Models\Admin\MemberContribution;
 use App\Models\Admin\MemberTargetSaving;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -25,7 +23,8 @@ class User extends Authenticatable
         'user_id',
         'membership_number',
         'title_id',
-        'employement_type_id',
+        'staff_category_id',
+        'membership_type_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -39,6 +38,7 @@ class User extends Authenticatable
         'passport',
         'status_id',
         'password',
+        'monthly_salary',
         'date_joined',
         'date_exited',
         'created_by',
@@ -50,8 +50,8 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password',
-    ]; 
-    
+    ];
+
     protected $casts = [
         'date_of_birth' => 'date',
         'date_joined' => 'date',
@@ -66,25 +66,20 @@ class User extends Authenticatable
 
     public function gender()
     {
-        return $this->belongsTo(SetupGender::class, 'gender_id', 'gender_id');     
-
+        return $this->belongsTo(SetupGender::class, 'gender_id', 'gender_id');
     }
 
     public function status()
     {
         return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
-    }   
+    }
 
     public function lga()
     {
         return $this->belongsTo(SetupLga::class, 'lga_id', 'lga_id');
     }
 
-    public function employmentType()
-    {
-        return $this->belongsTo(EmployementType::class, 'employement_type_id', 'employement_type_id');
-    }
-
+ 
     public function wallet()
     {
         return $this->hasOne(Wallet::class, 'user_id', 'user_id');
@@ -112,4 +107,3 @@ class User extends Authenticatable
 
     const DEFAULT_PASSPORT = 'default.png';
 }
-

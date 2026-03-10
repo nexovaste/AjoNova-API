@@ -10,21 +10,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('loans', function (Blueprint $table) {
-            $table->id('loan_id');
+            $table->string('loan_id')->primary();
             $table->string('user_id');
             $table->unsignedBigInteger('loan_policy_id');
+            $table->integer('duration_months');
             $table->decimal('principal_amount', 14, 2);
             $table->decimal('interest_amount', 14, 2);
             $table->decimal('total_payable', 14, 2);
-            $table->decimal('monthly_repayment', 14, 2);
-            $table->integer('duration_months');
             $table->decimal('outstanding_balance', 14, 2);
             $table->date('disbursed_at')->nullable();
-            $table->date('first_repayment_date')->nullable();
-            $table->date('maturity_date')->nullable();
-            $table->unsignedBigInteger('status_id');
             $table->string('approved_by')->nullable();
             $table->dateTime('approved_at')->nullable();
+            $table->unsignedBigInteger('status_id');
             $table->timestamps();
 
             $table->index('user_id');

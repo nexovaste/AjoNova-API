@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Admin\UserDevice;
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\Setup\UserDevice;
 use Symfony\Component\HttpFoundation\Response;
 
 class TrustDeviceMiddleware

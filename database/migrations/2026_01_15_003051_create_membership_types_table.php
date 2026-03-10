@@ -9,17 +9,17 @@ return new class extends Migration
     // Run the migrations.
     public function up(): void
     {
-        Schema::create('employement_types', function (Blueprint $table) {//E.G EMPLOYED, UNEMPLOYED, RETIRED, AND STUDENT
-            $table->id('employement_type_id');
-            $table->string('employement_type_name', 100)->unique();
+        Schema::create('membership_types', function (Blueprint $table) {// E.G MEMBER AND NON-MEMBER(SAVINGS ONLY)
+            $table->id('membership_type_id');
+            $table->string('membership_type_name')->unique();
+            $table->boolean('can_take_loan')->default(true);
             $table->timestamps();
         });
     }
 
-   
     // Reverse the migrations.
     public function down(): void
     {
-        Schema::dropIfExists('employement_types');
+        Schema::dropIfExists('membership_types');
     }
 };

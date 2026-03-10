@@ -11,20 +11,24 @@ return new class extends Migration
     {
         Schema::create('member_contributions', function (Blueprint $table) {
             $table->id('member_contribution_id');
-            $table->unsignedBigInteger('member_contribution_type_id');
             $table->string('user_id');
             $table->decimal('amount', 14, 2);
             $table->date('contribution_date');
-            $table->tinyInteger('month');
-            $table->year('year');
-            $table->unsignedBigInteger('status_id')->default(5); // PENDING 
+            $table->unsignedTinyInteger('contribution_month')->storedAs('MONTH(contribution_date)');
+            $table->unsignedSmallInteger('contribution_year')->storedAs('YEAR(contribution_date)');
+            $table->string('reference')->unique();
+            $table->unsignedBigInteger('ledger_entry_id')->nullable();
+            $table->unsignedBigInteger('status_id')->default(5); // PENDING
             $table->string('processed_by')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->unique(['user_id','member_contribution_type_id','month','year'], 'unique_contribution');
-            $table->foreign('member_contribution_type_id')->references('member_contribution_type_id')->on('member_contribution_types')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('status_id')->references('status_id')->on('setup_statuses')->onDelete('restrict')->onUpdate('cascade'); 
+            
+            $table->unique(['user_id', 'contribution_month', 'contribution_year'],'unique_contribution_per_period');
+            $table->index(['user_id', 'contribution_date']);
+            $table->index(['status_id', 'contribution_date']);
+            $table->foreign('user_id')->references('user_id')->on('users')->OnDelete('restrict')->OnUpdate('cascade');
+            $table->foreign('status_id')->references('status_id')->on('setup_statuses')->OnDelete('restrict')->OnUpdate('cascade');
         });
     }
 

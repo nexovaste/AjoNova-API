@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class UserManagementController extends Controller
 {
     // Display a listing of the resource.
-   public function index(Request $request)
+    public function index(Request $request)
     {
         try {
             $user = Auth::guard('admin')->user();
@@ -57,36 +57,43 @@ class UserManagementController extends Controller
                 'success' => false,
                 'message' => 'Failed to retrieve user records: ' . $e->getMessage()
             ], 500);
-   
-    }}
+        }
+    }
 
     // Store a newly created resource in storage.
-     public function store(Request $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'titleId' => 'required|int|exists:setup_titles,title_id',
-            'firstName'     => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
-            'middleName'    => ['nullable', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
-            'lastName'      => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
+            'staffCategoryId' => 'required|int|exists:staff_categories,staff_category_id',
+            'membershipTypeId' => 'required|int|exists:membership_types,membership_type_id',
+            'monthlySalary' => 'required|numeric|min:0',
+            'firstName' => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
+            'middleName' => ['nullable', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
+            'lastName' => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
             'genderId' => 'required|int|exists:setup_genders,gender_id',
             'emailAddress' => 'required|string|email|unique:users,email',
-            'mobileNumber' => ['required', 'string', 'unique:users,mobile_number', 'regex:/^\+?[1-9]\d{1,14}$/',],
+            'mobileNumber' => ['required', 'string', 'unique:users,mobile_number', 'regex:/^\+?[1-9]\d{1,14}$/'],
             'homeAddress' => 'nullable|string'
         ]);
 
         $admin = Auth::guard('admin')->user();
         $userId = SetupCounter::generateCustomId('USER');
         User::create([
-            'user_id'      => $userId,
-            'title_id'      => $request->titleId,
-            'first_name'    => strtoupper($request->firstName),
-            'middle_name'   => strtoupper($request->middleName),
-            'last_name'     => strtoupper($request->lastName),
-            'gender_id'     => $request->genderId,
-            'email'         => strtolower($request->emailAddress),
+            'user_id' => $userId,
+            'title_id' => $request->titleId,
+            'staff_category_id' => $request->staffCategoryId,
+            'membership_type_id' => $request->membershipTypeId,
+            'first_name' => strtoupper($request->firstName),
+            'middle_name' => strtoupper($request->middleName),
+            'last_name' => strtoupper($request->lastName),
+            'gender_id' => $request->genderId,
+            'email' => strtolower($request->emailAddress),
             'mobile_number' => $request->mobileNumber,
-            'home_address'  => strtoupper($request->homeAddress),
-            'created_by'    => $admin->staff_id ?? $userId,
+            'home_address' => strtoupper($request->homeAddress),
+            'monthly_salary' => $request->monthlySalary,
+            'created_by' => $admin->staff_id ?? $userId,
+            'updated_by' => $admin->staff_id ?? $userId,
             'password'      => $userId,
         ]);
         ClearCacheService::clearListCache('user_list');
@@ -134,24 +141,24 @@ class UserManagementController extends Controller
             'middleName'    => ['nullable', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
             'lastName'      => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
             'genderId' => 'required|int|exists:setup_genders,gender_id',
-            'emailAddress' => 'required|string|email|unique:users,email,'.$id.',user_id',
-            'mobileNumber' => ['required','string','unique:users,mobile_number,'.$id.',user_id','regex:/^\+?[1-9]\d{1,14}$/',],
+            'emailAddress' => 'required|string|email|unique:users,email,' . $id . ',user_id',
+            'mobileNumber' => ['required', 'string', 'unique:users,mobile_number,' . $id . ',user_id', 'regex:/^\+?[1-9]\d{1,14}$/',],
             'homeAddress' => 'required|string',
         ]);
 
         $staff = Auth::guard('admin')->user();
         $updateUser->update([
             'title_id'     => $request->titleId,
-            'first_name'   => strtoupper( $request->firstName),
-            'middle_name'  =>strtoupper ($request->middleName),
-            'last_name'    =>strtoupper($request->lastName),
+            'first_name'   => strtoupper($request->firstName),
+            'middle_name'  => strtoupper($request->middleName),
+            'last_name'    => strtoupper($request->lastName),
             'gender_id'    => $request->genderId,
             'email'        => strtolower($request->emailAddress),
-            'mobile_number'=> $request->mobileNumber,
+            'mobile_number' => $request->mobileNumber,
             'home_address' => strtoupper($request->homeAddress),
             'updated_by'   => $staff->staff_id ?? $id,
         ]);
-        
+
         ClearCacheService::clearListCache('user_list');
         Cache::forget("user_profile_{$id}");
         return response()->json([
@@ -159,5 +166,4 @@ class UserManagementController extends Controller
             'message' => 'User updated successfully',
         ], 200);
     }
-
 }

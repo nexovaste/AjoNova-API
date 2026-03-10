@@ -11,19 +11,21 @@ class Wallet extends Model
     protected $primaryKey = 'wallet_id';
     protected $fillable = [
         'user_id',
-        'balance',
+        'savings_balance',
+        'outstanding_loan_balance',
         'locked_balance',
         'status_id',
+    ];
+
+      protected $casts = [
+        'savings_balance' => 'decimal:2',
+        'outstanding_loan_balance' => 'decimal:2',
+        'locked_balance' => 'decimal:2',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
-    }
-
-    public function ledgerEntries()
-    {
-        return $this->hasMany(LedgerEntry::class, 'wallet_id', 'wallet_id');
     }
 
     public function status()

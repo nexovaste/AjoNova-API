@@ -9,9 +9,10 @@ class PaymentChannelTypeSeeder extends Seeder
     public function run(): void
     {
         $channels = [
+            'SALARY',
             'CASH',
             'BANK_TRANSFER',
-            'POS',
+            'MANUAL',
             'USSD',
             'ONLINE_PAYMENT',
             'MOBILE_WALLET',
