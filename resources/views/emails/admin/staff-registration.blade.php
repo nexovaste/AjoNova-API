@@ -210,7 +210,7 @@
             .header-title { font-size: 22px; }
             .logo-cell img { width: 65px; }
             .email-body { padding: 35px 25px; }
-            .password-text { font-size: 24px; letter-spacing: 2px; }
+            .password-text { font-size: 18px; letter-spacing: 2px; }
         }
     </style>
 </head>
