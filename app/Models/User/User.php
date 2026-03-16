@@ -6,16 +6,11 @@ use App\Models\Admin\Guarantor;
 use App\Models\Admin\Loan;
 use App\Models\Admin\MemberContribution;
 use App\Models\Admin\MemberTargetSaving;
-<<<<<<< HEAD
 use App\Models\Admin\Wallet;
 use App\Models\Setup\SetupGender;
 use App\Models\Setup\SetupLga;
 use App\Models\Setup\SetupStatus;
 use App\Models\Setup\SetupTitle;
-=======
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
->>>>>>> develop
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -24,10 +19,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
-<<<<<<< HEAD
     protected $guard_name = 'user';
-=======
->>>>>>> develop
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     protected $keyType = 'string';
