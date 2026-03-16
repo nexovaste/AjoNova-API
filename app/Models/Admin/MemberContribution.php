@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin;
 
+use App\Models\Setup\PaymentChannelType;
 use App\Models\User\User;
 use Predis\Response\Status;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ class MemberContribution extends Model
         'user_id',
         'amount',
         'contribution_date',
+        'payment_channel_type_id',
         'contribution_month',
         'contribution_year',
         'reference',
@@ -38,7 +40,12 @@ class MemberContribution extends Model
 
     public function ledger()
     {
-        return $this->belongsTo(LedgerEntry::class, 'ledger_entry_id');
+        return $this->belongsTo(LedgerEntry::class, 'ledger_entry_id', 'ledger_entry_id');
+    }
+
+    public function paymentChannel()
+    {
+        return $this->belongsTo(PaymentChannelType::class, 'payment_channel_type_id', 'payment_channel_type_id');
     }
 
     public function scopeForMonth($query, $month, $year)

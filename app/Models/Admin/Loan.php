@@ -16,6 +16,8 @@ class Loan extends Model
         'interest_amount',
         'total_payable',
         'outstanding_balance',
+        'loan_reference',
+        'requested_at',
         'disbursed_at',
         'approved_by',
         'approved_at',

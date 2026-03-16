@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('loan_id');
             $table->string('guarantor_user_id');
             $table->decimal('guaranteed_amount', 14, 2);
+            $table->dateTime('approved_at')->nullable();
             $table->unsignedBigInteger('status_id');
             $table->timestamps();
 

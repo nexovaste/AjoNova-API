@@ -14,6 +14,7 @@ class Guarantor extends Model
         'loan_id',
         'guarantor_user_id',
         'guaranteed_amount',
+        'approved_at',
         'status_id',
     ];
 

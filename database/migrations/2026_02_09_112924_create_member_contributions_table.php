@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->decimal('amount', 14, 2);
             $table->date('contribution_date');
+            $table->unsignedBigInteger('payment_channel_type_id')->nullable();
             $table->unsignedTinyInteger('contribution_month')->storedAs('MONTH(contribution_date)');
             $table->unsignedSmallInteger('contribution_year')->storedAs('YEAR(contribution_date)');
             $table->string('reference')->unique();
@@ -28,6 +29,7 @@ return new class extends Migration
             $table->index(['user_id', 'contribution_date']);
             $table->index(['status_id', 'contribution_date']);
             $table->foreign('user_id')->references('user_id')->on('users')->OnDelete('restrict')->OnUpdate('cascade');
+            $table->foreign('payment_channel_type_id')->references('payment_channel_type_id')->on('payment_channel_types')->OnDelete('restrict')->OnUpdate('cascade');
             $table->foreign('status_id')->references('status_id')->on('setup_statuses')->OnDelete('restrict')->OnUpdate('cascade');
         });
     }
