@@ -16,6 +16,8 @@ class LoanPolicy extends Model
         'min_duration_months',
         'max_duration_months',
         'interest_rate',
+        'processing_fee',
+        'penalty_rate',
         'eligibility_months',
         'allow_multiple_loans',
         'status_id',

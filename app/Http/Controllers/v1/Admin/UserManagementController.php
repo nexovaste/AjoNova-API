@@ -97,7 +97,7 @@ class UserManagementController extends Controller
             'monthly_salary' => $request->monthlySalary,
             'created_by' => $admin->staff_id ?? $userId,
             'updated_by' => $admin->staff_id ?? $userId,
-            'password'      => $userId,
+            'password'      =>$request->lastName . '123',
         ]);
         
         $titleName = Config::getTitleNameById($user->title_id);

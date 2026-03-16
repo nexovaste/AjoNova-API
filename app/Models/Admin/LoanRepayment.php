@@ -20,6 +20,8 @@ class LoanRepayment extends Model
         'status_id',
         'payment_reference',
         'payment_channel_type_id',
+        'ledger_entry_id',
+        'processed_by',
     ];
 
     protected $casts = [
@@ -34,9 +36,14 @@ class LoanRepayment extends Model
         return $this->belongsTo(Loan::class, 'loan_id', 'loan_id');
     }
 
+    public function ledgerEntry()
+    {
+        return $this->belongsTo(LedgerEntry::class, 'ledger_entry_id', 'ledger_entry_id');
+    }
+
     public function paymentChannel()
     {
-        return $this->belongsTo(PaymentChannelType::class, 'payment_channel_type_id');
+        return $this->belongsTo(PaymentChannelType::class, 'payment_channel_type_id', 'payment_channel_type_id');
     }
 
     public function status()

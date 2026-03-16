@@ -17,6 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('min_duration_months');
             $table->unsignedBigInteger('max_duration_months');
             $table->decimal('interest_rate', 5, 2); // 10%
+            $table->decimal('processing_fee', 5, 2)->default(0)->nullable();
+            $table->decimal('penalty_rate', 5, 2)->default(0)->nullable();
             $table->unsignedBigInteger('eligibility_months');
             $table->boolean('allow_multiple_loans')->default(false);
             $table->unsignedBigInteger('status_id')->default(1);

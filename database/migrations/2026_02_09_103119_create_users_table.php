@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('user_id')->primary();
             $table->string('membership_number')->unique()->nullable();
             $table->unsignedBigInteger('title_id');
-            $table->unsignedBigInteger('staff_category_id');
+            $table->unsignedBigInteger('staff_category_id')->nullable();
             $table->unsignedBigInteger('membership_type_id');
             $table->string('first_name');
             $table->string('middle_name')->nullable();
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('passport')->default('default.png')->nullable();
             $table->unsignedBigInteger('status_id')->default(1);
             $table->string('password');
-            $table->decimal('monthly_salary', 14, 2);
+            $table->decimal('monthly_salary', 14, 2)->nullable();
             $table->date('date_joined')->nullable();
             $table->date('date_exited')->nullable();
             $table->string('created_by');

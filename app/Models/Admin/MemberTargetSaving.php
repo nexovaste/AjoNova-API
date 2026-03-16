@@ -14,7 +14,7 @@ class MemberTargetSaving extends Model
         'target_name',
         'target_amount',
         'monthly_amount',
-        'current_balance',
+        'current_amount',
         'start_date',
         'end_date',
         'status_id',
