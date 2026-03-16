@@ -116,7 +116,7 @@
                 <table class="header-table" role="presentation">
                     <tr>
                         <td class="logo-cell">
-                            <img src="https://i.ibb.co/nMywS2Xc/Gemini-Generated-Image-xg0vfkxg0vfkxg0v.png" alt="Logo">
+                            <img src="https://i.postimg.cc/Pr5NqYc2/logo.png" alt="Logo">
                         </td>
                         <td class="title-cell">
                             <h1 class="header-title">Unity Cooperative</h1>

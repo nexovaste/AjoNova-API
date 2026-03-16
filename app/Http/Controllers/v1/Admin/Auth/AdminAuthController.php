@@ -274,10 +274,11 @@ class AdminAuthController extends Controller
                     'message' => 'Your account is suspended. Please contact support.'
                 ], 403);
             }
-            $fullName = $staff ? $staff->first_name . ' ' . $staff->last_name : null;
-            $titleName = Config::getTitleNameById($staff->title_id);
 
             if ($staff) {
+                $fullName = $staff ? $staff->first_name . ' ' . $staff->last_name : null;
+                $titleName = Config::getTitleNameById($staff->title_id);
+
                 $token = Password::createToken($staff);
                 $staff->notify(new ResetPasswordMail($token, Str::title($fullName), Str::title($titleName)));
             }
@@ -432,7 +433,6 @@ class AdminAuthController extends Controller
                 'success' => true,
                 'message' => 'Password change link has been sent to your email.',
             ], 200);
-
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,

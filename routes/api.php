@@ -32,7 +32,7 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware(['auth:admin', 'trust.device'])->group(function () {
             Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
-             Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
+            Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
             Route::apiResource('activities', ActivitiesController::class)->only(['index', 'show'])->middleware('permission:view activities');
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
@@ -46,10 +46,18 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('user')->group(function () {
-        Route::middleware('auth:user')->group(function () {
-            Route::post('auth/logout', [UserAuthController::class, 'logout']);
-            Route::get('auth/profile', [UserAuthController::class, 'fetchUserProfile']);
-            Route::post('auth/change-password', [UserAuthController::class, 'changePassword']);
+        Route::prefix('auth')->controller(UserAuthController::class)->group(function () {
+            Route::post('login', 'login')->middleware('throttle:5,1');
+            Route::post('verify-login-otp', 'verifyOtp')->middleware('throttle:5,1');
+            Route::post('reset-password', 'resetPassword')->middleware('throttle:5,1');
+            Route::post('resend-mail', 'resendPasswordResetLink')->middleware('throttle:5,1');
+            Route::post('finish-reset-password', 'finishResetPassword')->middleware('throttle:5,1');
+        });
+
+        Route::middleware(['auth:user', 'trust.device'])->group(function () {
+            Route::post('logout', [UserAuthController::class, 'logout']);
+            Route::get('user-profile', [UserAuthController::class, 'fetchProfile']);
+            Route::post('change-password', [UserAuthController::class, 'changePassword']);
             Route::apiResource('update', UserManagementController::class)->only(['update', 'store']);
             Route::post('user-passport/{id}', [UserPassportController::class, 'update']);
         });
