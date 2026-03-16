@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\UserResource;
 use App\Models\Setup\SetupCounter;
 use App\Models\User\User;
+use App\Notifications\member\signupMail;
 use App\Services\Cache\ClearCacheService;
+use App\Services\Config;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class UserManagementController extends Controller
@@ -79,7 +82,7 @@ class UserManagementController extends Controller
 
         $admin = Auth::guard('admin')->user();
         $userId = SetupCounter::generateCustomId('USER');
-        User::create([
+        $user = User::create([
             'user_id' => $userId,
             'title_id' => $request->titleId,
             'staff_category_id' => $request->staffCategoryId,
@@ -96,11 +99,20 @@ class UserManagementController extends Controller
             'updated_by' => $admin->staff_id ?? $userId,
             'password'      => $userId,
         ]);
-        ClearCacheService::clearListCache('user_list');
+        
+        $titleName = Config::getTitleNameById($user->title_id);
+        $fullName = $request->lastName.' '.$request->firstName;
+        $user->notify(new signupMail(
+            Str::title($fullName),
+            Str::title($titleName),
+            $request->emailAddress,
+            $request->lastName
+        ));
+         ClearCacheService::clearListCache('user_list');
         return response()->json([
             'success'  => true,
             'message' => 'User created successfully',
-        ], 201);
+        ], 200);
     }
 
     // Display the specified resource.

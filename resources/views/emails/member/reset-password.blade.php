@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirm Password Change - Unity Co-op</title>
+    <title>Member Password Reset - Unity Co-op</title>
     <style>
         /* General Reset */
         body, html {
@@ -29,7 +29,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;
         }
 
-        /* Gradient Header - Brand Consistent */
+        /* Gradient Header */
         .email-header {
             background: linear-gradient(135deg, #1e3a1a 0%, #2d5a27 100%);
             padding: 35px;
@@ -51,19 +51,18 @@
             text-transform: uppercase; letter-spacing: 6px; margin-top: 2px; display: block;
         }
 
-        /* Body Content */
+        /* Body - Left Aligned Text */
         .email-body { padding: 40px; text-align: left; }
         .email-body h2 { color: #0f172a; font-size: 24px; margin: 0 0 15px 0; font-weight: 700; }
-        .email-body p { color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
-        
-        .security-tag { color: #2d5a27; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: block; }
+        .salutation { color: #2d5a27; font-weight: 800; margin-bottom: 8px; display: block; }
+        .email-body p { color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 24px; }
 
-        /* Centered Button */
-        .btn-container { text-align: center; margin: 35px 0; }
+        /* Button - Centralized */
+        .btn-wrapper { text-align: center; margin: 35px 0; }
         .btn {
             display: inline-block;
-            background-color: #2d5a27 !important; 
-            padding: 16px 35px;
+            background-color: #2d5a27 !important;
+            padding: 16px 40px;
             border-radius: 8px;
             text-decoration: none !important;
             box-shadow: 0 4px 12px rgba(45, 90, 39, 0.2);
@@ -75,8 +74,8 @@
         }
 
         .timer-notice {
-            color: #be123c; font-size: 12px; font-weight: 700;
-            margin-top: 15px; display: block; text-align: center;
+            color: #c53030; font-size: 12px; font-weight: 700;
+            margin-top: 15px; display: block;
         }
 
         .footer {
@@ -98,7 +97,7 @@
 <body>
     <div class="email-wrapper">
         <div class="email-container">
-
+            
             <div class="email-header">
                 <table class="header-table" role="presentation">
                     <tr>
@@ -107,34 +106,38 @@
                         </td>
                         <td class="title-cell">
                             <h1 class="header-title">Unity Cooperative</h1>
-                            <span class="header-subtitle">Security Authentication</span>
+                            <span class="header-subtitle">Member Security</span>
                         </td>
                     </tr>
                 </table>
             </div>
 
             <div class="email-body">
-                <span class="security-tag">Security Confirmation</span>
-                <p>Hello <strong>{{ $title }}. {{ $fullName }}</strong>,</p>
-                
-                <h2>Confirm Password Change</h2>
-                <p>A request has been initiated to modify the password for your administrative portal access. Please confirm this action by clicking the secure link below:</p>
+                <span class="salutation">Dear, {{ $title }}. {{ $fullName }},</span>
+                <h2>Reset Your Password</h2>
+                <p>We received a request to reset the password for your Unity Cooperative member account. To ensure your financial records remain secure, please click the button below to create a new password.</p>
 
-                <div class="btn-container">
+                <div class="btn-wrapper">
                     <a href="{{ $url }}" class="btn">
-                        <span class="btn-text">Confirm & Set Password</span>
+                        <span class="btn-text">Set New Password</span>
                     </a>
-                    <span class="timer-notice">⏱ Security link expires in 10 minutes</span>
+                    <span class="timer-notice">⏱ This link is valid for 10 minutes</span>
                 </div>
 
                 <p style="font-size: 14px; color: #64748b; font-style: italic;">
-                    <strong>Notice:</strong> If you did not authorize this change, please ignore this email or alert the systems administrator immediately to secure your credentials.
+                    If you did not make this request, your account is still secure. You can safely ignore this email.
+                </p>
+                
+                <p style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                    Kind regards,<br>
+                    <strong>Unity Member Services</strong>
                 </p>
             </div>
 
             <div class="footer">
                 &copy; {{ date('Y') }} <b>Unity Cooperative Society</b><br>
                 Strength in Community & Growth<br>
+                Member Protection Services
             </div>
 
         </div>

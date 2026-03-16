@@ -11,10 +11,13 @@ use App\Models\Setup\SetupGender;
 use App\Models\Setup\SetupStatus;
 use App\Models\Admin\MemberContribution;
 use App\Models\Admin\MemberTargetSaving;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
+    use HasApiTokens, Notifiable;
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -57,6 +60,7 @@ class User extends Authenticatable
         'date_joined' => 'date',
         'date_exited' => 'date',
         'last_login_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     public function title()
