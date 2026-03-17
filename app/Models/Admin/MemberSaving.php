@@ -7,18 +7,15 @@ use App\Models\User\User;
 use Predis\Response\Status;
 use Illuminate\Database\Eloquent\Model;
 
-class MemberContribution extends Model
+class MemberSaving extends Model
 {
-    protected $primaryKey = 'member_contribution_id';
+    protected $primaryKey = 'member_saving_id';
 
     protected $fillable = [
         'user_id',
-        'contribution_amount',
-        'contribution_date',
+        'saving_amount',
+        'saving_date',
         'payment_channel_type_id',
-        'contribution_month',
-        'contribution_year',
-        'contribution_period',
         'reference',
         'ledger_entry_id',
         'status_id',
@@ -26,7 +23,7 @@ class MemberContribution extends Model
     ];
 
     protected $casts = [
-        'contribution_date' => 'date',
+        'saving_date' => 'date',
     ];
 
     public function user()
@@ -48,6 +45,4 @@ class MemberContribution extends Model
     {
         return $this->belongsTo(PaymentChannelType::class, 'payment_channel_type_id', 'payment_channel_type_id');
     }
-
-
 }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('amount', 14, 2);
             $table->decimal('balance_before', 14, 2);
             $table->decimal('balance_after', 14, 2);
-            $table->string('reference')->unique();
+            $table->string('reference')->unique()->nullable();
             $table->text('description')->nullable();
             $table->string('created_by');
             $table->timestamps();

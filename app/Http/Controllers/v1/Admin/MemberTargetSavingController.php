@@ -5,9 +5,9 @@ namespace App\Http\Controllers\v1\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class ContributionController extends Controller
+class MemberTargetSavingController extends Controller
 {
-   // Display a listing of the resource.
+    // Display a listing of the resource.
     public function index()
     {
         //

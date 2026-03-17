@@ -4,14 +4,18 @@ namespace App\Http\Controllers\v1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\UserResource;
+use App\Models\Admin\MemberContributionSaving;
+use App\Models\Admin\MemberTargetSaving;
+use App\Models\Admin\Wallet;
 use App\Models\Setup\SetupCounter;
 use App\Models\User\User;
-use App\Notifications\member\signupMail;
+use App\Notifications\Member\signupMail;
 use App\Services\Cache\ClearCacheService;
 use App\Services\Config;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -67,50 +71,101 @@ class UserManagementController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'titleId' => 'required|int|exists:setup_titles,title_id',
-            'staffCategoryId' => 'required|int|exists:staff_categories,staff_category_id',
-            'membershipTypeId' => 'required|int|exists:membership_types,membership_type_id',
+            // ================= MEMBER =================
+            'titleId' => 'required|integer|exists:setup_titles,title_id',
+            'staffCategoryId' => 'required|integer|exists:staff_categories,staff_category_id',
+            'membershipTypeId' => 'required|integer|exists:membership_types,membership_type_id',
             'monthlySalary' => 'required|numeric|min:0',
             'firstName' => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
             'middleName' => ['nullable', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
             'lastName' => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
-            'genderId' => 'required|int|exists:setup_genders,gender_id',
-            'emailAddress' => 'required|string|email|unique:users,email',
+            'genderId' => 'required|integer|exists:setup_genders,gender_id',
+            'emailAddress' => 'required|string|email|max:255|unique:users,email',
             'mobileNumber' => ['required', 'string', 'unique:users,mobile_number', 'regex:/^\+?[1-9]\d{1,14}$/'],
-            'homeAddress' => 'nullable|string'
+            'homeAddress' => 'nullable|string|max:255',
+            // ================= MEMBER CONTRIBUTION SAVINGS=================
+            'contributionAmount' => 'nullable|numeric|min:0',
+            'savingAmount' => 'nullable|numeric|min:0',
+
+            // ================= TARGET SAVINGS =================
+            'targetName' => 'nullable|string|max:100',
+            'targetAmount' => 'nullable|numeric|min:0',
+            'monthlyAmount' => 'nullable|numeric|min:0',
+            'currentAmount' => 'nullable|numeric|min:0',
+            'startDate' => 'nullable|date',
+            'endDate' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         $admin = Auth::guard('admin')->user();
-        $userId = SetupCounter::generateCustomId('USER');
-        $user = User::create([
-            'user_id' => $userId,
-            'title_id' => $request->titleId,
-            'staff_category_id' => $request->staffCategoryId,
-            'membership_type_id' => $request->membershipTypeId,
-            'first_name' => strtoupper($request->firstName),
-            'middle_name' => strtoupper($request->middleName),
-            'last_name' => strtoupper($request->lastName),
-            'gender_id' => $request->genderId,
-            'email' => strtolower($request->emailAddress),
-            'mobile_number' => $request->mobileNumber,
-            'home_address' => strtoupper($request->homeAddress),
-            'monthly_salary' => $request->monthlySalary,
-            'created_by' => $admin->staff_id ?? $userId,
-            'updated_by' => $admin->staff_id ?? $userId,
-            'password'      =>$request->lastName . '123',
-        ]);
-        
-        $titleName = Config::getTitleNameById($user->title_id);
-        $fullName = $request->lastName.' '.$request->firstName;
-        $user->notify(new signupMail(
-            Str::title($fullName),
-            Str::title($titleName),
-            $request->emailAddress,
-            $request->lastName
-        ));
-         ClearCacheService::clearListCache('user_list');
+        DB::transaction(function () use ($request, $admin, &$user) {
+
+            $userId = SetupCounter::generateCustomId('MEM');
+            $user = User::create([
+                'user_id' => $userId,
+                'title_id' => $request->titleId,
+                'staff_category_id' => $request->staffCategoryId,
+                'membership_type_id' => $request->membershipTypeId,
+                'first_name' => strtoupper($request->firstName),
+                'middle_name' => strtoupper($request->middleName),
+                'last_name' => strtoupper($request->lastName),
+                'gender_id' => $request->genderId,
+                'email' => strtolower($request->emailAddress),
+                'mobile_number' => $request->mobileNumber,
+                'home_address' => strtoupper($request->homeAddress),
+                'monthly_salary' => $request->monthlySalary,
+                'created_by' => $admin->staff_id ?? $userId,
+                'updated_by' => $admin->staff_id ?? $userId,
+                'password' => $request->lastName . '123',
+            ]);
+
+            if ($request->membershipTypeId == 1) {
+                $request->validate([
+                    'contributionAmount' => 'required|numeric|min:0',
+                ]);
+                MemberContributionSaving::create([
+                    'user_id' => $userId,
+                    'contribution_amount' => $request->contributionAmount,
+                    'saving_amount' => $request->savingAmount,
+                    'created_by' => $admin->staff_id ?? $userId,
+                ]);
+            }
+
+            if ($request->membershipTypeId == 2) {
+                $request->validate([
+                    'savingAmount' => 'required|numeric|min:0',
+                ]);
+            }
+
+            if ($request->target_name) {
+                MemberTargetSaving::create([
+                    'user_id' => $userId,
+                    'target_name' => $request->targetName,
+                    'target_amount' => $request->targetAmount,
+                    'monthly_amount' => $request->monthlyAmount,
+                    'current_amount' => $request->currentAmount ?? 0,
+                    'start_date' => $request->startDate,
+                    'end_date' => $request->endDate,
+                    'created_by' => $admin->staff_id ?? $userId,
+                ]);
+            }
+
+            Wallet::create([
+                'user_id' => $userId,
+            ]);
+
+            $titleName = Config::getTitleNameById($user->title_id);
+            $fullName = $request->lastName . ' ' . $request->firstName;
+            $user->notify(new signupMail(
+                Str::title($fullName),
+                Str::title($titleName),
+                $request->emailAddress,
+                $request->lastName
+            ));
+        });
+        ClearCacheService::clearListCache('user_list');
+
         return response()->json([
-            'success'  => true,
+            'success' => true,
             'message' => 'User created successfully',
         ], 200);
     }

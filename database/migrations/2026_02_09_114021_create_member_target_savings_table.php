@@ -14,8 +14,8 @@ return new class extends Migration
             $table->string('user_id')->index();
             $table->string('target_name');
             $table->decimal('target_amount', 14, 2);
-            $table->decimal('monthly_amount', 12, 2)->nullable(); // advisory only
-            $table->decimal('current_amount',14,2)->default(0);
+            $table->decimal('monthly_amount', 12, 2)->default(0.00); // advisory only
+            $table->decimal('current_amount',14,2)->default(0.00);
             $table->date('start_date')->index();
             $table->date('end_date')->nullable()->index();
             $table->unsignedBigInteger('status_id')->index();

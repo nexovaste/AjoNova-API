@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('passport')->default('default.png')->nullable();
             $table->unsignedBigInteger('status_id')->default(1);
             $table->string('password');
-            $table->decimal('monthly_salary', 14, 2)->nullable();
+            $table->decimal('monthly_salary', 14, 2);
             $table->date('date_joined')->nullable();
             $table->date('date_exited')->nullable();
             $table->string('created_by');

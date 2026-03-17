@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('interest_amount', 14, 2);
             $table->decimal('total_payable', 14, 2);
             $table->decimal('outstanding_balance', 14, 2);
-            $table->string('loan_reference')->unique();
+            $table->string('loan_reference')->unique()->nullable();
             $table->dateTime('requested_at')->nullable();
             $table->date('disbursed_at')->nullable();
             $table->string('approved_by')->nullable();
