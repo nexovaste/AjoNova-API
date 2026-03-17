@@ -14,7 +14,7 @@ class MembershipTypeSeeder extends Seeder
     {
         $genders = [
             ['membership_type_name' => 'MEMBER'],
-            ['membership_type_name' => 'NON-MEMBER'],
+            ['membership_type_name' => 'NON-MEMBER (SAVINGS ONLY)'],
         ];
 
         MembershipType::insertOrIgnore($genders);

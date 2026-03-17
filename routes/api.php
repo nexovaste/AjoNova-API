@@ -41,8 +41,8 @@ Route::prefix('v1')->group(function () {
             Route::post('logout', [AdminAuthController::class, 'logout']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
-//         Route::apiResource('role', RoleController::class);
-//         Route::apiResource('staff', AdminController::class);
+        Route::apiResource('role', RoleController::class);
+        Route::apiResource('staff', AdminController::class);
     });
 
     Route::prefix('user')->group(function () {

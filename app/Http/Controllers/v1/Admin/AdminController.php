@@ -84,7 +84,7 @@ class AdminController extends Controller
         ]);
 
         $admin = Auth::guard('admin')->user();
-        $staffId = SetupCounter::generateCustomId('STAFF');
+        $staffId = SetupCounter::generateCustomId('STFF');
         $staff = Staff::create([
             'staff_id'      => $staffId,
             'title_id'      => $request->titleId,

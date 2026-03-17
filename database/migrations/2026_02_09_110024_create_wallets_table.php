@@ -12,8 +12,9 @@ return new class extends Migration
         Schema::create('wallets', function (Blueprint $table) {
             $table->id('wallet_id');
             $table->string('user_id')->unique(); // One wallet per member
-            $table->decimal('savings_balance', 14, 2)->default(0.00);
-            $table->decimal('total_contributions',14,2)->default(0);
+            $table->decimal('total_saving_amount', 14, 2)->default(0.00);
+            $table->decimal('total_target_amount', 14, 2)->default(0.00);
+            $table->decimal('total_contributions', 14, 2)->default(0);
             $table->decimal('outstanding_loan_balance', 14, 2)->default(0.00);
             $table->decimal('locked_balance', 14, 2)->default(0.00);
             $table->unsignedBigInteger('status_id')->default(1);

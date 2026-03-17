@@ -11,14 +11,15 @@ class Wallet extends Model
     protected $primaryKey = 'wallet_id';
     protected $fillable = [
         'user_id',
-        'savings_balance',
+        'total_saving_amount',
+        'total_target_amount',
         'total_contributions',
         'outstanding_loan_balance',
         'locked_balance',
         'status_id',
     ];
 
-      protected $casts = [
+    protected $casts = [
         'savings_balance' => 'decimal:2',
         'outstanding_loan_balance' => 'decimal:2',
         'locked_balance' => 'decimal:2',
