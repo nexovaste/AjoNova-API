@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('current_amount',14,2)->default(0.00);
             $table->date('start_date')->index();
             $table->date('end_date')->nullable()->index();
-            $table->unsignedBigInteger('status_id')->index();
+            $table->unsignedBigInteger('status_id')->default(1)->index();
             $table->timestamps();
             $table->softDeletes();
 
