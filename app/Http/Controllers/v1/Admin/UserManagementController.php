@@ -83,17 +83,25 @@ class UserManagementController extends Controller
             'emailAddress' => 'required|string|email|max:255|unique:users,email',
             'mobileNumber' => ['required', 'string', 'unique:users,mobile_number', 'regex:/^\+?[1-9]\d{1,14}$/'],
             'homeAddress' => 'nullable|string|max:255',
-            // ================= MEMBER CONTRIBUTION SAVINGS=================
-            'contributionAmount' => 'nullable|numeric|min:0',
-            'savingAmount' => 'nullable|numeric|min:0',
-
+            // ================= MEMBER CONTRIBUTION SAVINGS =================
+            'contributionAmount' => 'required_if:membershipTypeId,1|numeric|min:0',
+            'savingAmount' => 'required_if:membershipTypeId,2|numeric|min:0',
             // ================= TARGET SAVINGS =================
             'targetName' => 'nullable|string|max:100',
-            'targetAmount' => 'nullable|numeric|min:0',
-            'monthlyAmount' => 'nullable|numeric|min:0',
-            'currentAmount' => 'nullable|numeric|min:0',
-            'startDate' => 'nullable|date',
-            'endDate' => 'nullable|date|after_or_equal:start_date',
+            'targetAmount' => 'required_with:targetName|numeric|min:0',
+            'monthlyAmount' => 'required_with:targetName|numeric|min:0',
+            'startDate' => 'required_with:targetName|date',
+            'endDate' => 'required_with:targetName|date|after_or_equal:startDate',
+
+        ], [
+            // ================= CUSTOM MESSAGES =================
+            'contributionAmount.required_if' => 'Contribution amount is required when the selected membership type requires contributions.',
+            'savingAmount.required_if' => 'Savings amount is required when the selected membership type requires savings.',
+
+            'targetAmount.required_with' => 'Target amount is required when target name is provided.',
+            'monthlyAmount.required_with' => 'Monthly amount is required when target name is provided.',
+            'startDate.required_with' => 'Start date is required when target name is provided.',
+            'endDate.required_with' => 'End date is required when target name is provided.',
         ]);
 
         $admin = Auth::guard('admin')->user();
@@ -119,9 +127,6 @@ class UserManagementController extends Controller
             ]);
 
             if ($request->membershipTypeId == 1) {
-                $request->validate([
-                    'contributionAmount' => 'required|numeric|min:0',
-                ]);
                 MemberContributionSaving::create([
                     'user_id' => $userId,
                     'contribution_amount' => $request->contributionAmount,
@@ -131,18 +136,19 @@ class UserManagementController extends Controller
             }
 
             if ($request->membershipTypeId == 2) {
-                $request->validate([
-                    'savingAmount' => 'required|numeric|min:0',
+                MemberContributionSaving::create([
+                    'user_id' => $userId,
+                    'saving_amount' => $request->savingAmount,
+                    'created_by' => $admin->staff_id ?? $userId,
                 ]);
             }
 
-            if ($request->target_name) {
+            if ($request->targetName) {
                 MemberTargetSaving::create([
                     'user_id' => $userId,
                     'target_name' => $request->targetName,
                     'target_amount' => $request->targetAmount,
                     'monthly_amount' => $request->monthlyAmount,
-                    'current_amount' => $request->currentAmount ?? 0,
                     'start_date' => $request->startDate,
                     'end_date' => $request->endDate,
                     'created_by' => $admin->staff_id ?? $userId,
