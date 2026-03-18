@@ -3,6 +3,8 @@
 use App\Http\Controllers\v1\Admin\ActivitiesController;
 use App\Http\Controllers\v1\Admin\AdminController;
 use App\Http\Controllers\v1\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\v1\Admin\LoanPolicyController;
+use App\Http\Controllers\v1\Admin\MemberContributionController;
 use App\Http\Controllers\v1\Admin\RoleController;
 use App\Http\Controllers\v1\Admin\StaffPassportController;
 use App\Http\Controllers\v1\Admin\UserManagementController;
@@ -39,6 +41,8 @@ Route::prefix('v1')->group(function () {
             Route::post('staff-passport/{id}', [StaffPassportController::class, 'update']);
             Route::get('fetch-profile', [AdminAuthController::class, 'fetchProfile']);
             Route::post('logout', [AdminAuthController::class, 'logout']);
+            Route::apiResource('loan-policies', LoanPolicyController::class)->except(['destroy']);
+            Route::apiResource('member-monthly-contributions', MemberContributionController::class)->except(['destroy']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
         Route::apiResource('role', RoleController::class);
