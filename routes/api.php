@@ -31,8 +31,8 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware(['auth:admin', 'trust.device'])->group(function () {
-            Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
-            Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
+            // Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
+            // Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
             Route::apiResource('activities', ActivitiesController::class)->only(['index', 'show'])->middleware('permission:view activities');
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
