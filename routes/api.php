@@ -5,6 +5,8 @@ use App\Http\Controllers\v1\Admin\AdminController;
 use App\Http\Controllers\v1\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\v1\Admin\LoanPolicyController;
 use App\Http\Controllers\v1\Admin\MemberContributionController;
+use App\Http\Controllers\v1\Admin\MemberSavingController;
+use App\Http\Controllers\v1\Admin\MemberTargetSavingController;
 use App\Http\Controllers\v1\Admin\RoleController;
 use App\Http\Controllers\v1\Admin\StaffPassportController;
 use App\Http\Controllers\v1\Admin\UserManagementController;
@@ -33,8 +35,8 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware(['auth:admin', 'trust.device'])->group(function () {
-            // Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
-            // Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
+            Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
+            Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
             Route::apiResource('activities', ActivitiesController::class)->only(['index', 'show'])->middleware('permission:view activities');
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
@@ -43,10 +45,12 @@ Route::prefix('v1')->group(function () {
             Route::post('logout', [AdminAuthController::class, 'logout']);
             Route::apiResource('loan-policies', LoanPolicyController::class)->except(['destroy']);
             Route::apiResource('member-monthly-contributions', MemberContributionController::class)->except(['destroy']);
+            Route::apiResource('member-target-savings', MemberTargetSavingController::class)->except(['destroy']);
+            Route::apiResource('member-savings', MemberSavingController::class)->except(['destroy']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
-        Route::apiResource('role', RoleController::class);
-        Route::apiResource('staff', AdminController::class);
+        // Route::apiResource('role', RoleController::class);
+        // Route::apiResource('staff', AdminController::class);
     });
 
     Route::prefix('user')->group(function () {

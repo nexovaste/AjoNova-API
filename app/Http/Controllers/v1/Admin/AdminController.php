@@ -8,7 +8,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Jobs\ActivityLogJob;
 use Illuminate\Http\Request;
-use App\Jobs\StaffRegistrationJob;
 use App\Models\Setup\SetupCounter;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
