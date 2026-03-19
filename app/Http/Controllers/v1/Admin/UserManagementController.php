@@ -5,13 +5,14 @@ namespace App\Http\Controllers\v1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\UserResource;
 use App\Models\Admin\MemberContributionSaving;
-use App\Models\Admin\MemberTargetSaving;
+use App\Models\Admin\MemberTargetSavingSetting;
 use App\Models\Admin\Wallet;
 use App\Models\Setup\SetupCounter;
 use App\Models\User\User;
 use App\Notifications\Member\signupMail;
 use App\Services\Cache\ClearCacheService;
 use App\Services\Config;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -89,17 +90,16 @@ class UserManagementController extends Controller
             // ================= TARGET SAVINGS =================
             'targetName' => 'nullable|string|max:100',
             'targetAmount' => 'required_with:targetName|numeric|min:0',
-            'monthlyAmount' => 'required_with:targetName|numeric|min:0',
             'startDate' => 'required_with:targetName|date',
-            'endDate' => 'required_with:targetName|date|after_or_equal:startDate',
+            'durationMonths' => 'required_with:targetName|integer|min:1',
 
         ], [
             // ================= CUSTOM MESSAGES =================
             'contributionAmount.required_if' => 'Contribution amount is required when the selected membership type requires contributions.',
             'savingAmount.required_if' => 'Savings amount is required when the selected membership type requires savings.',
+            'durationMonths.required_with' => 'Duration in months is required when target name is provided.',
 
             'targetAmount.required_with' => 'Target amount is required when target name is provided.',
-            'monthlyAmount.required_with' => 'Monthly amount is required when target name is provided.',
             'startDate.required_with' => 'Start date is required when target name is provided.',
             'endDate.required_with' => 'End date is required when target name is provided.',
         ]);
@@ -143,14 +143,21 @@ class UserManagementController extends Controller
                 ]);
             }
 
+
             if ($request->targetName) {
-                MemberTargetSaving::create([
+                $startDate = Carbon::parse($request->start_date);
+                $duration = (int) $request->durationMonths;
+                $endDate = $startDate->copy()->addMonths($duration)->subDay();
+
+                $monthlyAmount = $request->targetAmount / $request->durationMonths ?? 0.00;
+                MemberTargetSavingSetting::create([
                     'user_id' => $userId,
                     'target_name' => $request->targetName,
                     'target_amount' => $request->targetAmount,
-                    'monthly_amount' => $request->monthlyAmount,
+                    'duration_months' => $request->durationMonths,
+                    'monthly_amount' => $monthlyAmount,
                     'start_date' => $request->startDate,
-                    'end_date' => $request->endDate,
+                    'end_date' => $endDate,
                     'created_by' => $admin->staff_id ?? $userId,
                 ]);
             }

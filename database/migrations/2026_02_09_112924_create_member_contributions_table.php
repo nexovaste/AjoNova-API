@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->decimal('contribution_amount', 14, 2);
             $table->date('contribution_date');
-            $table->unsignedBigInteger('payment_channel_type_id')->nullable();
+            $table->unsignedBigInteger('payment_channel_type_id')->default(1);
             $table->unsignedTinyInteger('contribution_month')->storedAs('MONTH(contribution_date)');
             $table->unsignedSmallInteger('contribution_year')->storedAs('YEAR(contribution_date)');
             $table->string('contribution_period')->storedAs("DATE_FORMAT(contribution_date, '%M %Y')");

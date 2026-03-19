@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+
 class MemberSavingController extends Controller
 {
     // Display a listing of the resource.
@@ -33,10 +34,10 @@ class MemberSavingController extends Controller
 
                 $user = User::where('user_id', $userId)->first();
 
-                WalletService::deposit(
+                $ledgerEntry =  WalletService::deposit(
                     $userId,
                     $savingAmount,
-                    Str::uuid(),
+                    null,
                     'Monthly savings deposit for user ' . $user->first_name . ' ' . $user->last_name . ' for ' . now()->format('F Y'),
                     'SAVINGS_DEPOSIT'
                 );
@@ -46,6 +47,9 @@ class MemberSavingController extends Controller
                     'saving_amount' => $savingAmount,
                     'saving_date' => now(),
                     'status_id' => 21,
+                    'ledger_entry_id' => $ledgerEntry->ledger_entry_id,
+                    'reference' => $ledgerEntry->reference,
+                    'processed_by' => $ledgerEntry->created_by,
                 ]);
 
                 return response()->json([
@@ -62,7 +66,7 @@ class MemberSavingController extends Controller
     }
 
     // Display the specified resource.
-    
+
     public function show(string $id)
     {
         //
