@@ -33,7 +33,7 @@ class MemberContributionController extends Controller
 
                 $user = User::where('user_id', $userId)->first();
 
-                WalletService::deposit(
+                $ledgerEntry = WalletService::deposit(
                     $userId,
                     $contributionAmount,
                     null,
@@ -45,6 +45,9 @@ class MemberContributionController extends Controller
                     'contribution_amount' => $contributionAmount,
                     'contribution_date' => now(),
                     'status_id' => 21,
+                    'ledger_entry_id' => $ledgerEntry->ledger_entry_id,
+                    'reference' => $ledgerEntry->reference,
+                    'processed_by' => $ledgerEntry->created_by,
                 ]);
 
                 return response()->json([

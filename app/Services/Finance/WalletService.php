@@ -13,8 +13,7 @@ class WalletService
     public static function deposit($userId, $amount, $reference = null, $description = null, $entryType = 'CONTRIBUTION_DEPOSIT')
     {
         $wallet = Wallet::where('user_id', $userId)
-            ->lockForUpdate()
-            ->firstOrFail();
+            ->lockForUpdate()->firstOrFail();
 
         if ($entryType === 'CONTRIBUTION_DEPOSIT') {
             $balanceBefore = $wallet->total_contributions;
@@ -34,7 +33,7 @@ class WalletService
 
         $wallet->save();
 
-        LedgerEntry::create([
+        $ledgerEntry = LedgerEntry::create([
             'user_id' => $userId,
             'wallet_id' => $wallet->wallet_id,
             'entry_type' => $entryType,
@@ -43,7 +42,10 @@ class WalletService
             'balance_after' => $balanceAfter,
             'reference' => $reference ?? Str::uuid(),
             'description' => $description,
-            'created_by' => Auth::guard('admin')->user()->staff_id,
+            'transaction_type' => 'CREDIT',
+            'created_by' => Auth::guard('admin')->user()->staff_id ?? $userId,
         ]);
+
+        return $ledgerEntry;
     }
 }
