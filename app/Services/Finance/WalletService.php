@@ -13,8 +13,7 @@ class WalletService
     public static function deposit($userId, $amount, $reference = null, $description = null, $entryType = 'CONTRIBUTION_DEPOSIT')
     {
         $wallet = Wallet::where('user_id', $userId)
-            ->lockForUpdate()
-            ->firstOrFail();
+            ->lockForUpdate()->firstOrFail();
 
         if ($entryType === 'CONTRIBUTION_DEPOSIT') {
             $balanceBefore = $wallet->total_contributions;
