@@ -3,8 +3,8 @@
 namespace App\Models\Admin;
 
 use App\Models\Setup\PaymentChannelType;
+use App\Models\Setup\SetupStatus;
 use App\Models\User\User;
-use Predis\Response\Status;
 use Illuminate\Database\Eloquent\Model;
 
 class MemberContribution extends Model
@@ -34,9 +34,9 @@ class MemberContribution extends Model
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
-    public function status()
+     public function status()
     {
-        return $this->belongsTo(Status::class, 'status_id', 'status_id');
+        return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
 
     public function ledger()
