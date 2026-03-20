@@ -35,4 +35,3 @@ class Wallet extends Model
         return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
 }
-

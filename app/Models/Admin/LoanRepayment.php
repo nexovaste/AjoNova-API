@@ -2,9 +2,9 @@
 
 namespace App\Models\Admin;
 
-use App\Models\Setup\PaymentChannelType;
-use App\Models\Setup\SetupStatus;
+use Predis\Response\Status;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Setup\PaymentChannelType;
 
 class LoanRepayment extends Model
 {
@@ -46,9 +46,9 @@ class LoanRepayment extends Model
         return $this->belongsTo(PaymentChannelType::class, 'payment_channel_type_id', 'payment_channel_type_id');
     }
 
-     public function status()
+    public function status()
     {
-        return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
+        return $this->belongsTo(Status::class, 'status_id', 'status_id');
     }
 
     public function scopeForLoan($query, $loanId)

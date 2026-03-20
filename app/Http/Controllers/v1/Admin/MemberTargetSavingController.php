@@ -35,7 +35,8 @@ class MemberTargetSavingController extends Controller
                     $userId,
                     $targetSettings->monthly_amount,
                     null,
-                    'Monthly target deposit for user ' . $user->first_name . ' ' . $user->last_name . ' for ' . now()->format('F Y')
+                    'Monthly target deposit for user ' . $user->first_name . ' ' . $user->last_name . ' for ' . now()->format('F Y'),
+                    'TARGET_DEPOSIT'
                 );
 
                 $startDate = Carbon::parse($targetSettings->start_date);

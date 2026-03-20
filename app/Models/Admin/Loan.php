@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models\Admin;
-use App\Models\Setup\SetupStatus;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,11 +42,6 @@ class Loan extends Model
     public function guarantors()
     {
         return $this->hasMany(Guarantor::class, 'loan_id');
-    }
-
-     public function status()
-    {
-        return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
 }
 

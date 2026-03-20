@@ -12,14 +12,13 @@ return new class extends Migration
         Schema::create('withdrawal_requests', function (Blueprint $table) {
             $table->id('withdrawal_request_id');
             $table->string('user_id')->index();
-            $table->string('withdrawal_type');// CONTRIBUTION, TARGET, COMPULSORY, LOCKED
+            $table->string('withdrawal_type'); // CONTRIBUTION, TARGET, COMPULSORY, LOCKED
             $table->decimal('amount', 14, 2);
-            $table->unsignedBigInteger('status_id')->default(5);// 1 = PENDING
+            $table->unsignedBigInteger('status_id')->default(5); // 1 = PENDING
             $table->text('reason')->nullable();
+            $table->string('attended_by')->nullable();
+            $table->dateTime('attended_at')->nullable();
             $table->dateTime('withdraw_at');
-            $table->string('approved_by')->nullable();
-            $table->dateTime('approved_at')->nullable();
-            $table->timestamps();
 
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('status_id')->references('status_id')->on('setup_statuses')->onDelete('restrict')->onUpdate('cascade');

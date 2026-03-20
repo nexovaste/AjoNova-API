@@ -44,7 +44,10 @@ Route::prefix('v1')->group(function () {
             Route::get('fetch-profile', [AdminAuthController::class, 'fetchProfile']);
             Route::post('logout', [AdminAuthController::class, 'logout']);
             Route::apiResource('loan-policies', LoanPolicyController::class)->except(['destroy']);
-            Route::apiResource('member-monthly-contributions', MemberContributionController::class)->except(['destroy']);
+            Route::post('deposit-contribution', [MemberContributionController::class, 'depositContribution']);
+            Route::get('fetch-all-contributions', [MemberContributionController::class, 'fetchAllContributions']);
+            Route::get('fetch-single-contribution/{id}', [MemberContributionController::class, 'fetchSingleContribution']);
+            Route::post('approve-withdrawal/{id}', [MemberContributionController::class, 'approveWithdrawal']);
             Route::apiResource('member-target-savings', MemberTargetSavingController::class)->except(['destroy']);
             Route::apiResource('member-savings', MemberSavingController::class)->except(['destroy']);
         });
@@ -68,6 +71,7 @@ Route::prefix('v1')->group(function () {
             Route::post('change-password', [UserAuthController::class, 'changePassword']);
             Route::apiResource('update', UserManagementController::class)->only(['update', 'store']);
             Route::post('user-passport/{id}', [UserPassportController::class, 'update']);
+            Route::post('withdraw-contribution', [MemberContributionController::class, 'withdrawContribution']);
         });
         Route::apiResource('signup', UserManagementController::class)->only('store');
     });
