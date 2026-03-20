@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('payment_channel_type_id')->default(1);
             $table->string('reference')->unique()->nullable();
             $table->unsignedBigInteger('ledger_entry_id')->nullable();
-            $table->unsignedBigInteger('status_id')->default(1)->index();
+            $table->unsignedBigInteger('status_id')->default(23)->index(); // SUCCESS
             $table->string('processed_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
