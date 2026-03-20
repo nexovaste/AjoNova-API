@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class WithdrawalRequest extends Model
 {
     protected $primaryKey = 'withdrawal_request_id';
+    public $timestamps = false;
 
     protected $fillable = [
         'user_id',
@@ -18,14 +19,14 @@ class WithdrawalRequest extends Model
         'status_id',
         'reason',
         'withdraw_at',
-        'approved_by',
-        'approved_at',
+        'attended_by',
+        'attended_at',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'withdraw_at' => 'datetime',
-        'approved_at' => 'datetime',
+        'attended_at' => 'datetime',
     ];
 
     public function user()
@@ -37,5 +38,4 @@ class WithdrawalRequest extends Model
     {
         return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
-
 }

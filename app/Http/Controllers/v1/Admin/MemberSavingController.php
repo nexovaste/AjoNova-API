@@ -21,7 +21,7 @@ class MemberSavingController extends Controller
     }
 
     // Store a newly created resource in storage.
-    public function depositContribution(Request $request)
+    public function depositSavings(Request $request)
     {
         try {
 
@@ -66,49 +66,10 @@ class MemberSavingController extends Controller
     }
 
     // Display the specified resource.
-    public function fetchSingleContribution(string $id)
+    public function fetchSingleSavings(string $id)
     {
         //
     }
 
-    public function withdrawContribution(Request $request, string $id)
-    {
-        $request->validate([
-            'amount' => 'required|numeric|min:0.01',
-        ]);
-
-        try {
-            return DB::transaction(function () use ($request, $id) {
-                $userId = $request->header('X-User-ID');
-
-                $ledgerEntry = WalletService::withdraw(
-                    $userId,
-                    $request->amount,
-                    null,
-                    'Savings withdrawal for user ID ' . $userId,
-                    'SAVINGS_WITHDRAWAL'
-                );
-
-                MemberSaving::create([
-                    'user_id' => $userId,
-                    'saving_amount' => -$request->amount,
-                    'saving_date' => now(),
-                    'status_id' => 21,
-                    'ledger_entry_id' => $ledgerEntry->ledger_entry_id,
-                    'reference' => $ledgerEntry->reference,
-                    'processed_by' => $ledgerEntry->created_by,
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Savings withdrawn successfully'
-                ], 200);
-            });
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 400);
-        }
-    }
+    
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\MemberContribution;
 use App\Models\Admin\MemberContributionSaving;
+use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
 use App\Services\Finance\WalletService;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -20,7 +21,7 @@ class MemberContributionController extends Controller
     }
 
     // Store a newly created resource in storage.
-    public function store(Request $request)
+    public function depositContribution(Request $request)
     {
         try {
 
@@ -55,7 +56,7 @@ class MemberContributionController extends Controller
                     'message' => 'Contribution processed successfully'
                 ], 201);
             });
-        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'You have already made a contribution for this month. Payment cannot be made twice.'
@@ -64,14 +65,76 @@ class MemberContributionController extends Controller
     }
 
     // Display the specified resource.
-    public function show(string $id)
+    public function fetchSingleContribution(string $id)
     {
         //
     }
 
-    // Update the specified resource in storage.
-    public function update(Request $request, string $id)
+    public function withdrawContribution(Request $request)
     {
-        //
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request) {
+                $userId = $request->header('X-User-ID');
+
+                WalletService::withdraw(
+                    $userId,
+                    $request->amount,
+                );
+
+                WithdrawalRequest::create([
+                    'user_id' => $userId,
+                    'withdrawal_type' => 'CONTRIBUTION_WITHDRAWAL',
+                    'amount' => $request->amount,
+                    'withdraw_at' => now(),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Contribution withdrawn successfully'
+                ], 200);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function approveWithdrawal(Request $request, string $id)
+    {
+        $request->validate([
+            'statusId' => 'required|integer|exists:setup_statuses,status_id|in:6,8',
+            'reason' => 'nullable|string',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request, $id) {
+                $userId = $request->header('X-User-ID');
+                $user = User::where('user_id', $userId)->first();
+
+                WalletService::approveWithdrawal(
+                    $id,
+                    $request->statusId,
+                    $request->reason,
+                    'Withdrawal request '  . ' by ' . $user->first_name . ' ' . $user->last_name . ' has been approved ',
+                    null
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Withdrawal request processed successfully'
+                ], 200);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 }
