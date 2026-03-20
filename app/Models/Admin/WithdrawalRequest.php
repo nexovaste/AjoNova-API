@@ -2,27 +2,30 @@
 
 namespace App\Models\Admin;
 
-use App\Models\User\User;
+
 use App\Models\Setup\SetupStatus;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
-class Wallet extends Model
+class WithdrawalRequest extends Model
 {
-    protected $primaryKey = 'wallet_id';
+    protected $primaryKey = 'withdrawal_request_id';
+
     protected $fillable = [
         'user_id',
-        'total_saving_amount',
-        'total_target_amount',
-        'total_contributions',
-        'outstanding_loan_balance',
-        'locked_balance',
+        'withdrawal_type',
+        'amount',
         'status_id',
+        'reason',
+        'withdraw_at',
+        'approved_by',
+        'approved_at',
     ];
 
     protected $casts = [
-        'savings_balance' => 'decimal:2',
-        'outstanding_loan_balance' => 'decimal:2',
-        'locked_balance' => 'decimal:2',
+        'amount' => 'decimal:2',
+        'withdraw_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function user()
@@ -34,5 +37,5 @@ class Wallet extends Model
     {
         return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
-}
 
+}

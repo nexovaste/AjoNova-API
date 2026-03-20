@@ -2,7 +2,7 @@
 
 namespace App\Models\Admin;
 
-use Predis\Response\Status;
+use App\Models\Setup\SetupStatus;
 use Illuminate\Database\Eloquent\Model;
 
 
@@ -34,8 +34,8 @@ class LoanRepaymentSchedule extends Model
         return $this->belongsTo(Loan::class, 'loan_id', 'loan_id');
     }
 
-    public function status()
+     public function status()
     {
-        return $this->belongsTo(Status::class, 'status_id', 'status_id');
+        return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Models\Admin;
 
+use App\Models\Setup\SetupStatus;
 use App\Models\User\User;
-use Predis\Response\Status;
 use Illuminate\Database\Eloquent\Model;
 
 class Guarantor extends Model
@@ -30,6 +30,6 @@ class Guarantor extends Model
 
     public function status()
     {
-        return $this->belongsTo(Status::class, 'status_id', 'status_id');
+        return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
 }

@@ -33,6 +33,7 @@ class SetupStatusSeeder extends Seeder
             'UNLOCKED',
             'PAID',
             'UNPAID',
+            'SUCCESS',
         ];
 
         $insertData = [];
