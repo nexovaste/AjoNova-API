@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('contribution_period')->storedAs("DATE_FORMAT(contribution_date, '%M %Y')");
             $table->string('reference')->unique()->nullable();
             $table->unsignedBigInteger('ledger_entry_id')->nullable();
-            $table->unsignedBigInteger('status_id')->default(23); // SUCCESS
+            $table->unsignedBigInteger('status_id')->default(5); // PENDING
             $table->string('processed_by')->nullable();
             $table->timestamps();
             $table->softDeletes();

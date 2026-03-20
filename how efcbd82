@@ -1,0 +1,40 @@
+[33m957c292[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfortune-tech[m[33m, [m[1;31morigin/fortune-tech[m[33m)[m Merge branch 'develop' into fortune-tech
+[33mefcbd82[m I added the withdrawal fucntion
+[33ma609468[m[33m ([m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mdevelop[m[33m)[m Merge pull request #16 from Aytech-1/aytech
+[33m45404d3[m[33m ([m[1;31morigin/aytech[m[33m)[m modified codes
+[33m88a2ea6[m Merge pull request #15 from Aytech-1/fortune-tech
+[33mf591121[m Updated code
+[33m63c8bdb[m Merge branch 'develop' into fortune-tech
+[33m733e7e7[m updated codes
+[33me6bf78c[m Merge pull request #14 from Aytech-1/aytech
+[33m5d0bed0[m added member savings store
+[33mad44777[m Merge branch 'develop' into aytech
+[33mcdd1456[m lastest
+[33m4a9ce59[m Merge pull request #13 from Aytech-1/fortune-tech
+[33m07992d6[m I added the deposi wallet fucntion
+[33m307bb2b[m Merge pull request #12 from Aytech-1/aytech
+[33m0eb26e9[m modified user managment controller
+[33mdbb18e2[m Merge pull request #11 from Aytech-1/aytech
+[33mb2e80c4[m Merge branch 'develop' into aytech
+[33mbfee045[m updated member store
+[33m406b208[m Xisco (#9)
+[33m039ddf7[m Merge pull request #8 from Aytech-1/aytech
+[33m869d2ae[m updated
+[33md4fb53f[m updated
+[33ma5c584d[m latest update
+[33m5d01908[m modified
+[33m758b655[m Xisco (#7)
+[33mf47c13c[m Merge pull request #6 from Aytech-1/aytech
+[33mb119a4b[m updated version
+[33mdd78952[m Xisco (#5)
+[33mcce4123[m Merge pull request #3 from Aytech-1/aytech
+[33m3a3b992[m modified user resource
+[33maa3ecdf[m modified user CRUD
+[33m5be9fe2[m Merge pull request #2 from Aytech-1/aytech
+[33m7aade0b[m deleted two job files
+[33mcf7ccb8[m Merge pull request #1 from Aytech-1/aytech
+[33ma3c154b[m added examples type to migrations
+[33m0908671[m updated
+[33ma096e67[m updated
+[33mff79ca7[m Revise README for GAPOSA Cooperative Management System
+[33m0d6654c[m Initial commit: GAPOSA Cooperative Management System API
