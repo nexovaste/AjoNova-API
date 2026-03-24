@@ -19,6 +19,7 @@ class WithdrawalRequest extends Model
         'status_id',
         'reason',
         'withdraw_at',
+        'is_approved',
         'attended_by',
         'attended_at',
     ];

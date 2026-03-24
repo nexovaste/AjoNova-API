@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('attended_by')->nullable();
             $table->dateTime('attended_at')->nullable();
             $table->dateTime('withdraw_at');
+            $table->boolean('is_approved')->default(false);
 
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('status_id')->references('status_id')->on('setup_statuses')->onDelete('restrict')->onUpdate('cascade');
