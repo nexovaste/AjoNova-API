@@ -5,11 +5,12 @@ namespace App\Http\Controllers\v1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\MemberContributionSaving;
 use App\Models\Admin\MemberSaving;
+use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
 use App\Services\Finance\WalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+
 
 
 class MemberSavingController extends Controller
@@ -66,10 +67,77 @@ class MemberSavingController extends Controller
     }
 
     // Display the specified resource.
-    public function fetchSingleSavings(string $id)
+    public function fetchSingleSvings(string $id)
     {
         //
     }
 
-    
+    public function withdrawSavings(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request) {
+                $userId = $request->header('X-User-ID');
+
+                WalletService::withdraw(
+                    $userId,
+                    $request->amount,
+                    'LOCKED_WITHDRAWAL',
+                );
+
+                WithdrawalRequest::create([
+                    'user_id' => $userId,
+                    'withdrawal_type' => 'LOCKED_WITHDRAWAL',
+                    'amount' => $request->amount,
+                    'withdraw_at' => now(),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Savings withdrawn successfully'
+                ], 200);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function approveWithdrawal(Request $request, string $id)
+    {
+        $request->validate([
+            'statusId' => 'required|integer|exists:setup_statuses,status_id|in:6,8',
+            'reason' => 'required_if:statusId,8|string',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request, $id) {
+                $userId = $request->header('X-User-ID');
+                $user = User::where('user_id', $userId)->first();
+
+                WalletService::approveWithdrawal(
+                    $id,
+                    $request->statusId,
+                    $request->reason,
+                    'Withdrawal request '  . ' by ' . $user->first_name . ' ' . $user->last_name . ' has been approved ',
+                    null
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Withdrawal request processed successfully'
+                ], 200);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
 }

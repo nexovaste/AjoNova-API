@@ -86,16 +86,22 @@ class WalletService
         $wallet->save();
     }
 
-    public static function approveWithdrawal($id, $statusId, $reason = null, $description = null, $reference = null, $entryType = 'CONTRIBUTION_WITHDRAWAL')
+    public static function approveWithdrawal($id, $statusId, $reason = null, $description = null, $reference = null)
     {
-        if ($statusId === 6) {
-            $userInfo = WithdrawalRequest::find($id);
-            $wallet = Wallet::where('user_id', $userInfo->user_id)->first();
+        $userInfo = WithdrawalRequest::findOrFail($id);
+        $wallet = Wallet::where('user_id', $userInfo->user_id)->firstOrFail();
+        $entryType = strtoupper($userInfo->withdrawal_type);
 
+        if ($userInfo->status_id == 6 || $userInfo->status_id == 8) {
+            throw new Exception('This transaction has already been finalized');
+        }
+
+        if ($statusId === 6) {
             $userInfo->update([
-                'status_id' => $statusId,
+                'status_id' => 6,
                 'attended_at' => now(),
                 'attended_by' => Auth::guard('admin')->user()->staff_id,
+                'is_approved' => true
             ]);
 
             if ($entryType === 'CONTRIBUTION_WITHDRAWAL') {
@@ -104,18 +110,18 @@ class WalletService
             } elseif ($entryType === 'SAVINGS_WITHDRAWAL') {
                 $balanceBefore = $wallet->total_saving_amount + $userInfo->amount;
                 $balanceAfter = $wallet->total_saving_amount;
-                $wallet->locked_balance -= $userInfo->amount;
+            } elseif ($entryType === 'LOCKED_WITHDRAWAL') {
+                $balanceBefore = $wallet->locked_balance + $userInfo->amount;
+                $balanceAfter = $wallet->locked_balance;
             } elseif ($entryType === 'TARGET_WITHDRAWAL') {
                 $balanceBefore = $wallet->total_target_amount + $userInfo->amount;
                 $balanceAfter = $wallet->total_target_amount;
-            } else {
-                throw new Exception('Invalid withdrawal type');
             }
 
             LedgerEntry::create([
                 'user_id' => $userInfo->user_id,
                 'wallet_id' => $wallet->wallet_id,
-                'entry_type' => 'CONTRIBUTION_WITHDRAWAL',
+                'entry_type' => $entryType,
                 'amount' => $userInfo->amount,
                 'balance_before' => $balanceBefore,
                 'balance_after' => $balanceAfter,
@@ -124,15 +130,25 @@ class WalletService
                 'transaction_type' => 'DEBIT',
                 'created_by' => Auth::guard('admin')->user()->staff_id,
             ]);
-
-            $wallet->update(['balance' => $balanceAfter]);
-        } else {
-            WithdrawalRequest::where('withdrawal_request_id', $id)->update([
-                'status_id' => $statusId,
+        } elseif ($statusId === 8) {
+            $userInfo->update([
+                'status_id' => 8,
                 'attended_at' => now(),
                 'attended_by' => Auth::guard('admin')->user()->staff_id,
                 'reason' => $reason,
             ]);
+
+            if ($entryType === 'CONTRIBUTION_WITHDRAWAL') {
+                $wallet->total_contributions += $userInfo->amount;
+            } elseif ($entryType === 'SAVINGS_WITHDRAWAL') {
+                $wallet->total_saving_amount += $userInfo->amount;
+            } elseif ($entryType === 'LOCKED_WITHDRAWAL') {
+                $wallet->locked_balance += $userInfo->amount;
+            } elseif ($entryType === 'TARGET_WITHDRAWAL') {
+                $wallet->total_target_amount += $userInfo->amount;
+            }
+
+            $wallet->save();
         }
     }
 }

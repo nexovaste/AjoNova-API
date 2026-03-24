@@ -109,7 +109,7 @@ class MemberContributionController extends Controller
     {
         $request->validate([
             'statusId' => 'required|integer|exists:setup_statuses,status_id|in:6,8',
-            'reason' => 'nullable|string',
+            'reason' => 'required_if:statusId,8|string',
         ]);
 
         try {
