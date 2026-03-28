@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\v1\Admin\ActivitiesController;
+use App\Http\Controllers\v1\Admin\ActivityLogController;
 use App\Http\Controllers\v1\Admin\AdminController;
 use App\Http\Controllers\v1\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\v1\Admin\LoanPolicyController;
@@ -37,7 +38,6 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:admin', 'trust.device'])->group(function () {
             // Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
             // Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
-            Route::apiResource('activities', ActivitiesController::class)->only(['index', 'show'])->middleware('permission:view activities');
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
             Route::post('staff-passport/{id}', [StaffPassportController::class, 'update']);
@@ -52,7 +52,14 @@ Route::prefix('v1')->group(function () {
             Route::post('approve-withdrawal/{id}', [MemberContributionController::class, 'approveWithdrawal']);
             Route::post('approve-withdrawal/{id}', [MemberSavingController::class, 'approveWithdrawal']);
             Route::post('approve-withdrawal/{id}', [MemberTargetSavingController::class, 'approveWithdrawal']);
-            
+
+            Route::get('activity-logs', [ActivityLogController::class, 'index']);
+            Route::get('activity-logs/search', [ActivityLogController::class, 'search']);
+            Route::get('activity-logs/unread-count', [ActivityLogController::class, 'unreadCount']);
+            Route::get('activity-logs/{id}', [ActivityLogController::class, 'show']);
+            Route::post('activity-logs/{id}/read', [ActivityLogController::class, 'markAsRead']);
+            Route::post('activity-logs/mark-all-read', [ActivityLogController::class, 'markAllAsRead']);
+            Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
         Route::apiResource('role', RoleController::class);
