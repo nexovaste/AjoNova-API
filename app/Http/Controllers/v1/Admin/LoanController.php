@@ -72,10 +72,6 @@ class LoanController extends Controller
         }
     }
 
-    public function loanDisbursment(Request $request)
-    {
-        //
-    }
 
     // Display the specified resource.
     public function show(string $id)
@@ -87,6 +83,31 @@ class LoanController extends Controller
 
     public function approveLoan(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'statusId' => 'required|integer|exists:setup_statuses,status_id|in:6,8',
+            'reason' => 'required_if:statusId,8|string',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request, $id) {
+
+                LoanService::loanApproval(
+                    $id,
+                    Auth::guard('admin')->user()->staff_id,
+                    $request->input('statusId'),
+                    $request->input('reason')
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Loan application processed successfully'
+                ], 200);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 }
