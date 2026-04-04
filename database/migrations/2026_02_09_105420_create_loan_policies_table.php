@@ -13,7 +13,7 @@ return new class extends Migration
             $table->id('loan_policy_id');
             $table->unsignedBigInteger('loan_multiplier'); // e.g. 10x savings
             $table->decimal('minimum_amount', 12, 2);
-            $table->decimal('maximum_amount', 12, 2);
+            $table->decimal('maximum_amount', 12, 2)->nullable();
             $table->unsignedBigInteger('min_duration_months');
             $table->unsignedBigInteger('max_duration_months');
             $table->decimal('interest_rate', 5, 2); // 10%
