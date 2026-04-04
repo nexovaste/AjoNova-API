@@ -50,9 +50,10 @@ Route::prefix('v1')->group(function () {
             Route::post('deposit-target-savings', [MemberTargetSavingController::class, 'depositTargetSavings']);
             Route::get('fetch-all-contributions', [MemberContributionController::class, 'fetchAllContributions']);
             Route::get('fetch-single-contribution/{id}', [MemberContributionController::class, 'fetchSingleContribution']);
-            Route::post('approve-withdrawal/{id}', [MemberContributionController::class, 'approveWithdrawal']);
-            Route::post('approve-withdrawal/{id}', [MemberSavingController::class, 'approveWithdrawal']);
-            Route::post('approve-withdrawal/{id}', [MemberTargetSavingController::class, 'approveWithdrawal']);
+            Route::post('contribution-withdrawal-approval/{id}', [MemberContributionController::class, 'approveWithdrawal']);
+            Route::post('savings-withdrawal-approval/{id}', [MemberSavingController::class, 'approveWithdrawal']);
+            Route::post('target-savings-withdrawal-approval/{id}', [MemberTargetSavingController::class, 'approveWithdrawal']);
+            Route::post('approve-loan/{id}', [LoanController::class, 'approveLoan']);
 
             Route::get('activity-logs', [ActivityLogController::class, 'index']);
             Route::get('activity-logs/search', [ActivityLogController::class, 'search']);

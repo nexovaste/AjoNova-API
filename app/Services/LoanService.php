@@ -89,16 +89,11 @@ class LoanService
         }
     }
 
-    public static function loanApproval($loanId, $staffId, $statusId)
+    public static function loanApproval($loanId, $staffId, $statusId, $reason = null)
     {
         $loan = Loan::findOrFail($loanId);
         $wallet = Wallet::where('user_id', $loan->user_id)->firstOrFail();
         $guarantor = Guarantor::where('loan_id', $loanId)->firstOrFail();
-
-        
-        if ($loan->status_id != 5) {
-            throw new \Exception('Only pending loans can be approved.');
-        }
 
         if ($loan->status_id == 6 || $loan->status_id == 8) {
             throw new \Exception('This loan has already been finalized');
@@ -109,7 +104,7 @@ class LoanService
                 $principalAmount = $loan->principal_amount;
                 $interestAmount = $loan->interest_amount;
                 $durationMonths = $loan->duration_months;
-                $totalPayable = $principalAmount + $interestAmount;
+                $totalPayable = $principalAmount;
 
                 $monthlyRepayment = round($totalPayable / $durationMonths, 2);
                 $monthlyPrincipal = round($principalAmount / $durationMonths, 2);
@@ -134,11 +129,12 @@ class LoanService
                     'attended_by' => $staffId,
                     'attended_at' => now(),
                     'status_id' => 6, // approved
+                    'disbursed_at' => now(),
                 ]);
 
                 $wallet->update([
-                    'total_saving_amount' => $wallet->total_saving_amount + $loan->principal_amount,
-                    'outstanding_loan_amount' => $wallet->outstanding_loan_amount + $totalPayable,
+                    'total_saving_amount' => $wallet->total_saving_amount + ($loan->principal_amount - $loan->interest_amount),
+                    'outstanding_loan_balance' => $wallet->outstanding_loan_balance + $totalPayable,
                 ]);
 
                 $guarantor->update([
@@ -149,9 +145,9 @@ class LoanService
                     'user_id' => $loan->user_id,
                     'wallet_id' => $wallet->wallet_id,
                     'entry_type' => 'LOAN_DISBURSEMENT',
-                    'amount' => $loan->principal_amount,
-                    'balance_before' => $wallet->total_saving_amount,
-                    'balance_after' => $wallet->total_saving_amount + $loan->principal_amount,
+                    'amount' => $loan->principal_amount - $loan->interest_amount,
+                    'balance_before' => $wallet->total_saving_amount - ($loan->principal_amount - $loan->interest_amount),
+                    'balance_after' => $wallet->total_saving_amount,
                     'reference' => $loan->loan_reference,
                     'description' => 'Disbursement of loan amount for loan ID: ' . $loan->loan_id,
                     'transaction_type' => 'CREDIT',
@@ -163,6 +159,7 @@ class LoanService
                 'attended_by' => $staffId,
                 'attended_at' => now(),
                 'status_id' => 8, // Rejected
+                'rejection_reason' => $reason
             ]);
         } else {
             throw new \Exception('Invalid status ID. Only 1 (approved) or 8 (rejected) are allowed.');

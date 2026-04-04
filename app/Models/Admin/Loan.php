@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models\Admin;
+
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Loan extends Model
 {
     protected $primaryKey = 'loan_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'loan_id',
@@ -38,7 +41,3 @@ class Loan extends Model
         return $this->hasMany(Guarantor::class, 'loan_id');
     }
 }
-
-
-
-
