@@ -2,32 +2,33 @@
 
 namespace App\Services;
 
-// use App\Services\Config;
-use App\Models\Admin\ActivityLog;
-use Illuminate\Support\Facades\Config;
-
 class ActivityLogService
 {
     public static function log(
+        string $modelClass,
         string $action,
         string $description,
         string $userType,
         string $performedBy,
         int $roleId,
+        array $deviceInfo,
         array $metadata
     ): void {
-        $details = Config::requestDetails();
-        ActivityLog::create([
+       
+
+        $data = [
             'performed_by' => $performedBy,
-            'role_id' => $roleId,
+            'role_id'      => $roleId,
             'user_type'    => $userType,
             'action'       => $action,
             'description'  => $description,
             'metadata'     => $metadata,
-            'ip_address' => request()->ip(),
-            'device' => $details['device'],
-            'browser' => $details['browser'],
+            'ip_address'   => $deviceInfo['ip_address'],
+            'device'       => $deviceInfo['device'],
+            'browser'      => $deviceInfo['browser'],
             'created_at'   => now(),
-        ]);
+        ];
+
+        $modelClass::create($data);
     }
 }

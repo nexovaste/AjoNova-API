@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('principal_amount', 14, 2);
             $table->decimal('interest_amount', 14, 2);
             $table->decimal('total_due', 14, 2);
-            $table->decimal('amount_paid', 14, 2)->default(0);
+            $table->decimal('amount_paid', 14, 2)->default(0.00);
             $table->unsignedBigInteger('status_id')->default(22);
             $table->timestamps();
             $table->index(['loan_id', 'due_date']);

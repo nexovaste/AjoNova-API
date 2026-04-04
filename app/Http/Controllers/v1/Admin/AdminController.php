@@ -104,30 +104,30 @@ class AdminController extends Controller
         $titleName= Config::getTitleNameById($request->titleId);
         $staff->notify(new StaffRegistration(Str::title($fullName), $staffId, Str::title($titleName)));
 
-        $registeredData = $staff->only([
-            'staff_id',
-            'title_id',
-            'first_name',
-            'middle_name',
-            'last_name',
-            'gender_id',
-            'email',
-            'mobile_number',
-            'status',
-            'created_by',
-            'created_at',
-        ]);
-        $registeredData['role'] = $role->name;
-        ActivityLogJob::dispatch(
-            action: 'New staff registration',
-            description: 'A new staff with ID: ' . $staffId . ' and ' . $role->name .  ' role has been registered to the system.',
-            userType: 'Central Staff',
-            performedBy: auth('admin')->id() ?? $staffId,
-            roleId: auth('admin')->user()?->roles?->pluck('id')->first() ?? null,
-            metadata: [
-                'Registered Data' => $registeredData,
-            ]
-        );
+        // $registeredData = $staff->only([
+        //     'staff_id',
+        //     'title_id',
+        //     'first_name',
+        //     'middle_name',
+        //     'last_name',
+        //     'gender_id',
+        //     'email',
+        //     'mobile_number',
+        //     'status',
+        //     'created_by',
+        //     'created_at',
+        // ]);
+        // $registeredData['role'] = $role->name;
+        // ActivityLogJob::dispatch(
+        //     action: 'New staff registration',
+        //     description: 'A new staff with ID: ' . $staffId . ' and ' . $role->name .  ' role has been registered to the system.',
+        //     userType: 'Central Staff',
+        //     performedBy: auth('admin')->id() ?? $staffId,
+        //     roleId: auth('admin')->user()?->roles?->pluck('id')->first() ?? null,
+        //     metadata: [
+        //         'Registered Data' => $registeredData,
+        //     ]
+        // );
 
         return response()->json([
             'success'  => true,
