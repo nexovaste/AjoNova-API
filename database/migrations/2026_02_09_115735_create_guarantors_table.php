@@ -28,7 +28,7 @@ return new class extends Migration
             $table->unsignedBigInteger('status_id');
             $table->timestamps();
 
-            $table->unique(['loan_id', 'guarantor_id']);
+            $table->unique(['loan_id', 'guarantor_id', 'id_number', 'email'], 'unique_guarantor');
             $table->foreign('means_of_identification_id')->references('means_of_identification_id')->on('means_of_identifications')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('title_id')->references('title_id')->on('setup_titles')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('gender_id')->references('gender_id')->on('setup_genders')->onDelete('restrict')->onUpdate('cascade');

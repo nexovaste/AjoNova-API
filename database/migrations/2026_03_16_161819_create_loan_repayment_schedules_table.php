@@ -16,8 +16,9 @@ return new class extends Migration
             $table->unsignedInteger('installment_number');
             $table->date('due_date');
             $table->decimal('principal_amount', 14, 2);
+            $table->decimal('repayment_amount', 14, 2);
             $table->decimal('interest_amount', 14, 2);
-            $table->decimal('total_due', 14, 2);
+            $table->decimal('monthly_repayment', 14, 2);
             $table->decimal('amount_paid', 14, 2)->default(0.00);
             $table->unsignedBigInteger('status_id')->default(22);
             $table->timestamps();

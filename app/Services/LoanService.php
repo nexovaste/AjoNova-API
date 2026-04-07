@@ -48,7 +48,7 @@ class LoanService
             throw new \Exception('Principal amount exceeds the maximum allowed based on your monthly contributions and the loan multiplier.');
         } else if (count($memberContributions) < $loanPolicy->eligibility_months) {
             throw new \Exception('You are not eligible to apply for a loan based on your contribution history and the loan policy requirements.');
-        } else if (!$loanPolicy->allow_multiple_loans && Loan::where('user_id', $userId)->whereIn('status_id', [1])->exists()) {
+        } else if (!$loanPolicy->allow_multiple_loans && Loan::where('user_id', $userId)->whereIn('status_id', [1,])->exists()) {
             throw new \Exception('You already have an active or pending loan. Multiple loans are not allowed based on the current loan policy.');
         } else if (Loan::where('user_id', $userId)->whereIn('status_id', [5])->exists()) {
             throw new \Exception('You have a pending loan application. Please wait for it to be processed before applying for another loan.');
@@ -106,21 +106,25 @@ class LoanService
                 $durationMonths = $loan->duration_months;
                 $totalPayable = $principalAmount;
 
-                $monthlyRepayment = round($totalPayable / $durationMonths, 2);
                 $monthlyPrincipal = round($principalAmount / $durationMonths, 2);
                 $monthlyInterest = round($interestAmount / $durationMonths, 2);
+                $repaymentAmount = $monthlyPrincipal - $monthlyInterest; 
+                $monthlyRepayment = $monthlyPrincipal;
 
+                $remainingPrincipal = $principalAmount;
                 $startDate = Carbon::parse($loan->approved_at);
 
                 for ($i = 1; $i <= $durationMonths; $i++) {
                     $dueDate = $startDate->copy()->addMonths($i);
+                    $remainingPrincipal -= $monthlyPrincipal;
                     LoanRepaymentSchedule::create([
                         'loan_id' => $loan->loan_id,
                         'installment_number' => $i,
                         'due_date' => $dueDate,
-                        'principal_amount' => $monthlyPrincipal,
+                        'principal_amount' => $remainingPrincipal,
+                        'repayment_amount' => $repaymentAmount,
                         'interest_amount' => $monthlyInterest,
-                        'total_due' => $monthlyRepayment,
+                        'monthly_repayment' => $monthlyRepayment,
                         'status_id' => 22 // UNPAID
                     ]);
                 }

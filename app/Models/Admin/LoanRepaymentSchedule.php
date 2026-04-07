@@ -15,8 +15,9 @@ class LoanRepaymentSchedule extends Model
         'installment_number',
         'due_date',
         'principal_amount',
+        'repayment_amount',
         'interest_amount',
-        'total_due',
+        'monthly_repayment',
         'amount_paid',
         'status_id'
     ];
@@ -24,8 +25,9 @@ class LoanRepaymentSchedule extends Model
     protected $casts = [
         'due_date' => 'date',
         'principal_amount' => 'decimal:2',
+        'repayment_amount' => 'decimal:2',
         'interest_amount' => 'decimal:2',
-        'total_due' => 'decimal:2',
+        'monthly_repayment' => 'decimal:2',
         'amount_paid' => 'decimal:2'
     ];
 

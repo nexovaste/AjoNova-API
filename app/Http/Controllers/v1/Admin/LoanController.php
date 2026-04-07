@@ -29,7 +29,7 @@ class LoanController extends Controller
             'lastName' => 'required|string|max:255',
             'middleName' => 'nullable|string|max:255',
             'phoneNumber' => 'required|string|max:20',
-            'email' => 'required|string|email|max:255|unique:guarantors,email',
+            'email' => 'required|string|email|max:255',
             'address' => 'required|string|max:500',
             'occupation' => 'nullable|string|max:255',
             'meansOfIdentificationId' => 'required|exists:means_of_identifications,means_of_identification_id',
