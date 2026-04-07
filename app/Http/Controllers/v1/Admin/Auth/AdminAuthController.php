@@ -42,7 +42,7 @@ class AdminAuthController extends Controller
             }
 
             $passwordIsValid = Hash::check($request->password, $staff->password);
-            if ($staff->status_id === 17) {
+            if ($staff->status_id === 19) {
 
                 if ($passwordIsValid) {
                     return response()->json([
@@ -80,7 +80,7 @@ class AdminAuthController extends Controller
                 if ($staff->login_attempt >= 5) {
 
                     $staff->update([
-                        'status_id' => 17,
+                        'status_id' => 19,
                         'login_attempt' => 0,
                     ]);
 
@@ -204,7 +204,7 @@ class AdminAuthController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid or expired OTP.'
-                ], 401);
+                ], 299);
             }
 
             if (Carbon::now()->gt($otpRecord->expires_at)) {
@@ -260,7 +260,6 @@ class AdminAuthController extends Controller
 
     public function resetPassword(Request $request, bool $resendLink = false)
     {
-
         $request->validate([
             'emailAddress' => 'required|string|email',
         ]);
@@ -322,7 +321,7 @@ class AdminAuthController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'New password cannot be the same as the old password.'
-                ], 400);
+                ], 209);
             }
             $status = Password::broker('admins')->reset(
                 [
@@ -348,7 +347,7 @@ class AdminAuthController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to reset password. Please try again.'
-                ], 500);
+                ], 400);
             }
         } catch (\Throwable $e) {
             return response()->json([

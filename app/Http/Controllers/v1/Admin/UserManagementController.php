@@ -9,7 +9,7 @@ use App\Models\Admin\MemberTargetSavingSetting;
 use App\Models\Admin\Wallet;
 use App\Models\Setup\SetupCounter;
 use App\Models\User\User;
-use App\Notifications\Member\signupMail;
+use App\Notifications\member\signupMail;
 use App\Services\Cache\ClearCacheService;
 use App\Services\Config;
 use Carbon\Carbon;

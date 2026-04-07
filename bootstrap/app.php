@@ -1,10 +1,11 @@
 <?php
 
-use Illuminate\Foundation\Application;
 use App\Http\Middleware\TrustDeviceMiddleware;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Middleware\TrimStrings;
+use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,10 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->use([TrimStrings::class]);
+        $middleware->append(HandleCors::class);
 
         $middleware->api([
             \App\Http\Middleware\ForceJsonResponse::class,
-            \App\Http\Middleware\GlobalApiKey::class,
+            \App\Http\Middleware\GlobalApiKey::class,     
         ]);
 
         $middleware->alias([
