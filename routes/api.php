@@ -54,6 +54,7 @@ Route::prefix('v1')->group(function () {
             Route::post('savings-withdrawal-approval/{id}', [MemberSavingController::class, 'approveWithdrawal']);
             Route::post('target-savings-withdrawal-approval/{id}', [MemberTargetSavingController::class, 'approveWithdrawal']);
             Route::post('approve-loan/{id}', [LoanController::class, 'approveLoan']);
+            Route::post('loan-repayment', [LoanController::class, 'loanRepayment']);
 
             Route::get('activity-logs', [ActivityLogController::class, 'index']);
             Route::get('activity-logs/search', [ActivityLogController::class, 'search']);
@@ -64,8 +65,8 @@ Route::prefix('v1')->group(function () {
             Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
-//         Route::apiResource('role', RoleController::class);
-//         Route::apiResource('staff', AdminController::class);
+        Route::apiResource('role', RoleController::class);
+        Route::apiResource('staff', AdminController::class);
     });
 
     Route::prefix('user')->group(function () {

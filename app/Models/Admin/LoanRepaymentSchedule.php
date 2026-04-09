@@ -19,6 +19,8 @@ class LoanRepaymentSchedule extends Model
         'interest_amount',
         'monthly_repayment',
         'amount_paid',
+        'paid_at',
+        'processed_by',
         'status_id'
     ];
 
@@ -28,7 +30,8 @@ class LoanRepaymentSchedule extends Model
         'repayment_amount' => 'decimal:2',
         'interest_amount' => 'decimal:2',
         'monthly_repayment' => 'decimal:2',
-        'amount_paid' => 'decimal:2'
+        'amount_paid' => 'decimal:2',
+        'paid_at' => 'datetime'
     ];
 
     public function loan()

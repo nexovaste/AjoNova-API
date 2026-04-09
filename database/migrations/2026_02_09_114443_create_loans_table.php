@@ -22,6 +22,7 @@ return new class extends Migration
             $table->dateTime('attended_at')->nullable();
             $table->text('rejection_reason')->nullable();
             $table->unsignedBigInteger('status_id')->default(5);
+            $table->boolean('is_active_loan')->default(false);
             $table->timestamps();
 
             $table->index('user_id');
