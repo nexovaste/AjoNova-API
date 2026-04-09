@@ -64,11 +64,6 @@ class MemberContributionController extends Controller
         }
     }
 
-    // Display the specified resource.
-    public function fetchSingleContribution(string $id)
-    {
-        //
-    }
 
     public function withdrawContribution(Request $request)
     {
