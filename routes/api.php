@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\v1\Admin\ActivitiesController;
 use App\Http\Controllers\v1\Admin\ActivityLogController;
 use App\Http\Controllers\v1\Admin\AdminController;
 use App\Http\Controllers\v1\Admin\Auth\AdminAuthController;
@@ -88,8 +87,6 @@ Route::prefix('v1')->group(function () {
             Route::post('withdraw-savings', [MemberSavingController::class, 'withdrawSavings']);
             Route::post('withdraw-target-savings', [MemberTargetSavingController::class, 'withdrawSavings']);
             Route::post('apply-loan', [LoanController::class, 'applyLoan']);
-            //  Route::post('loan-disbursement', [LoanController::class, 'loanDisbursment']);
-            //  Route::post('approve-loan/{id}', [LoanController::class, 'approveLoan']);
         });
         Route::apiResource('signup', UserManagementController::class)->only('store');
     });
