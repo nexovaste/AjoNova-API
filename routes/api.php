@@ -64,7 +64,7 @@ Route::prefix('v1')->group(function () {
             Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
-        Route::apiResource('role', RoleController::class);
+        // Route::apiResource('role', RoleController::class);
         Route::apiResource('staff', AdminController::class);
     });
 
