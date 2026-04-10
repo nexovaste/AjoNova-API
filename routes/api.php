@@ -16,12 +16,12 @@ use App\Http\Controllers\v1\Setup\GenderController;
 use App\Http\Controllers\v1\Setup\LgaController;
 use App\Http\Controllers\v1\Setup\MembershipTypeController;
 use App\Http\Controllers\v1\Setup\PaymentChannelTypeController;
+use App\Http\Controllers\v1\Setup\StaffCategoryController;
 use App\Http\Controllers\v1\Setup\StateController;
 use App\Http\Controllers\v1\Setup\StatusController;
 use App\Http\Controllers\v1\Setup\TitleController;
 use App\Http\Controllers\v1\User\Auth\UserAuthController;
 use App\Http\Controllers\v1\User\UserPassportController;
-use App\Models\Setup\StaffCategory;
 use Illuminate\Support\Facades\Route;
 
 
@@ -36,8 +36,8 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware(['auth:admin', 'trust.device'])->group(function () {
-            // Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
-            // Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
+            Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
+            Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
             Route::post('staff-passport/{id}', [StaffPassportController::class, 'update']);
@@ -100,6 +100,6 @@ Route::prefix('v1')->group(function () {
         Route::get('status', [StatusController::class, 'index']);
         Route::get('payment-channel-types', [PaymentChannelTypeController::class, 'index']);
         Route::get('membership-types', [MembershipTypeController::class, 'index']);
-        Route::get('staff-category', [StaffCategory::class, 'index']);
+        Route::get('staff-category', [StaffCategoryController::class, 'index']);
     });
 });
