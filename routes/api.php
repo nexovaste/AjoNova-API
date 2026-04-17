@@ -37,7 +37,7 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware(['auth:admin', 'trust.device'])->group(function () {
-            // Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
+            Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
             // Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
@@ -64,7 +64,7 @@ Route::prefix('v1')->group(function () {
             Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
-        Route::apiResource('role', RoleController::class);
+        // Route::apiResource('role', RoleController::class);
         Route::apiResource('staff', AdminController::class);
     });
 
