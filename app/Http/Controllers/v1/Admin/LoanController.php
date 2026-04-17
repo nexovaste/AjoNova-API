@@ -22,14 +22,13 @@ class LoanController extends Controller
     {
         $request->validate([
             'principalAmount' => 'required|numeric|min:0.01',
-            'durationMonths' => 'required|integer|min:1',
             'titleId' => 'required|exists:setup_titles,title_id',
             'genderId' => 'required|exists:setup_genders,gender_id',
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
             'middleName' => 'nullable|string|max:255',
             'phoneNumber' => 'required|string|max:20',
-            'email' => 'required|string|email|max:255|unique:guarantors,email',
+            'email' => 'required|string|email|max:255',
             'address' => 'required|string|max:500',
             'occupation' => 'nullable|string|max:255',
             'meansOfIdentificationId' => 'required|exists:means_of_identifications,means_of_identification_id',
@@ -43,7 +42,6 @@ class LoanController extends Controller
 
                 LoanService::applyLoan(
                     Auth::guard('user')->user()->user_id,
-                    $request->input('durationMonths'),
                     $request->input('principalAmount'),
                     $request->input('titleId'),
                     $request->input('genderId'),
@@ -73,12 +71,6 @@ class LoanController extends Controller
     }
 
 
-    // Display the specified resource.
-    public function show(string $id)
-    {
-        //
-    }
-
     // Update the specified resource in storage.
 
     public function approveLoan(Request $request, string $id)
@@ -101,6 +93,35 @@ class LoanController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Loan application processed successfully'
+                ], 200);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function loanRepayment(Request $request)
+    {
+        try {
+            $installmentNumber = $request->header('X-Installment-Number');
+            $loanId = $request->header('X-Loan-ID');
+            $userId = $request->header('X-User-ID');
+            $amount = $request->header('X-Amount');
+            return DB::transaction(function () use ($installmentNumber, $loanId, $userId, $amount) {
+
+                LoanService::loanRepayment(
+                    $loanId,
+                    $installmentNumber,
+                    $userId,
+                    $amount,
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Loan repayment processed successfully'
                 ], 200);
             });
         } catch (\Exception $e) {

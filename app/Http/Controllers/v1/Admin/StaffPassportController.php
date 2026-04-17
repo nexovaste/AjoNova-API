@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\v1\Admin;
 
-use App\Models\Admin\Staff;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Staff;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class StaffPassportController extends Controller
 {
@@ -34,7 +35,7 @@ class StaffPassportController extends Controller
 
             $admin->passport = $fileName;
             $admin->save();
-
+            Cache::tags('staff_list')->flush();
             return response()->json([
                 'success' => true,
                 'message' => 'Passport updated successfully',

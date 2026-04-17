@@ -18,7 +18,6 @@ class LoanPolicyController extends Controller
         $request->validate([
             'loanMultiplier' => 'required|integer|min:1',
             'minimumAmount' => 'required|numeric|min:0',
-            // 'maximumAmount' => 'required|numeric|min:0|gte:minimumAmount',
             'minDurationMonths' => 'required|integer|min:1',
             'maxDurationMonths' => 'required|integer|min:1|gte:minDurationMonths',
             'interestRate' => 'required|numeric|min:0',
@@ -32,7 +31,6 @@ class LoanPolicyController extends Controller
         LoanPolicy::create([
             'loan_multiplier' => $request->loanMultiplier,
             'minimum_amount' => $request->minimumAmount,
-            // 'maximum_amount' => $request->maximumAmount,
             'min_duration_months' => $request->minDurationMonths,
             'max_duration_months' => $request->maxDurationMonths,
             'interest_rate' => $request->interestRate,
@@ -52,11 +50,6 @@ class LoanPolicyController extends Controller
         );
     }
 
-    // Display the specified resource.
-    public function show(string $id)
-    {
-        //
-    }
 
     // Update the specified resource in storage.
     public function update(Request $request, string $id)
@@ -64,9 +57,5 @@ class LoanPolicyController extends Controller
         //
     }
 
-    // Remove the specified resource from storage.
-    public function destroy(string $id)
-    {
-        //
-    }
+   
 }

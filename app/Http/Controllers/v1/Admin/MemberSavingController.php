@@ -66,11 +66,6 @@ class MemberSavingController extends Controller
         }
     }
 
-    // Display the specified resource.
-    public function fetchSingleSvings(string $id)
-    {
-        //
-    }
 
     public function withdrawSavings(Request $request)
     {

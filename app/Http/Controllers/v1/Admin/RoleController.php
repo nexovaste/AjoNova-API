@@ -19,18 +19,16 @@ class RoleController extends Controller
     public function index()
     {
         try {
-
             $user = auth('admin')->user();
             $userRole = $user->roles->first();
-            $cacheKey = "admin_roles_with_permissions_role_{$userRole->id}";
+            $cacheKey = "admin_roles_with_permissions_{$userRole->id}";
             $roles = Cache::remember($cacheKey, now()->addMonth(), function () use ($userRole) {
                 return Role::where('guard_name', 'admin')
-                    ->where('id', '>', $userRole->id)
+                    ->where('id', '>=', $userRole->id)
                     ->with('permissions:id,name')
                     ->orderBy('name', 'asc')
                     ->get();
             });
-
             return response()->json([
                 'success' => true,
                 'message' => 'Roles fetched successfully.',

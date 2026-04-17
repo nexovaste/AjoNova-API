@@ -16,14 +16,18 @@ return new class extends Migration
             $table->unsignedInteger('installment_number');
             $table->date('due_date');
             $table->decimal('principal_amount', 14, 2);
+            $table->decimal('repayment_amount', 14, 2);
             $table->decimal('interest_amount', 14, 2);
-            $table->decimal('total_due', 14, 2);
+            $table->decimal('monthly_repayment', 14, 2);
             $table->decimal('amount_paid', 14, 2)->default(0.00);
+            $table->timestamp('paid_at')->nullable();
+            $table->string('processed_by')->nullable();
             $table->unsignedBigInteger('status_id')->default(22);
             $table->timestamps();
             $table->index(['loan_id', 'due_date']);
 
             $table->foreign('loan_id')->references('loan_id')->on('loans')->onDelete('restrict')->onUpdate('cascade');
+            $table->foreign('status_id')->references('status_id')->on('setup_statuses')->onDelete('restrict')->onUpdate('cascade');
         });
     }
 

@@ -17,7 +17,6 @@ class StateController extends Controller
         ]);
 
         try {
-
             $countryId = $request->country_id;
             $cacheKey = "state_list_country_{$countryId}";
             $states = Cache::tags('state_list')->rememberForever($cacheKey, function () use ($countryId) {

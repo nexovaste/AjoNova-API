@@ -24,16 +24,12 @@ class Loan extends Model
         'attended_at',
         'rejection_reason',
         'status_id',
+        'is_active_loan'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
-    }
-
-    public function repayments()
-    {
-        return $this->hasMany(LoanRepayment::class, 'loan_id');
     }
 
     public function guarantors()

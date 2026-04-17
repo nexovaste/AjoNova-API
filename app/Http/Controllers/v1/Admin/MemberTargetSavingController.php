@@ -82,11 +82,6 @@ class MemberTargetSavingController extends Controller
         }
     }
 
-     // Display the specified resource.
-    public function fetchSingleContribution(string $id)
-    {
-        //
-    }
 
     public function withdrawSavings(Request $request)
     {

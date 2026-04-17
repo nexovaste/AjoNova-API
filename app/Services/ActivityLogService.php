@@ -11,8 +11,8 @@ class ActivityLogService
         string $userType,
         string $performedBy,
         int $roleId,
+        array $metadata,
         array $deviceInfo,
-        array $metadata
     ): void {
        
 
