@@ -63,7 +63,6 @@ Route::prefix('v1')->group(function () {
             Route::post('activity-logs/mark-all-read', [ActivityLogController::class, 'markAllAsRead']);
             Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
         });
-        Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
         // Route::apiResource('role', RoleController::class);
         // Route::apiResource('staff', AdminController::class);
     });

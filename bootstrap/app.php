@@ -33,8 +33,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, $request) {
             return response()->json([
-                'responseMessage' => 'You do not have the required authorization.',
-                'responseStatus'  => 403,
+                'message' => 'You do not have the required authorization.',
+                'status'  => 403,
             ]);
         });
 

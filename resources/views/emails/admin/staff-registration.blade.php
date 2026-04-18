@@ -222,7 +222,8 @@
                 <table class="header-table" role="presentation">
                     <tr>
                         <td class="logo-cell">
-                            <img src="https://i.postimg.cc/Pr5NqYc2/logo.png" alt="Unity Co-op Logo">
+                            <a href="https://ibb.co/My4WHbZq"><img src="https://i.ibb.co/mrw1KmbQ/logo.png" alt="Unity Co-op Logo" border="0"></a>
+
                         </td>
                         <td class="title-cell">
                             <h1 class="header-title">Unity Cooperative</h1>

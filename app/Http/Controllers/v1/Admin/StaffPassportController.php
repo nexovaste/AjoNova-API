@@ -36,6 +36,7 @@ class StaffPassportController extends Controller
             $admin->passport = $fileName;
             $admin->save();
             Cache::tags('staff_list')->flush();
+            Cache::forget("staff_profile_{$id}");
             return response()->json([
                 'success' => true,
                 'message' => 'Passport updated successfully',

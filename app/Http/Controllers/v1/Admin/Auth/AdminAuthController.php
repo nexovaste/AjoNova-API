@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Password;
 use App\Notifications\Admin\LoginOtpMail;
 use App\Http\Resources\Admin\AdminResource;
-use App\Notifications\Admin\PasswordChangeOtp;
 use App\Notifications\Admin\ResetPasswordMail;
 use App\Notifications\Admin\AccountLockedResetPassword;
 use Illuminate\Validation\Rules\Password as PasswordRule;
@@ -54,7 +53,7 @@ class AdminAuthController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid email address or password.'
-                ], 401);
+                ], 299);
             }
 
             if ($staff->status_id !== 1) {
@@ -63,13 +62,13 @@ class AdminAuthController extends Controller
                     return response()->json([
                         'success' => false,
                         'message' => 'Your account is suspended. Please contact support.'
-                    ], 403);
+                    ], 299);
                 }
 
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid email address or password.'
-                ], 401);
+                ], 299);
             }
             $titleName = Config::getTitleNameById($staff->title_id);
 
@@ -105,7 +104,7 @@ class AdminAuthController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid email address or password.'
-                ], 401);
+                ], 299);
             }
 
             $deviceId = $request->header('X-Device-ID');
@@ -331,7 +330,8 @@ class AdminAuthController extends Controller
                     'token' => $request->token,
                 ],
 
-                function ($staff, $password) {
+                function ($user, $password) {
+                    $staff = Staff::where('email', $user->getEmailForPasswordReset())->first();
                     $this->updateStaffPassword($staff, $password);
                     $staff->status_id = 1;
                     $staff->save();
@@ -409,43 +409,10 @@ class AdminAuthController extends Controller
         ]);
     }
 
+
     public function changePassword(Request $request)
     {
-        try {
-            $staff = $request->user('admin');
-
-            if (!$staff) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized.'
-                ], 401);
-            }
-            $token = Password::createToken($staff);
-            $titleName = config::getTitleNameById($staff->title_id);
-
-            $staff->notify(new PasswordChangeOtp(
-                $token,
-                Str::title($titleName),
-                Str::title($staff->first_name . ' ' . $staff->last_name)
-            ));
-            return response()->json([
-                'success' => true,
-                'message' => 'Password change link has been sent to your email.',
-            ], 200);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong Please try again later.',
-                'logError' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function finishChangePassword(Request $request)
-    {
         $request->validate([
-            'emailAddress' => 'required|string|email',
-            'token' => 'required|string',
             'oldPassword' => 'required|string',
             'newPassword' => [
                 'required',
@@ -453,42 +420,28 @@ class AdminAuthController extends Controller
                 PasswordRule::min(8)->mixedCase()->numbers()->symbols()
             ],
         ]);
+
         try {
-            $staff = Staff::where('email', $request->emailAddress)->firstOrFail();
+            $staff = Auth::guard('admin')->user();
 
             if (!Hash::check($request->oldPassword, $staff->password)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Old password is incorrect.'
+                    'message' => 'Current password is incorrect.'
                 ], 400);
             }
 
             if (Hash::check($request->newPassword, $staff->password)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'New password cannot be the same as the old password.'
+                    'message' => 'New password cannot be the same as the current password.'
                 ], 400);
             }
 
-            $passwordBroker = Password::broker('admins')->reset(
-                [
-                    'email' => $request->emailAddress,
-                    'password' => $request->newPassword,
-                    'password_confirmation' => $request->newPassword_confirmation,
-                    'token' => $request->token,
-                ],
-
-                function ($staff, $newPassword) {
-                    $this->updateStaffPassword($staff, $newPassword);
-                }
-            );
-
-            if ($passwordBroker !== Password::PASSWORD_RESET) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to change password. Please try again.'
-                ], 500);
-            }
+          $staff->update([
+                'password' => Hash::make($request->newPassword)
+            ]);
+            $staff->tokens()->delete();
 
             return response()->json([
                 'success' => true,
@@ -497,7 +450,7 @@ class AdminAuthController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Something went wrong Please try again later.',
+                'message' => 'Something went wrong. Please try again later.',
                 'logError' => $e->getMessage(),
             ], 500);
         }
