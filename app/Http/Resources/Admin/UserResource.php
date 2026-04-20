@@ -30,6 +30,14 @@ class UserResource extends JsonResource
                 'titleId' => $this->title_id ?? null,
                 'titleName' => $this->title->title_name ?? null,
             ],
+            'staffCategory' =>[
+                'staffCategoryId' => $this->staff_category_id ?? null,
+                'staffCategoryName' => $this->staffCategory->staff_category_name ?? null,
+            ],
+            'membershipType' => [
+                'membershipTypeId' => $this->membership_type_id ?? null,
+                'membershipTypeName' => $this->membershipType->membership_type_name ?? null,
+            ],
             'gender' => [
                 'genderId' => $this->gender_id ?? null,
                 'genderName' => $this->gender->gender_name ?? null,
