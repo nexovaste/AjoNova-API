@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\MemberSavingResource;
 use App\Models\Admin\MemberContributionSaving;
 use App\Models\Admin\MemberSaving;
+use App\Models\Admin\Wallet;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
 use App\Services\Finance\WalletService;
@@ -23,7 +24,10 @@ class MemberSavingController extends Controller
         try {
             $cursor = $request->query('cursor');
             $cacheKey = "member_saving_list_" . ($cursor ?? 'first_page');
-            $memberSaving = Cache::tags('member_saving_list_')->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor) {
+            $memberSaving = Cache::tags('member_saving_list_')->flexible(
+                $cacheKey,
+                [now()->addMonth(), null],
+                function () use ($cursor) {
                     return MemberSaving::with([
                         'status:status_id,status_name',
                         'ledger:ledger_entry_id,entry_type',
@@ -107,6 +111,44 @@ class MemberSavingController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:0.01',
+            'reason' => 'required|string',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request) {
+                $userId = $request->header('X-User-ID');
+
+                WalletService::withdraw(
+                    $userId,
+                    $request->amount,
+                    'SAVINGS_WITHDRAWAL',
+                );
+
+                WithdrawalRequest::create([
+                    'user_id' => $userId,
+                    'withdrawal_type' => 'SAVINGS_WITHDRAWAL',
+                    'amount' => $request->amount,
+                    'withdraw_at' => now(),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Savings withdrawn successfully'
+                ], 200);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+
+    public function withdrawLockedBalance(Request $request)
+    {
+        $request->validate([
+            'reason' => 'required|string',
         ]);
 
         try {
@@ -122,7 +164,7 @@ class MemberSavingController extends Controller
                 WithdrawalRequest::create([
                     'user_id' => $userId,
                     'withdrawal_type' => 'LOCKED_WITHDRAWAL',
-                    'amount' => $request->amount,
+                    'amount' => Wallet::where('user_id', $userId)->value('locked_balance'),
                     'withdraw_at' => now(),
                 ]);
 

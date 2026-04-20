@@ -89,6 +89,7 @@ Route::prefix('v1')->group(function () {
             Route::post('user-passport/{id}', [UserPassportController::class, 'update']);
             Route::post('withdraw-contribution', [MemberContributionController::class, 'withdrawContribution']);
             Route::post('withdraw-savings', [MemberSavingController::class, 'withdrawSavings']);
+            Route::post('withdraw-locked-savings', [MemberSavingController::class, 'withdrawLockedBalance']);
             Route::post('withdraw-target-savings', [MemberTargetSavingController::class, 'withdrawSavings']);
             Route::post('apply-loan', [LoanController::class, 'applyLoan']);
         });

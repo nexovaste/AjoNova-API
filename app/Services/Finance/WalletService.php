@@ -113,6 +113,7 @@ class WalletService
             } elseif ($entryType === 'LOCKED_WITHDRAWAL') {
                 $balanceBefore = $wallet->locked_balance + $userInfo->amount;
                 $balanceAfter = $wallet->locked_balance;
+
             } elseif ($entryType === 'TARGET_WITHDRAWAL') {
                 $balanceBefore = $wallet->total_target_amount + $userInfo->amount;
                 $balanceAfter = $wallet->total_target_amount;
