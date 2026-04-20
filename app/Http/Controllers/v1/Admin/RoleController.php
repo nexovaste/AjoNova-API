@@ -46,7 +46,7 @@ class RoleController extends Controller
     // Store a newly created resource in storage.
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'roleName'      => 'required|string|min:3|max:50|unique:roles,name,NULL,id,guard_name,admin',
             'permissions'   => 'required|array|min:1',
             'permissions.*' => 'integer|exists:permissions,id'

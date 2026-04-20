@@ -36,8 +36,8 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware(['auth:admin', 'trust.device'])->group(function () {
-            Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
-            Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
+            // Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
+            // Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
             Route::post('staff-passport/{id}', [StaffPassportController::class, 'update']);
@@ -67,8 +67,9 @@ Route::prefix('v1')->group(function () {
             Route::post('activity-logs/mark-all-read', [ActivityLogController::class, 'markAllAsRead']);
             Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
         });
-        // Route::apiResource('role', RoleController::class);
-        // Route::apiResource('staff', AdminController::class);
+        Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
+        Route::apiResource('role', RoleController::class);
+        Route::apiResource('staff', AdminController::class);
     });
 
     Route::prefix('user')->group(function () {
