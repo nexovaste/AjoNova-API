@@ -111,7 +111,6 @@ class MemberSavingController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:0.01',
-            'reason' => 'required|string',
         ]);
 
         try {
