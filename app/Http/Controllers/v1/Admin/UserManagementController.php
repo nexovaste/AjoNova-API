@@ -49,14 +49,14 @@ class UserManagementController extends Controller
             if ($userData->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No user records found.',
+                    'message' => 'No member records found.',
                     'data' => []
                 ], 404);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'User records fetched successfully.',
+                'message' => 'Member records fetched successfully.',
                 'data' => UserResource::collection($userData),
                 'pagination' => [
                     'next_cursor' => $userData->nextCursor()?->encode(),
@@ -66,7 +66,7 @@ class UserManagementController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve user records: ' . $e->getMessage()
+                'message' => 'Failed to retrieve member records: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -76,6 +76,7 @@ class UserManagementController extends Controller
     {
         $request->validate([
             // ================= MEMBER =================
+            'membershipNumber' => ['nullable', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
             'titleId' => 'required|integer|exists:setup_titles,title_id',
             'staffCategoryId' => 'required|integer|exists:staff_categories,staff_category_id',
             'membershipTypeId' => 'required|integer|exists:membership_types,membership_type_id',
@@ -87,6 +88,9 @@ class UserManagementController extends Controller
             'emailAddress' => 'required|string|email|max:255|unique:users,email',
             'mobileNumber' => ['required', 'string', 'unique:users,mobile_number', 'regex:/^\+?[1-9]\d{1,14}$/'],
             'homeAddress' => 'nullable|string|max:255',
+            'dateJoined' => ['nullable', 'date', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
+            
+            
 
             // ================= MEMBER CONTRIBUTION SAVINGS =================
             'contributionAmount' => 'required_if:membershipTypeId,1|numeric|min:0',
@@ -228,7 +232,7 @@ class UserManagementController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'User created successfully',
+            'message' => 'Member created successfully',
         ], 200);
     }
 
@@ -249,13 +253,13 @@ class UserManagementController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Staff profile fetched successfully.',
+                'message' => 'Member profile fetched successfully.',
                 'data' => $userData
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve staff profile: ' . $e->getMessage()
+                'message' => 'Failed to retrieve member profile: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -266,6 +270,7 @@ class UserManagementController extends Controller
         $updateUser = User::where('user_id', $id)->firstOrFail();
 
         $request->validate([
+            'membershipNumber' => 'nullable|string|max:50',
             'titleId' => 'required|integer|exists:setup_titles,title_id',
             'staffCategoryId' => 'required|integer|exists:staff_categories,staff_category_id',
             'membershipTypeId' => 'required|integer|exists:membership_types,membership_type_id',
@@ -317,6 +322,7 @@ class UserManagementController extends Controller
             ]);
 
             $updateUser->update([
+                'membership_number' => $request->membershipNumber,
                 'title_id' => $request->titleId,
                 'staff_category_id' => $request->staffCategoryId,
                 'membership_type_id' => $request->membershipTypeId,
@@ -395,7 +401,7 @@ class UserManagementController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'User updated successfully',
+            'message' => 'Member updated successfully',
         ], 200);
     }
 }
