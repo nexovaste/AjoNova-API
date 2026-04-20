@@ -3,6 +3,7 @@
 namespace App\Models\Admin;
 
 
+use App\Models\Setup\PaymentChannelType;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Predis\Response\Status;
@@ -36,5 +37,15 @@ class MemberTargetSaving extends Model
      public function status()
     {
         return $this->belongsTo(Status::class, 'status_id', 'status_id');
+    }
+
+    public function ledger()
+    {
+        return $this->belongsTo(LedgerEntry::class, 'ledger_entry_id', 'ledger_entry_id');
+    }
+
+    public function paymentChannel()
+    {
+        return $this->belongsTo(PaymentChannelType::class, 'payment_channel_type_id', 'payment_channel_type_id');
     }
 }

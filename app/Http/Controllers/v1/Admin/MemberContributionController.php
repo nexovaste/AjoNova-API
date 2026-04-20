@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\v1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\MemberContributionResource;
 use App\Models\Admin\MemberContribution;
 use App\Models\Admin\MemberContributionSaving;
 use App\Models\Admin\WithdrawalRequest;
@@ -10,14 +11,49 @@ use App\Models\User\User;
 use App\Services\Finance\WalletService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class MemberContributionController extends Controller
 {
     // Display a listing of the resource.
-    public function index()
+    public function index(Request $request)
     {
-        //
+        try {
+            $cursor = $request->query('cursor');
+            $cacheKey = "member_contribution_list_" . ($cursor ?? 'first_page');
+            $memberContribution = Cache::tags('member_contribution_list_')->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor) {
+                    return MemberContribution::with([
+                        'status:status_id,status_name',
+                        'ledger:ledger_entry_id,entry_type',
+                        'paymentChannel:payment_channel_type_id,payment_channel_type_name'
+                    ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
+                }
+            );
+
+            if ($memberContribution->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No member contributions records found.',
+                    'data' => []
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Member Contribution records fetched successfully.',
+                'data' => MemberContributionResource::collection($memberContribution),
+                'pagination' => [
+                    'next_cursor' => $memberContribution->nextCursor()?->encode(),
+                    'previous_cursor' => $memberContribution->previousCursor()?->encode(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 
     // Store a newly created resource in storage.

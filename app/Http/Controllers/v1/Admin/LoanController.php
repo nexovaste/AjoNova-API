@@ -3,17 +3,52 @@
 namespace App\Http\Controllers\v1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\LoanResource;
+use App\Models\Admin\Loan;
 use App\Services\LoanService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class LoanController extends Controller
 {
     // Display a listing of the resource.
-    public function index()
+    public function index(Request $request)
     {
-        //
+        try {
+            $cursor = $request->query('cursor');
+            $cacheKey = "loan_list_" . ($cursor ?? 'first_page');
+            $loanData = Cache::tags('loan_list')->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor) {
+                    return Loan::with([
+                        'status:status_id,status_name',
+                    ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
+                }
+            );
+
+            if ($loanData->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No loan records found.',
+                    'data' => []
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Loan records fetched successfully.',
+                'data' => LoanResource::collection($loanData),
+                'pagination' => [
+                    'next_cursor' => $loanData->nextCursor()?->encode(),
+                    'previous_cursor' => $loanData->previousCursor()?->encode(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 
     // Store a newly created resource in storage.

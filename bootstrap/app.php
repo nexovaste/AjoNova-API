@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\TrustDeviceMiddleware;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -9,8 +10,8 @@ use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        api: __DIR__.'/../routes/api.php',
-        commands: __DIR__.'/../routes/console.php',
+        api: __DIR__ . '/../routes/api.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -26,14 +27,23 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-            'trust.device'=> TrustDeviceMiddleware::class
+            'trust.device' => TrustDeviceMiddleware::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, $request) {
-        return response()->json([
-            'responseMessage' => 'You do not have the required authorization.',
-            'responseStatus'  => 403,
-        ]);
-    });
+            return response()->json([
+                'message' => 'You do not have the required authorization.',
+                'status'  => 403,
+            ]);
+        });
+
+        $exceptions->render(function (AuthenticationException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Unauthenticated.',
+                    'type' => 'AUTH_ERROR'
+                ], 401);
+            }
+        });
     })->create();

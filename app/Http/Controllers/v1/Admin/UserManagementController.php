@@ -97,7 +97,6 @@ class UserManagementController extends Controller
             'targetAmount' => 'required_with:targetName|numeric|min:0',
             'startDate' => 'required_with:targetName|date',
             'durationMonths' => 'required_with:targetName|integer|min:1',
-
         ]);
 
         $admin = Auth::guard('admin')->user();
@@ -131,7 +130,7 @@ class UserManagementController extends Controller
                 MemberContributionSaving::create([
                     'user_id' => $userId,
                     'contribution_amount' => $request->contributionAmount,
-                    'saving_amount' => $request->savingAmount,
+                    'saving_amount' => $request->savingAmount ?: null,
                     'created_by' => $admin->staff_id ?? $userId,
                 ]);
             }
