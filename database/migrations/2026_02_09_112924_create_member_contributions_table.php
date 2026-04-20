@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('contribution_year')->storedAs('YEAR(contribution_date)');
             $table->string('contribution_period')->storedAs("DATE_FORMAT(contribution_date, '%M %Y')");
             $table->string('reference')->unique()->nullable();
-            $table->unsignedBigInteger('ledger_entry_id')->nullable();
+            $table->unsignedBigInteger('ledger_entry_id')->nullable()->index();
             $table->unsignedBigInteger('status_id')->default(5); // PENDING
             $table->string('processed_by')->nullable();
             $table->timestamps();
@@ -32,6 +32,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('user_id')->on('users')->OnDelete('restrict')->OnUpdate('cascade');
             $table->foreign('payment_channel_type_id')->references('payment_channel_type_id')->on('payment_channel_types')->OnDelete('restrict')->OnUpdate('cascade');
             $table->foreign('status_id')->references('status_id')->on('setup_statuses')->OnDelete('restrict')->OnUpdate('cascade');
+            $table->foreign('ledger_entry_id')->references('ledger_entry_id')->on('ledger_entries')->OnDelete('restrict')->OnUpdate('cascade');
         });
     }
 

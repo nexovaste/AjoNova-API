@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\v1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\MemberTargetSavingResource;
 use App\Models\Admin\MemberTargetSaving;
 use App\Models\Admin\MemberTargetSavingSetting;
 use App\Models\Admin\WithdrawalRequest;
@@ -10,14 +11,50 @@ use App\Models\User\User;
 use App\Services\Finance\WalletService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class MemberTargetSavingController extends Controller
 {
     // Display a listing of the resource.
-    public function index()
+    public function index(Request $request)
     {
-        //
+        try {
+            $cursor = $request->query('cursor');
+            $cacheKey = "member_target_saving_list_" . ($cursor ?? 'first_page');
+            $memberSaving = Cache::tags('member_target_saving_list_')->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor) {
+                    return MemberTargetSaving::with([
+                        'status:status_id,status_name',
+                        'ledger:ledger_entry_id,entry_type',
+                        'paymentChannel:payment_channel_type_id,payment_channel_type_name',
+                        'setting:member_target_saving_setting_id,target_name,target_amount,monthly_amount,duration_months,start_date,end_date'
+                    ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
+                }
+            );
+
+            if ($memberSaving->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No member target savings records found.',
+                    'data' => []
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Member Target Saving records fetched successfully.',
+                'data' => MemberTargetSavingResource::collection($memberSaving),
+                'pagination' => [
+                    'next_cursor' => $memberSaving->nextCursor()?->encode(),
+                    'previous_cursor' => $memberSaving->previousCursor()?->encode(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 
     // Store a newly created resource in storage.
