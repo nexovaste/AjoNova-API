@@ -54,6 +54,10 @@ Route::prefix('v1')->group(function () {
             Route::post('target-savings-withdrawal-approval/{id}', [MemberTargetSavingController::class, 'approveWithdrawal']);
             Route::post('approve-loan/{id}', [LoanController::class, 'approveLoan']);
             Route::post('loan-repayment', [LoanController::class, 'loanRepayment']);
+            Route::apiResource('all-loans', LoanController::class)->only(['index', 'show']);
+            Route::apiResource('member-contributions', MemberContributionController::class)->only(['index']);
+            Route::apiResource('member-savings', MemberSavingController::class)->only(['index']);
+            Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
 
             Route::get('activity-logs', [ActivityLogController::class, 'index']);
             Route::get('activity-logs/search', [ActivityLogController::class, 'search']);
