@@ -8,6 +8,7 @@ use App\Models\Admin\MemberContribution;
 use App\Models\Admin\MemberContributionSaving;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
+use App\Services\Cache\ClearCacheService;
 use App\Services\Finance\WalletService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
@@ -20,14 +21,15 @@ class MemberContributionController extends Controller
     public function index(Request $request)
     {
         try {
+            $userId = $request->header('X-User-ID');
             $cursor = $request->query('cursor');
-            $cacheKey = "member_contribution_list_" . ($cursor ?? 'first_page');
-            $memberContribution = Cache::tags('member_contribution_list_')->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor) {
+            $cacheKey = "member_contribution_list_" . $userId . "_" . ($cursor ?? 'first_page');
+            $memberContribution = Cache::tags('member_contribution_list_' . $userId)->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor, $userId) {
                     return MemberContribution::with([
                         'status:status_id,status_name',
                         'ledger:ledger_entry_id,entry_type',
                         'paymentChannel:payment_channel_type_id,payment_channel_type_name'
-                    ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
+                    ])->where('user_id', $userId)->cursorPaginate(30, ['*'], 'cursor', $cursor);
                 }
             );
 
@@ -91,6 +93,8 @@ class MemberContributionController extends Controller
                     'success' => true,
                     'message' => 'Contribution processed successfully'
                 ], 201);
+
+                ClearCacheService::clearListCache('member_contribution_list_' . $userId);
             });
         } catch (UniqueConstraintViolationException $e) {
             return response()->json([
