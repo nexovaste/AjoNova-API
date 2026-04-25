@@ -88,13 +88,14 @@ class MemberContributionController extends Controller
                     'reference' => $ledgerEntry->reference,
                     'processed_by' => $ledgerEntry->created_by,
                 ]);
+                ClearCacheService::clearListCache('member_contribution_list_' . $userId);
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Contribution processed successfully'
                 ], 201);
 
-                ClearCacheService::clearListCache('member_contribution_list_' . $userId);
+                
             });
         } catch (UniqueConstraintViolationException $e) {
             return response()->json([

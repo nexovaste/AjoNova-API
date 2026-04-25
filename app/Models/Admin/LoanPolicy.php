@@ -21,7 +21,6 @@ class LoanPolicy extends Model
         'eligibility_months',
         'allow_multiple_loans',
         'status_id',
-        'created_by',
         'updated_by',
     ];
 

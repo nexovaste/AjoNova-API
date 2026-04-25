@@ -26,7 +26,10 @@ class MemberSavingController extends Controller
             $userId = $request->header('X-User-ID');
             $cursor = $request->query('cursor');
             $cacheKey = "member_saving_list_" . $userId . "_" . ($cursor ?? 'first_page');
-            $memberSaving = Cache::tags('member_saving_list_' . $userId)->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor, $userId) {
+            $memberSaving = Cache::tags('member_saving_list_' . $userId)->flexible(
+                $cacheKey,
+                [now()->addMonth(), null],
+                function () use ($cursor, $userId) {
                     return MemberSaving::with([
                         'status:status_id,status_name',
                         'ledger:ledger_entry_id,entry_type',
@@ -91,13 +94,11 @@ class MemberSavingController extends Controller
                     'reference' => $ledgerEntry->reference,
                     'processed_by' => $ledgerEntry->created_by,
                 ]);
-
+                ClearCacheService::clearListCache('member_saving_list_' . $userId);
                 return response()->json([
                     'success' => true,
                     'message' => 'Savings processed successfully'
                 ], 201);
-
-                ClearCacheService::clearListCache('member_saving_list_' . $userId);
             });
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
             return response()->json([
