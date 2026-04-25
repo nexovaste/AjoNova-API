@@ -7,10 +7,12 @@ use App\Models\Admin\Loan;
 use App\Models\Admin\MemberContribution;
 use App\Models\Admin\MemberTargetSaving;
 use App\Models\Admin\Wallet;
+use App\Models\Setup\MembershipType;
 use App\Models\Setup\SetupGender;
 use App\Models\Setup\SetupLga;
 use App\Models\Setup\SetupStatus;
 use App\Models\Setup\SetupTitle;
+use App\Models\Setup\StaffCategory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -71,6 +73,16 @@ class User extends Authenticatable
     {
         return $this->belongsTo(SetupGender::class, 'gender_id', 'gender_id');
     }
+
+    public function membershipType()
+    {
+        return $this->belongsTo(MembershipType::class, 'membership_type_id', 'membership_type_id');
+    }
+
+    public function staffCategory()
+    {
+        return $this->belongsTo(StaffCategory::class, 'staff_category_id', 'staff_category_id');
+    }   
 
     public function status()
     {

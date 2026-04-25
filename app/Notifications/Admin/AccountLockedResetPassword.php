@@ -28,7 +28,7 @@ class AccountLockedResetPassword extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $url = config('app.frontend_url') . '/change-password?token=' . $this->token . '&email=' .
+        $url = config('app.frontend_url') . '/admin/login/reset-password?token=' . $this->token . '&email=' .
             urlencode($notifiable->email);
 
         return (new MailMessage)

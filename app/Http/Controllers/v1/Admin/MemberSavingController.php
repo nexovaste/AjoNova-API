@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\MemberSavingResource;
 use App\Models\Admin\MemberContributionSaving;
 use App\Models\Admin\MemberSaving;
+use App\Models\Admin\Wallet;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
 use App\Services\Cache\ClearCacheService;
@@ -120,13 +121,51 @@ class MemberSavingController extends Controller
                 WalletService::withdraw(
                     $userId,
                     $request->amount,
+                    'SAVINGS_WITHDRAWAL',
+                );
+
+                WithdrawalRequest::create([
+                    'user_id' => $userId,
+                    'withdrawal_type' => 'SAVINGS_WITHDRAWAL',
+                    'amount' => $request->amount,
+                    'withdraw_at' => now(),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Savings withdrawn successfully'
+                ], 200);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+
+    public function withdrawLockedBalance(Request $request)
+    {
+        $request->validate([
+            'reason' => 'required|string',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request) {
+                $userId = $request->header('X-User-ID');
+                $lockedBalance = Wallet::where('user_id', $userId)->value('locked_balance');
+
+                WalletService::withdraw(
+                    $userId,
+                    $lockedBalance,
                     'LOCKED_WITHDRAWAL',
                 );
 
                 WithdrawalRequest::create([
                     'user_id' => $userId,
                     'withdrawal_type' => 'LOCKED_WITHDRAWAL',
-                    'amount' => $request->amount,
+                    'amount' => $lockedBalance,
                     'withdraw_at' => now(),
                 ]);
 

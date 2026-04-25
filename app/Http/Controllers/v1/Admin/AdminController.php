@@ -23,54 +23,54 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class AdminController extends Controller
 {
     // Display a listing of the resource.
-  public function index(Request $request)
-{
-    try {
-        $admin = Auth::guard('admin')->user();
-        $cursor = $request->get('cursor');
-        $cacheKey = "staff_list_" . ($cursor ?? 'first_page');
-        $staffData = Cache::tags('staff_list')->flexible($cacheKey,[now()->addMonth(), null],function () use ($admin, $cursor) {
-                return Staff::with([
-                    'title:title_id,title_name',
-                    'gender:gender_id,gender_name',
-                    'status:status_id,status_name',
-                    'lga:lga_id,lga_name,state_id',
-                    'lga.state:state_id,state_name,country_id',
-                    'lga.state.country:country_id,country_name',
-                ])
+    public function index(Request $request)
+    {
+        try {
+            $admin = Auth::guard('admin')->user();
+            $adminRoleId = $admin->roles->first();
+
+            $staffData = Staff::with([
+                'title:title_id,title_name',
+                'gender:gender_id,gender_name',
+                'status:status_id,status_name',
+                'lga:lga_id,lga_name,state_id',
+                'lga.state:state_id,state_name,country_id',
+                'lga.state.country:country_id,country_name',
+            ])
                 ->where('staff_id', '!=', $admin->staff_id)
+                ->whereHas('roles', function ($query) use ($adminRoleId) {
+                    $query->where('id', '>=', $adminRoleId);
+                })
                 ->orderBy('last_name', 'asc')
                 ->orderBy('staff_id', 'asc')
-                ->cursorPaginate(2, ['*'], 'cursor', $cursor);
-            }
-        );
+                ->cursorPaginate(10);
 
-        if ($staffData->isEmpty()) {
+            if ($staffData->count() === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No staff records found.',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Staff records fetched successfully.',
+                'data' => AdminResource::collection($staffData),
+                'pagination' => [
+                    'per_page' => $staffData->perPage(),
+                    'next_cursor' => optional($staffData->nextCursor())->encode(),
+                    'prev_cursor' => optional($staffData->previousCursor())->encode(),
+                    'has_more' => $staffData->hasMorePages(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'No staff records found.',
-                'data' => []
-            ], 404);
+                'message' => 'Failed to retrieve staff records: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Staff records fetched successfully.',
-            'data' => AdminResource::collection($staffData),
-            'pagination' => [
-                'next_cursor' => $staffData->nextCursor()?->encode(),
-                'previous_cursor' => $staffData->previousCursor()?->encode(),
-            ],
-        ], 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to retrieve staff records: ' . $e->getMessage()
-        ], 500);
     }
-}
-
 
     // Store a newly created resource in storage.
     public function store(Request $request): JsonResponse
@@ -220,7 +220,7 @@ class AdminController extends Controller
                 'email'          => strtolower($request->emailAddress),
                 'mobile_number'  => $request->mobileNumber,
                 'home_address'   => strtoupper($request->homeAddress),
-                'lga_id'         => $request->lgaId,
+                'lga_id'         => $request->lgaId ?: null,
                 'date_of_birth'  => $request->dateOfBirth,
                 'nin'            => $request->nin,
                 'status_id'      => $request->statusId,

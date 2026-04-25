@@ -5,6 +5,7 @@ namespace App\Services\Finance;
 use App\Models\Admin\LedgerEntry;
 use App\Models\Admin\Wallet;
 use App\Models\Admin\WithdrawalRequest;
+use App\Models\User\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -70,7 +71,7 @@ class WalletService
             }
             $wallet->total_saving_amount -= $amount;
         } elseif ($entryType === 'LOCKED_WITHDRAWAL') {
-            if ($wallet->locked_balance < $amount) {
+            if ($wallet->locked_balance < $amount || $wallet->locked_balance < 1) {
                 throw new Exception('Insufficient locked balance');
             }
             $wallet->locked_balance -= $amount;
@@ -144,6 +145,10 @@ class WalletService
                 $wallet->total_saving_amount += $userInfo->amount;
             } elseif ($entryType === 'LOCKED_WITHDRAWAL') {
                 $wallet->locked_balance += $userInfo->amount;
+                $user = User::whereKey($userInfo->user_id)->first();
+                if ($user) {$user->status_id = 3;
+                    $user->save();
+                }
             } elseif ($entryType === 'TARGET_WITHDRAWAL') {
                 $wallet->total_target_amount += $userInfo->amount;
             }

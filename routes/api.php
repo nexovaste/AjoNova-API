@@ -36,8 +36,8 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware(['auth:admin', 'trust.device'])->group(function () {
-            Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
-            Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
+            // Route::apiResource('role', RoleController::class)->middleware('permission:manage roles');
+            // Route::apiResource('staff', AdminController::class)->middleware('permission:manage staff');
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
             Route::post('staff-passport/{id}', [StaffPassportController::class, 'update']);
@@ -68,8 +68,8 @@ Route::prefix('v1')->group(function () {
             Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
-        // Route::apiResource('role', RoleController::class);
-        // Route::apiResource('staff', AdminController::class);
+        Route::apiResource('role', RoleController::class);
+        Route::apiResource('staff', AdminController::class);
     });
 
     Route::prefix('user')->group(function () {
@@ -89,6 +89,7 @@ Route::prefix('v1')->group(function () {
             Route::post('user-passport/{id}', [UserPassportController::class, 'update']);
             Route::post('withdraw-contribution', [MemberContributionController::class, 'withdrawContribution']);
             Route::post('withdraw-savings', [MemberSavingController::class, 'withdrawSavings']);
+            Route::post('withdraw-locked-savings', [MemberSavingController::class, 'withdrawLockedBalance']);
             Route::post('withdraw-target-savings', [MemberTargetSavingController::class, 'withdrawSavings']);
             Route::post('apply-loan', [LoanController::class, 'applyLoan']);
         });

@@ -2,8 +2,8 @@
 
 namespace App\Models\Admin;
 
+use App\Models\Setup\SetupStatus;
 use Illuminate\Database\Eloquent\Model;
-use Predis\Response\Status;
 
 class LoanPolicy extends Model
 {
@@ -26,19 +26,10 @@ class LoanPolicy extends Model
     ];
 
 
-    public function loans()
-    {
-        return $this->hasMany(Loan::class, 'loan_policy_id', 'loan_policy_id');
-    }
-
     public function status()
     {
-        return $this->belongsTo(Status::class, 'status_id', 'status_id');
+        return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
 
-    public function isValidDuration($months)
-    {
-        return $months >= $this->min_duration_months &&
-            $months <= $this->max_duration_months;
-    }
+
 }

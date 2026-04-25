@@ -13,6 +13,7 @@ class UserResource extends JsonResource
     {
         return [
             'userId' => $this->user_id,
+            'membershipNumber' => $this->membership_number,
             'firstName' => $this->first_name,
             'middleName' => $this->middle_name,
             'lastName' => $this->last_name,
@@ -21,6 +22,9 @@ class UserResource extends JsonResource
             'homeAddress' => $this->home_address,
             'dateOfBirth' => $this->date_of_birth,
             'nin' => $this->nin,
+            'monthlySalary' => $this->monthly_salary,
+            'dateJoined' => $this->date_joined? Carbon::parse($this->date_joined)->format('d M Y'): null,
+            'dateExited' => $this->date_exited? Carbon::parse($this->date_exited)->format('d M Y'): null,
             'lastLoginAt' => Carbon::parse($this->last_login_at)->diffForHumans(),
             'createdAt' => Carbon::parse($this->created_at)->toDayDateTimeString(),
             'updatedAt' => Carbon::parse($this->updated_at)->toDayDateTimeString(),
@@ -29,6 +33,14 @@ class UserResource extends JsonResource
             'title' => [
                 'titleId' => $this->title_id ?? null,
                 'titleName' => $this->title->title_name ?? null,
+            ],
+            'staffCategory' => [
+                'staffCategoryId' => $this->staff_category_id ?? null,
+                'staffCategoryName' => $this->staffCategory->staff_category_name ?? null,
+            ],
+            'membershipType' => [
+                'membershipTypeId' => $this->membership_type_id ?? null,
+                'membershipTypeName' => $this->membershipType->membership_type_name ?? null,
             ],
             'gender' => [
                 'genderId' => $this->gender_id ?? null,
