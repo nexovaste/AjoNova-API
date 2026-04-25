@@ -145,10 +145,6 @@ class WalletService
                 $wallet->total_saving_amount += $userInfo->amount;
             } elseif ($entryType === 'LOCKED_WITHDRAWAL') {
                 $wallet->locked_balance += $userInfo->amount;
-                $user = User::whereKey($userInfo->user_id)->first();
-                if ($user) {$user->status_id = 3;
-                    $user->save();
-                }
             } elseif ($entryType === 'TARGET_WITHDRAWAL') {
                 $wallet->total_target_amount += $userInfo->amount;
             }

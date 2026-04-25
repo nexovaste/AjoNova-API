@@ -121,6 +121,7 @@ class LoanService
                     $dueDate = $startDate->copy()->addMonths($i);
                     $remainingPrincipal -= $monthlyPrincipal;
                     LoanRepaymentSchedule::create([
+                        'user_id' => $loan->user_id,
                         'loan_id' => $loan->loan_id,
                         'installment_number' => $i,
                         'due_date' => $dueDate,

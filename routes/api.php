@@ -43,7 +43,7 @@ Route::prefix('v1')->group(function () {
             Route::post('staff-passport/{id}', [StaffPassportController::class, 'update']);
             Route::get('fetch-profile', [AdminAuthController::class, 'fetchProfile']);
             Route::post('logout', [AdminAuthController::class, 'logout']);
-            Route::apiResource('loan-policies', LoanPolicyController::class)->except(['destroy']);
+            Route::apiResource('loan-policies', LoanPolicyController::class)->except(['destroy', 'store']);
             Route::post('deposit-savings', [MemberSavingController::class, 'depositSavings']);
             Route::post('deposit-contribution', [MemberContributionController::class, 'depositContribution']);
             Route::post('deposit-target-savings', [MemberTargetSavingController::class, 'depositTargetSavings']);
@@ -92,6 +92,10 @@ Route::prefix('v1')->group(function () {
             Route::post('withdraw-locked-savings', [MemberSavingController::class, 'withdrawLockedBalance']);
             Route::post('withdraw-target-savings', [MemberTargetSavingController::class, 'withdrawSavings']);
             Route::post('apply-loan', [LoanController::class, 'applyLoan']);
+            Route::apiResource('member-contributions', MemberContributionController::class)->only(['index']);
+            Route::apiResource('member-savings', MemberSavingController::class)->only(['index']);
+            Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
+
         });
         Route::apiResource('signup', UserManagementController::class)->only('store');
     });

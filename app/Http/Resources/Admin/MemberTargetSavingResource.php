@@ -15,7 +15,7 @@ class MemberTargetSavingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'memberTargetSaving_id' => $this->member_target_saving_id,
+            'memberTargetSavingId' => $this->member_target_saving_id,
             'userId' => $this->user_id,
             'memberTargetSavingSettingId' => $this->member_target_saving_setting_id,
             'monthlyAmount' => $this->monthly_amount,

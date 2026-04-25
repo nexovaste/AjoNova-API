@@ -11,18 +11,17 @@ return new class extends Migration
     {
         Schema::create('loan_policies', function (Blueprint $table) {
             $table->id('loan_policy_id');
-            $table->unsignedBigInteger('loan_multiplier'); // e.g. 10x savings
-            $table->decimal('minimum_amount', 12, 2);
+            $table->unsignedBigInteger('loan_multiplier')->default(0); // e.g. 10x savings
+            $table->decimal('minimum_amount', 12, 2)->default(0.00);
             $table->decimal('maximum_amount', 12, 2)->nullable();
-            $table->unsignedBigInteger('min_duration_months');
-            $table->unsignedBigInteger('max_duration_months');
-            $table->decimal('interest_rate', 5, 2); // 10%
+            $table->unsignedBigInteger('min_duration_months')->default(0);
+            $table->unsignedBigInteger('max_duration_months')->default(0);
+            $table->decimal('interest_rate', 5, 2)->default(0); // 10%
             $table->decimal('processing_fee', 5, 2)->default(0)->nullable();
             $table->decimal('penalty_rate', 5, 2)->default(0)->nullable();
-            $table->unsignedBigInteger('eligibility_months');
+            $table->unsignedBigInteger('eligibility_months')->default(0);
             $table->boolean('allow_multiple_loans')->default(false);
             $table->unsignedBigInteger('status_id')->default(1);
-            $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();

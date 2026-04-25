@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\LoanResource;
 use App\Models\Admin\Loan;
+use App\Services\Cache\ClearCacheService;
 use App\Services\LoanService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -92,6 +93,7 @@ class LoanController extends Controller
                     $request->input('relationshipToBorrower'),
                     $request->input('guaranteedAmount')
                 );
+                ClearCacheService::clearListCache('loan_list');
                 return response()->json([
                     'success' => true,
                     'message' => 'Loan application submitted successfully'
