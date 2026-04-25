@@ -8,6 +8,7 @@ use App\Models\Admin\MemberContributionSaving;
 use App\Models\Admin\MemberSaving;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
+use App\Services\Cache\ClearCacheService;
 use App\Services\Finance\WalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -21,14 +22,15 @@ class MemberSavingController extends Controller
     public function index(Request $request)
     {
         try {
+            $userId = $request->header('X-User-ID');
             $cursor = $request->query('cursor');
-            $cacheKey = "member_saving_list_" . ($cursor ?? 'first_page');
-            $memberSaving = Cache::tags('member_saving_list_')->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor) {
+            $cacheKey = "member_saving_list_" . $userId . "_" . ($cursor ?? 'first_page');
+            $memberSaving = Cache::tags('member_saving_list_' . $userId)->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor, $userId) {
                     return MemberSaving::with([
                         'status:status_id,status_name',
                         'ledger:ledger_entry_id,entry_type',
                         'paymentChannel:payment_channel_type_id,payment_channel_type_name'
-                    ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
+                    ])->where('user_id', $userId)->cursorPaginate(30, ['*'], 'cursor', $cursor);
                 }
             );
 
@@ -93,6 +95,8 @@ class MemberSavingController extends Controller
                     'success' => true,
                     'message' => 'Savings processed successfully'
                 ], 201);
+
+                ClearCacheService::clearListCache('member_saving_list_' . $userId);
             });
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
             return response()->json([
