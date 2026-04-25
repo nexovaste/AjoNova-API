@@ -153,17 +153,18 @@ class MemberSavingController extends Controller
         try {
             return DB::transaction(function () use ($request) {
                 $userId = $request->header('X-User-ID');
+                $lockedBalance = Wallet::where('user_id', $userId)->value('locked_balance');
 
                 WalletService::withdraw(
                     $userId,
-                    $request->amount,
+                    $lockedBalance,
                     'LOCKED_WITHDRAWAL',
                 );
 
                 WithdrawalRequest::create([
                     'user_id' => $userId,
                     'withdrawal_type' => 'LOCKED_WITHDRAWAL',
-                    'amount' => Wallet::where('user_id', $userId)->value('locked_balance'),
+                    'amount' => $lockedBalance,
                     'withdraw_at' => now(),
                 ]);
 

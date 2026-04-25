@@ -90,8 +90,6 @@ class UserManagementController extends Controller
             'homeAddress' => 'nullable|string|max:255',
             'dateJoined' => ['nullable', 'date', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
             
-            
-
             // ================= MEMBER CONTRIBUTION SAVINGS =================
             'contributionAmount' => 'required_if:membershipTypeId,1|numeric|min:0',
             'savingAmount' => 'required_if:membershipTypeId,2|numeric|min:0',
