@@ -27,38 +27,30 @@ class AdminController extends Controller
     {
         try {
             $admin = Auth::guard('admin')->user();
-            $adminRoles = $admin->roles->first();
+            $adminRoleId = $admin->roles->first();
 
-            $cursor = $request->get('cursor');
-            $cacheKey = "staff_list_" . ($cursor ?? 'first_page');
-            $staffData = Cache::tags('staff_list')->flexible(
-                $cacheKey,
-                [now()->addMonth(), null],
-                function () use ($admin, $cursor, $adminRoles) {
-                    return Staff::with([
-                        'title:title_id,title_name',
-                        'gender:gender_id,gender_name',
-                        'status:status_id,status_name',
-                        'lga:lga_id,lga_name,state_id',
-                        'lga.state:state_id,state_name,country_id',
-                        'lga.state.country:country_id,country_name',
-                    ])
-                        ->where('staff_id', '!=', $admin->staff_id)
-                        ->whereHas('roles', function ($query) use ($adminRoles) {
-                            $query->where('id', '>=', $adminRoles->id);
-                        })
-                        ->orderBy('last_name', 'asc')
-                        ->orderBy('staff_id', 'asc')
-                        ->cursorPaginate(30, ['*'], 'cursor', $cursor);
-                }
-            );
+            $staffData = Staff::with([
+                'title:title_id,title_name',
+                'gender:gender_id,gender_name',
+                'status:status_id,status_name',
+                'lga:lga_id,lga_name,state_id',
+                'lga.state:state_id,state_name,country_id',
+                'lga.state.country:country_id,country_name',
+            ])
+                ->where('staff_id', '!=', $admin->staff_id)
+                ->whereHas('roles', function ($query) use ($adminRoleId) {
+                    $query->where('id', '>=', $adminRoleId);
+                })
+                ->orderBy('last_name', 'asc')
+                ->orderBy('staff_id', 'asc')
+                ->cursorPaginate(10);
 
-            if ($staffData->isEmpty()) {
+            if ($staffData->count() === 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No staff records found.',
                     'data' => []
-                ], 299);
+                ], 200);
             }
 
             return response()->json([
@@ -66,8 +58,10 @@ class AdminController extends Controller
                 'message' => 'Staff records fetched successfully.',
                 'data' => AdminResource::collection($staffData),
                 'pagination' => [
-                    'next_cursor' => $staffData->nextCursor()?->encode(),
-                    'previous_cursor' => $staffData->previousCursor()?->encode(),
+                    'per_page' => $staffData->perPage(),
+                    'next_cursor' => optional($staffData->nextCursor())->encode(),
+                    'prev_cursor' => optional($staffData->previousCursor())->encode(),
+                    'has_more' => $staffData->hasMorePages(),
                 ],
             ], 200);
         } catch (\Exception $e) {
