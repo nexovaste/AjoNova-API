@@ -5,9 +5,11 @@ use App\Http\Controllers\v1\Admin\AdminController;
 use App\Http\Controllers\v1\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\v1\Admin\LoanController;
 use App\Http\Controllers\v1\Admin\LoanPolicyController;
+use App\Http\Controllers\v1\Admin\LoanRepaymentScheduleController;
 use App\Http\Controllers\v1\Admin\MemberContributionController;
 use App\Http\Controllers\v1\Admin\MemberSavingController;
 use App\Http\Controllers\v1\Admin\MemberTargetSavingController;
+use App\Http\Controllers\v1\Admin\ReportController;
 use App\Http\Controllers\v1\Admin\RoleController;
 use App\Http\Controllers\v1\Admin\StaffPassportController;
 use App\Http\Controllers\v1\Admin\UserManagementController;
@@ -62,6 +64,8 @@ Route::prefix('v1')->group(function () {
             Route::patch('update-contribution-amount', [MemberContributionController::class, 'updateContributionAmount']);
             Route::patch('update-savings-amount', [MemberSavingController::class, 'updateSavingsAmount']);
             Route::apiResource('withdrawal-requests', WithdrawalRequestController::class)->only(['index', 'show']);
+            Route::apiResource('report', ReportController::class)->only(['index']);
+            Route::apiResource('loan-repayment-schedule', LoanRepaymentScheduleController::class)->only(['index']);
 
             Route::get('activity-logs', [ActivityLogController::class, 'index']);
             Route::get('activity-logs/search', [ActivityLogController::class, 'search']);
@@ -99,6 +103,8 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('member-contributions', MemberContributionController::class)->only(['index']);
             Route::apiResource('member-savings', MemberSavingController::class)->only(['index']);
             Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
+            Route::apiResource('report', ReportController::class)->only(['index']);
+            Route::apiResource('loan-repayment-schedule', LoanRepaymentScheduleController::class)->only(['index']);
 
         });
         Route::apiResource('signup', UserManagementController::class)->only('store');
