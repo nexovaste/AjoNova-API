@@ -15,7 +15,6 @@ class LedgerEntry extends Model
         'wallet_id',
         'entry_type',
         'transaction_type',
-        'source_table',
         'amount',
         'balance_before',
         'balance_after',
