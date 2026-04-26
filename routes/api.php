@@ -5,6 +5,7 @@ use App\Http\Controllers\v1\Admin\AdminController;
 use App\Http\Controllers\v1\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\v1\Admin\LoanController;
 use App\Http\Controllers\v1\Admin\LoanPolicyController;
+use App\Http\Controllers\v1\Admin\LoanRepaymentScheduleController;
 use App\Http\Controllers\v1\Admin\MemberContributionController;
 use App\Http\Controllers\v1\Admin\MemberSavingController;
 use App\Http\Controllers\v1\Admin\MemberTargetSavingController;
@@ -60,6 +61,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('member-savings', MemberSavingController::class)->only(['index']);
             Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
             Route::apiResource('report', ReportController::class)->only(['index']);
+            Route::apiResource('loan-repayment-schedule', LoanRepaymentScheduleController::class)->only(['index']);
 
             Route::get('activity-logs', [ActivityLogController::class, 'index']);
             Route::get('activity-logs/search', [ActivityLogController::class, 'search']);
@@ -98,6 +100,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('member-savings', MemberSavingController::class)->only(['index']);
             Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
             Route::apiResource('report', ReportController::class)->only(['index']);
+            Route::apiResource('loan-repayment-schedule', LoanRepaymentScheduleController::class)->only(['index']);
 
         });
         Route::apiResource('signup', UserManagementController::class)->only('store');
