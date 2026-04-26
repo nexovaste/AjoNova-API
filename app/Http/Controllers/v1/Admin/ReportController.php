@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\ReportResource;
 use App\Models\Admin\LedgerEntry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ReportController extends Controller
 {
@@ -14,13 +15,17 @@ class ReportController extends Controller
     {
         try {
             $userId = $request->header('X-User-ID');
-            $data = LedgerEntry::where('user_id', $userId)
+            $cursor = $request->query('cursor');
+            $cacheKey = "ledger_entries_user_{$userId}_cursor_" . ($cursor ?? 'first_page');
+            $ledgerEntry = Cache::tags("ledger_entries_user_{$userId}")->flexible($cacheKey, [now()->addMonth(), null], function () use ($userId, $cursor) {
+                return LedgerEntry::where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
                 ->orderBy('ledger_entry_id', 'desc')
-                ->cursorPaginate(10);
-            if ($data->isEmpty()) {
+                ->cursorPaginate(30, ['*'], 'cursor', $cursor);
+            }); 
+            if ($ledgerEntry->isEmpty()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => false, 
                     'message' => 'No records found.',
                     'data' => []
                 ], 404);
@@ -28,12 +33,12 @@ class ReportController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Records fetched successfully.',
-                'data' => ReportResource::collection($data),
+                'data' => ReportResource::collection($ledgerEntry),
                 'pagination' => [
-                    'per_page' => $data->perPage(),
-                    'next_cursor' => optional($data->nextCursor())->encode(),
-                    'prev_cursor' => optional($data->previousCursor())->encode(),
-                    'has_more' => $data->hasMorePages(),
+                    'per_page' => $ledgerEntry->perPage(),
+                    'next_cursor' => optional($ledgerEntry->nextCursor())->encode(),
+                    'prev_cursor' => optional($ledgerEntry->previousCursor())->encode(),
+                    'has_more' => $ledgerEntry->hasMorePages(),
                 ],
             ], 200);
             
@@ -43,6 +48,7 @@ class ReportController extends Controller
                 'message' => $e->getMessage()
             ], 400);
         }
+        
     }
 
 

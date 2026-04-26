@@ -52,6 +52,7 @@ class WalletService
         ]);
 
         return $ledgerEntry;
+        ClearCacheService::clearListCache('ledger_entries_user_' . $userId);
     }
 
     public static function withdraw($userId, $amount, $entryType = 'CONTRIBUTION_WITHDRAWAL')
@@ -88,6 +89,7 @@ class WalletService
 
         $wallet->save();
         ClearCacheService::clearListCache('withdrawal_request_list_');
+        ClearCacheService::clearListCache('ledger_entries_user_' . $userId);
     }
 
     public static function approveWithdrawal($id, $statusId, $reason = null, $description = null, $reference = null)
@@ -154,6 +156,7 @@ class WalletService
 
             $wallet->save();
             Cache::forget("withdrawal_request_{$id}");
+            ClearCacheService::clearListCache("ledger_entries_user_{$userInfo->user_id}");
         }
     }
 }

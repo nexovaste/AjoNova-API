@@ -10,8 +10,10 @@ use App\Models\Admin\LoanRepaymentSchedule;
 use App\Models\Admin\MemberContributionSaving;
 use App\Models\Admin\Wallet;
 use App\Models\Setup\SetupCounter;
+use App\Services\Cache\ClearCacheService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class LoanService
@@ -173,6 +175,7 @@ class LoanService
         } else {
             throw new \Exception('Invalid status ID. Only 1 (approved) or 8 (rejected) are allowed.');
         }
+        ClearCacheService::clearListCache('ledger_entries_user_' . $loan->user_id);
     }
 
 
@@ -224,7 +227,8 @@ class LoanService
                 'is_active_loan' => false,
             ]);
         }
-
-       
+        ClearCacheService::clearListCache("ledger_entries_user_{$loan->user_id}");
+        ClearCacheService::clearListCache("loan_repayment_schedule_user_{$loan->user_id}");
+        // Cache::forget("loan_repayment_schedule_user_{$loan->user_id}");
     }
-}   
+}
