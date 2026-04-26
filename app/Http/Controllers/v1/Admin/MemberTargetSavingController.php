@@ -8,6 +8,7 @@ use App\Models\Admin\MemberTargetSaving;
 use App\Models\Admin\MemberTargetSavingSetting;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
+use App\Services\Cache\ClearCacheService;
 use App\Services\Finance\WalletService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -105,6 +106,8 @@ class MemberTargetSavingController extends Controller
                         'processed_by' => $ledgerEntry->created_by,
                     ]);
                 }
+
+                ClearCacheService::clearListCache('member_target_saving_list_');
 
                 return response()->json([
                     'success' => true,

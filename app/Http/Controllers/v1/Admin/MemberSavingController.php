@@ -63,6 +63,34 @@ class MemberSavingController extends Controller
         }
     }
 
+     public function updateSavingsAmount(Request $request)
+    {
+        $request->validate([
+            'savingsAmount' => 'required|numeric|min:0.01',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request) {
+                $userId = $request->header('X-User-ID');
+
+                MemberContributionSaving::where('user_id', $userId)->update([
+                    'saving_amount' => $request->savingsAmount,
+                    'updated_by' => auth('admin')->id() ?? $userId
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Member savings amount updated successfully'
+                ], 200);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
     // Store a newly created resource in storage.
     public function depositSavings(Request $request)
     {

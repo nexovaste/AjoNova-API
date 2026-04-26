@@ -6,8 +6,10 @@ use App\Models\Admin\LedgerEntry;
 use App\Models\Admin\Wallet;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
+use App\Services\Cache\ClearCacheService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class WalletService
@@ -85,6 +87,7 @@ class WalletService
         }
 
         $wallet->save();
+        ClearCacheService::clearListCache('withdrawal_request_list_');
     }
 
     public static function approveWithdrawal($id, $statusId, $reason = null, $description = null, $reference = null)
@@ -150,6 +153,7 @@ class WalletService
             }
 
             $wallet->save();
+            Cache::forget("withdrawal_request_{$id}");
         }
     }
 }

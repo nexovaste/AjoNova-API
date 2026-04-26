@@ -10,6 +10,7 @@ use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
 use App\Services\Cache\ClearCacheService;
 use App\Services\Finance\WalletService;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -50,6 +51,34 @@ class MemberContributionController extends Controller
                     'previous_cursor' => $memberContribution->previousCursor()?->encode(),
                 ],
             ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function updateContributionAmount(Request $request)
+    {
+        $request->validate([
+            'contributionAmount' => 'required|numeric|min:0.01',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request) {
+                $userId = $request->header('X-User-ID');
+
+                MemberContributionSaving::where('user_id', $userId)->update([
+                    'contribution_amount' => $request->contributionAmount,
+                    'updated_by' => auth('admin')->id() ?? $userId
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Member contribution amount updated successfully'
+                ], 200);
+            });
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

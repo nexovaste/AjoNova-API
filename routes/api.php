@@ -13,6 +13,7 @@ use App\Http\Controllers\v1\Admin\ReportController;
 use App\Http\Controllers\v1\Admin\RoleController;
 use App\Http\Controllers\v1\Admin\StaffPassportController;
 use App\Http\Controllers\v1\Admin\UserManagementController;
+use App\Http\Controllers\v1\Admin\WithdrawalRequestController;
 use App\Http\Controllers\v1\Setup\CountryController;
 use App\Http\Controllers\v1\Setup\GenderController;
 use App\Http\Controllers\v1\Setup\LgaController;
@@ -60,6 +61,9 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('member-contributions', MemberContributionController::class)->only(['index']);
             Route::apiResource('member-savings', MemberSavingController::class)->only(['index']);
             Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
+            Route::patch('update-contribution-amount', [MemberContributionController::class, 'updateContributionAmount']);
+            Route::patch('update-savings-amount', [MemberSavingController::class, 'updateSavingsAmount']);
+            Route::apiResource('withdrawal-requests', WithdrawalRequestController::class)->only(['index', 'show']);
             Route::apiResource('report', ReportController::class)->only(['index']);
             Route::apiResource('loan-repayment-schedule', LoanRepaymentScheduleController::class)->only(['index']);
 
