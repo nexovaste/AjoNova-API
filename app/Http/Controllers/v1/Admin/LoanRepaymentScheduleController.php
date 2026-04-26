@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\LoanRepaymentScheduleResource;
 use App\Models\Admin\LoanRepaymentSchedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class LoanRepaymentScheduleController extends Controller
 {
@@ -14,11 +15,17 @@ class LoanRepaymentScheduleController extends Controller
     {
         try {
             $userId = $request->header('X-User-ID');
-            $data = LoanRepaymentSchedule::where('user_id', $userId)
-                ->orderBy('created_at', 'desc')
-                ->orderBy('loan_id', 'desc')
-                ->cursorPaginate(10);
-            if ($data->isEmpty()) {
+            $cursor = $request->query('cursor');
+            $cacheKey = "loan_repayment_schedule_user_{$userId}_cursor_" . ($cursor ?? 'first_page');
+            $loanRepaymentSchedule = Cache::tags("loan_repayment_schedule_user_{$userId}")->flexible($cacheKey, [now()->addMonth(), null], function () use ($userId, $cursor) {
+                return LoanRepaymentSchedule::with([
+                    'status:status_id,status_name',
+                ])->orderBy('created_at', 'desc')
+                    ->orderBy('loan_id', 'desc')
+                    ->where('user_id', $userId)
+                    ->cursorPaginate(30, ['*'], 'cursor', $cursor);
+            });
+            if ($loanRepaymentSchedule->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No records found.',
@@ -28,12 +35,12 @@ class LoanRepaymentScheduleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Records fetched successfully.',
-                'data' => LoanRepaymentScheduleResource::collection($data),
+                'data' => LoanRepaymentScheduleResource::collection($loanRepaymentSchedule),
                 'pagination' => [
-                    'per_page' => $data->perPage(),
-                    'next_cursor' => optional($data->nextCursor())->encode(),
-                    'prev_cursor' => optional($data->previousCursor())->encode(),
-                    'has_more' => $data->hasMorePages(),
+                    'per_page' => $loanRepaymentSchedule->perPage(),
+                    'next_cursor' => optional($loanRepaymentSchedule->nextCursor())->encode(),
+                    'prev_cursor' => optional($loanRepaymentSchedule->previousCursor())->encode(),
+                    'has_more' => $loanRepaymentSchedule->hasMorePages(),
                 ],
             ], 200);
         } catch (\Exception $e) {
