@@ -21,6 +21,7 @@ class ReportResource extends JsonResource
             'description' => $this->description,
             'createdBy' => $this->created_by,
             'createdAt' => Carbon::parse($this->created_at)->toDayDateTimeString(),
+            'updatedAt' => Carbon::parse($this->updated_at)->toDayDateTimeString(),
 
         ];
     }
