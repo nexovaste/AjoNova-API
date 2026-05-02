@@ -27,6 +27,17 @@ class LoanResource extends JsonResource
             'attendedBy' => $this->attended_by,
             'attendedAt' => Carbon::parse($this->attended_at)->toDateTimeString(),
             'rejectionReason' => $this->rejection_reason,
+            'user' => [
+                'firstName' => $this->user->first_name ?? null,
+                'middleName' => $this->user->middle_name ?? null,
+                'lastName' => $this->user->last_name ?? null,
+                
+                'title' => [
+                    'titleId' => $this->user->title->title_id ?? null,
+                    'titleName' => $this->user->title->title_name ?? null,
+                ],
+            ],
+
             'status' => [
                 'statusId' => $this->status_id,
                 'statusName' => $this->status->status_name ?? null,

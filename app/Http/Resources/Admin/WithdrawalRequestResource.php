@@ -22,7 +22,17 @@ class WithdrawalRequestResource extends JsonResource
             'status' => $this->status?->status_name,
             'reason' => $this->reason,
             'attendedBy' => $this->attended_by,
-            'attendedAt' => $this->attended_at?->toDateTimeString()
+            'attendedAt' => $this->attended_at?->toDateTimeString(),
+            'user' => [
+                'firstName' => $this->user->first_name ?? null,
+                'middleName' => $this->user->middle_name ?? null,
+                'lastName' => $this->user->last_name ?? null,
+                
+                'title' => [
+                    'titleId' => $this->user->title->title_id ?? null,
+                    'titleName' => $this->user->title->title_name ?? null,
+                ],
+            ]
         ];
     }
 }

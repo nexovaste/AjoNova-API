@@ -14,14 +14,14 @@ class MembershipTypeController extends Controller
        try {
 
             $cacheKey = "membership_list";
-            $titles = Cache::tags('membership_list')->rememberForever($cacheKey, function () {
+            $membershiptype = Cache::tags('membership_list')->rememberForever($cacheKey, function () {
                 return MembershipType::orderBy('membership_type_name', 'asc')->get();
             });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Membership fetched successfully.',
-                'data' => MembershipTypeResource::collection($titles)
+                'data' => MembershipTypeResource::collection($membershiptype)
             ], 200);
         } catch (\Exception $e) {
 

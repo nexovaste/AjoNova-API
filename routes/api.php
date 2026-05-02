@@ -17,6 +17,7 @@ use App\Http\Controllers\v1\Admin\WithdrawalRequestController;
 use App\Http\Controllers\v1\Setup\CountryController;
 use App\Http\Controllers\v1\Setup\GenderController;
 use App\Http\Controllers\v1\Setup\LgaController;
+use App\Http\Controllers\v1\Setup\MeansOfIdentificationController;
 use App\Http\Controllers\v1\Setup\MembershipTypeController;
 use App\Http\Controllers\v1\Setup\PaymentChannelTypeController;
 use App\Http\Controllers\v1\Setup\StaffCategoryController;
@@ -120,5 +121,6 @@ Route::prefix('v1')->group(function () {
         Route::get('payment-channel-types', [PaymentChannelTypeController::class, 'index']);
         Route::get('membership-types', [MembershipTypeController::class, 'index']);
         Route::get('staff-category', [StaffCategoryController::class, 'index']);
+        Route::get('means-of-identification', [MeansOfIdentificationController::class, 'index']);
     });
 });
