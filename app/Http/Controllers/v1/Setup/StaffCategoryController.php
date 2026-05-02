@@ -14,14 +14,14 @@ class StaffCategoryController extends Controller
        try {
 
             $cacheKey = "staff_category_list";
-            $titles = Cache::tags('staff_category_list')->rememberForever($cacheKey, function () {
+            $staffcategory = Cache::tags('staff_category_list')->rememberForever($cacheKey, function () {
                 return StaffCategory::orderBy('staff_category_name', 'asc')->get();
             });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Staff category fetched successfully.',
-                'data' => StaffCategoryResource::collection($titles)
+                'data' => StaffCategoryResource::collection($staffcategory)
             ], 200);
         } catch (\Exception $e) {
 

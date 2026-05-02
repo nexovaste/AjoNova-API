@@ -15,14 +15,14 @@ class PaymentChannelTypeController extends Controller
         try {
 
             $cacheKey = "payment_channel_list";
-            $titles = Cache::tags('payment_channel_list')->rememberForever($cacheKey, function () {
+            $paymentchannel = Cache::tags('payment_channel_list')->rememberForever($cacheKey, function () {
                 return PaymentChannelType::orderBy('payment_channel_type_name', 'asc')->get();
             });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Payment channel  fetched successfully.',
-                'data' => PaymentChannelTypeResource::collection($titles)
+                'data' => PaymentChannelTypeResource::collection($paymentchannel)
             ], 200);
         } catch (\Exception $e) {
 
