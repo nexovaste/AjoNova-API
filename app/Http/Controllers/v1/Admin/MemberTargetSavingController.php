@@ -97,7 +97,7 @@ class MemberTargetSavingController extends Controller
                         'user_id' => $userId,
                         'member_target_saving_setting_id' => $targetSettings->member_target_saving_setting_id,
                         'target_amount' => $targetSettings->monthly_amount,
-                        'monthly_amount' => $targetSettings->monthly_amount,
+                        'monthly_amount' => $targetSettings->monthly_amount ?: null,
                         'current_amount' => $targetSettings->current_amount + $ledgerEntry->amount,
                         'saving_date' => now(),
                         'status_id' => 21,
@@ -107,7 +107,7 @@ class MemberTargetSavingController extends Controller
                     ]);
                 }
 
-                ClearCacheService::clearListCache('member_target_saving_list_');
+                 Cache::tags('member_target_saving_list_' . $userId)->flush();
 
                 return response()->json([
                     'success' => true,

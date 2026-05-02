@@ -25,7 +25,10 @@ class MemberContributionController extends Controller
             $userId = $request->header('X-User-ID');
             $cursor = $request->query('cursor');
             $cacheKey = "member_contribution_list_" . $userId . "_" . ($cursor ?? 'first_page');
-            $memberContribution = Cache::tags('member_contribution_list_' . $userId)->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor, $userId) {
+            $memberContribution = Cache::tags('member_contribution_list_' . $userId)->flexible(
+                $cacheKey,
+                [now()->addMonth(), null],
+                function () use ($cursor, $userId) {
                     return MemberContribution::with([
                         'status:status_id,status_name',
                         'ledger:ledger_entry_id,entry_type',
@@ -107,7 +110,7 @@ class MemberContributionController extends Controller
                     null,
                     'Monthly contribution deposit for user ' . $user->first_name . ' ' . $user->last_name . ' for ' . now()->format('F Y')
                 );
-
+                Cache::tags('member_contribution_list_' . $userId)->flush();
                 MemberContribution::create([
                     'user_id' => $userId,
                     'contribution_amount' => $contributionAmount,
@@ -118,13 +121,10 @@ class MemberContributionController extends Controller
                     'processed_by' => $ledgerEntry->created_by,
                 ]);
                 ClearCacheService::clearListCache('member_contribution_list_' . $userId);
-
                 return response()->json([
                     'success' => true,
                     'message' => 'Contribution processed successfully'
                 ], 201);
-
-                
             });
         } catch (UniqueConstraintViolationException $e) {
             return response()->json([

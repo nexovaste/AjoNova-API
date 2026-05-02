@@ -104,6 +104,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('member-contributions', MemberContributionController::class)->only(['index']);
             Route::apiResource('member-savings', MemberSavingController::class)->only(['index']);
             Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
+            Route::get('fetch-guarantors', [LoanController::class, 'fetchGuarantors']);
             Route::apiResource('report', ReportController::class)->only(['index']);
             Route::apiResource('loan-repayment-schedule', LoanRepaymentScheduleController::class)->only(['index']);
 

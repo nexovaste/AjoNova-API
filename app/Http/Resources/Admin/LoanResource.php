@@ -5,6 +5,7 @@ namespace App\Http\Resources\Admin;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class LoanResource extends JsonResource
 {
@@ -31,7 +32,7 @@ class LoanResource extends JsonResource
                 'firstName' => $this->user->first_name ?? null,
                 'middleName' => $this->user->middle_name ?? null,
                 'lastName' => $this->user->last_name ?? null,
-                
+
                 'title' => [
                     'titleId' => $this->user->title->title_id ?? null,
                     'titleName' => $this->user->title->title_name ?? null,
@@ -41,6 +42,9 @@ class LoanResource extends JsonResource
             'status' => [
                 'statusId' => $this->status_id,
                 'statusName' => $this->status->status_name ?? null,
+            ],
+            'passport' => [
+                'passportUrl' => $this->user->passport ? Storage::url("passports/userPictures/{$this->user->passport}") : null
             ],
             'createdAt' => Carbon::parse($this->created_at)->toDateTimeString(),
             'updatedAt' => Carbon::parse($this->updated_at)->toDateTimeString(),

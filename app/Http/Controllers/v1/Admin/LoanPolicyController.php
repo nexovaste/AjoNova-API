@@ -7,7 +7,6 @@ use App\Http\Resources\Admin\LoanPolicyResource;
 use App\Jobs\ActivityLogJob;
 use App\Models\Admin\ActivityLog;
 use App\Models\Admin\LoanPolicy;
-use App\Services\Cache\ClearCacheService;
 use App\Services\Config;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
