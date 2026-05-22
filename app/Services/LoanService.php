@@ -229,6 +229,5 @@ class LoanService
         }
         ClearCacheService::clearListCache("ledger_entries_user_{$loan->user_id}");
         ClearCacheService::clearListCache("loan_repayment_schedule_user_{$loan->user_id}");
-        // Cache::forget("loan_repayment_schedule_user_{$loan->user_id}");
     }
 }
