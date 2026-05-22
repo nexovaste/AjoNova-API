@@ -89,7 +89,6 @@ class WalletService
 
         $wallet->save();
         ClearCacheService::clearListCache('withdrawal_request_list_');
-        ClearCacheService::clearListCache('ledger_entries_user_' . $userId);
     }
 
     public static function approveWithdrawal($id, $statusId, $reason = null, $description = null, $reference = null)

@@ -14,6 +14,7 @@ use App\Http\Controllers\v1\Admin\RoleController;
 use App\Http\Controllers\v1\Admin\StaffPassportController;
 use App\Http\Controllers\v1\Admin\UserManagementController;
 use App\Http\Controllers\v1\Admin\WithdrawalRequestController;
+use App\Http\Controllers\v1\User\WithdrawalRequestController as UserWithdrawalRequestController;
 use App\Http\Controllers\v1\Setup\CountryController;
 use App\Http\Controllers\v1\Setup\GenderController;
 use App\Http\Controllers\v1\Setup\LgaController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\v1\Setup\StateController;
 use App\Http\Controllers\v1\Setup\StatusController;
 use App\Http\Controllers\v1\Setup\TitleController;
 use App\Http\Controllers\v1\User\Auth\UserAuthController;
+use App\Http\Controllers\v1\User\LoanController as UserLoanController;
 use App\Http\Controllers\v1\User\UserPassportController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,7 +59,7 @@ Route::prefix('v1')->group(function () {
             Route::post('target-savings-withdrawal-approval/{id}', [MemberTargetSavingController::class, 'approveWithdrawal']);
             Route::post('approve-loan/{id}', [LoanController::class, 'approveLoan']);
             Route::post('loan-repayment', [LoanController::class, 'loanRepayment']);
-            Route::apiResource('all-loans', LoanController::class)->only(['index', 'show']);
+            Route::apiResource('all-loans', LoanController::class)->only(['index']);
             Route::apiResource('member-contributions', MemberContributionController::class)->only(['index']);
             Route::apiResource('member-savings', MemberSavingController::class)->only(['index']);
             Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
@@ -105,7 +107,8 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
             Route::apiResource('report', ReportController::class)->only(['index']);
             Route::apiResource('loan-repayment-schedule', LoanRepaymentScheduleController::class)->only(['index']);
-
+            Route::apiResource('loans', UserLoanController::class)->only(['index']);
+            Route::apiResource('withdrawal-requests', UserWithdrawalRequestController::class)->only(['index']);
         });
         Route::apiResource('signup', UserManagementController::class)->only('store');
     });
