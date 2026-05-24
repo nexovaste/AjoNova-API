@@ -30,6 +30,8 @@ class AdminController extends Controller
             $adminRoleId = $admin->roles->first();
 
             $staffData = Staff::with([
+                'roles',
+                'permissions',
                 'title:title_id,title_name',
                 'gender:gender_id,gender_name',
                 'status:status_id,status_name',

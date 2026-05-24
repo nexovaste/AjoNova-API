@@ -39,8 +39,8 @@ class AdminResource extends JsonResource
                 'statusName' => $this->status->status_name ?? null,
             ],
             'role' => [
-                'roleName' => $this->roles->pluck('name') ?? null,
-                'roleId' => $this->roles->pluck('id') ?? null,
+                'roleName' => $this->roles->first()?->name,
+                'roleId' => $this->roles->first()?->id,
                 'permissions' => $this->getAllPermissions()->pluck('name') ?? null,
             ],
             'location' => [
