@@ -81,7 +81,6 @@ class LoanController extends Controller
 
         try {
             return DB::transaction(function () use ($request) {
-
                 LoanService::applyLoan(
                     $userId = Auth::guard('user')->user()->user_id,
                     $request->input('principalAmount'),
@@ -99,7 +98,7 @@ class LoanController extends Controller
                     $request->input('relationshipToBorrower'),
                     $request->input('guaranteedAmount')
                 );
-                 Cache::tags('loan_list')->flush();
+                Cache::tags('loan_list')->flush();
                 Cache::tags(['guarantor'])->forget("guarantor_user_" . $userId);
                 return response()->json([
                     'success' => true,

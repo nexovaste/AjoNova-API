@@ -23,7 +23,7 @@ class WithdrawalRequestController extends Controller
                 function () use ($cursor) {
                     return WithdrawalRequest::with([
                         'status:status_id,status_name',
-                        'user:user_id,title_id,first_name,middle_name,last_name',
+                        'user:user_id,title_id,first_name,middle_name,last_name,passport',
                         'user.title:title_id,title_name'
                     ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
                 }

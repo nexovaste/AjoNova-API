@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\v1\User;
 
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
 use App\Models\User\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserPassportController extends Controller
 {
@@ -33,7 +34,8 @@ class UserPassportController extends Controller
 
             $user->passport = $fileName;
             $user->save();
-
+            Cache::tags('user_list')->flush();
+            Cache::forget("user_profile_{$id}");
             return response()->json([
                 'success' => true,
                 'message' => 'Passport updated successfully',
@@ -45,7 +47,6 @@ class UserPassportController extends Controller
                 'message' => 'Failed to update passport',
                 'error' => $e->getMessage(),
             ], 500);
-        } 
-
+        }
     }
 }

@@ -85,7 +85,7 @@ class LoanPolicyController extends Controller
                     'After Update' => $dataAfterUpdate,
                 ]
             );
-            Cache::forget("loan_policy_{$id}");
+            Cache::forget('loan_policies_with_status');
 
             return response()->json([
                 'success' => true,

@@ -230,7 +230,7 @@
                 <table class="header-table" role="presentation">
                     <tr>
                         <td class="logo-cell">
-                            <a href="https://ibb.co/My4WHbZq"><img src="https://i.ibb.co/mrw1KmbQ/logo.png" alt="logo" border="0"></a>
+                            <a href="#"><img src="https://raw.githubusercontent.com/Xisco0/cooperative-assets/main/logo.png" alt="logo" border="0"></a>
 
                         </td>
                         <td class="title-cell">
