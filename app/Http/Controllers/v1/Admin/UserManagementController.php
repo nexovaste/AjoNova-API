@@ -35,6 +35,8 @@ class UserManagementController extends Controller
             $userData = Cache::tags('user_list')->flexible($cacheKey, [now()->addMonth(), null], function () use ($user) {
                 return User::with([
                     'title:title_id,title_name',
+                    'staffCategory:staff_category_id,staff_category_name',
+                    'membershipType:membership_type_id,membership_type_name',
                     'gender:gender_id,gender_name',
                     'status:status_id,status_name',
                     'lga:lga_id,lga_name,state_id',
