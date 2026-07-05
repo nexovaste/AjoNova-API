@@ -257,7 +257,7 @@ http://localhost/api
 # 📦 Local Development Setup
 
 ```bash
-git clone https://github.com/nexovaste/ajonova-api.git
+git clone https://github.com/nexovaste/AjoNova-API.git
 
 cd ajonova-api
 
