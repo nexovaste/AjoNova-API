@@ -259,7 +259,7 @@ http://localhost/api
 ```bash
 git clone https://github.com/nexovaste/AjoNova-API.git
 
-cd ajonova-api
+cd AjoNova-API
 
 composer install
 
