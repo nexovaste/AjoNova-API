@@ -35,6 +35,8 @@ class UserManagementController extends Controller
             $userData = Cache::tags('user_list')->flexible($cacheKey, [now()->addMonth(), null], function () use ($user) {
                 return User::with([
                     'title:title_id,title_name',
+                    'staffCategory:staff_category_id,staff_category_name',
+                    'membershipType:membership_type_id,membership_type_name',
                     'gender:gender_id,gender_name',
                     'status:status_id,status_name',
                     'lga:lga_id,lga_name,state_id',
@@ -89,7 +91,7 @@ class UserManagementController extends Controller
             'mobileNumber' => ['required', 'string', 'unique:users,mobile_number', 'regex:/^\+?[1-9]\d{1,14}$/'],
             'homeAddress' => 'nullable|string|max:255',
             'dateJoined' => ['nullable', 'date', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
-            
+
             // ================= MEMBER CONTRIBUTION SAVINGS =================
             'contributionAmount' => 'required_if:membershipTypeId,1|numeric|min:0',
             'savingAmount' => 'required_if:membershipTypeId,2|numeric|min:0',
@@ -320,7 +322,6 @@ class UserManagementController extends Controller
             ]);
 
             $updateUser->update([
-                'membership_number' => $request->membershipNumber,
                 'title_id' => $request->titleId,
                 'staff_category_id' => $request->staffCategoryId,
                 'membership_type_id' => $request->membershipTypeId,
@@ -332,7 +333,13 @@ class UserManagementController extends Controller
                 'email' => strtolower($request->emailAddress),
                 'mobile_number' => $request->mobileNumber,
                 'home_address' => $request->homeAddress ? strtoupper($request->homeAddress) : null,
-                'lga_id' => $request->lgaId,
+                'membership_number' => $request->filled('membershipNumber')
+                    ? $request->membershipNumber
+                    : null,
+
+                'lga_id' => $request->filled('lgaId')
+                    ? (int) $request->lgaId
+                    : null,
                 'nin' => $request->nin,
                 'status_id' => $request->statusId,
                 'monthly_salary' => $request->monthlySalary,
