@@ -1,0 +1,67 @@
+# ===============================
+# OS / System files
+# ===============================
+*.log
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Environment & Secrets
+# ===============================
+.env
+.env.*
+.env.backup
+.env.production
+/auth.json
+
+# ===============================
+# Dependencies
+# ===============================
+/vendor
+/node_modules
+
+# ===============================
+# Laravel Storage & Cache
+# ===============================
+/storage/*.key
+/storage/pail
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*.php
+
+# ===============================
+# Public / Build Artifacts
+# ===============================
+/public/build
+/public/hot
+/public/storage
+
+# ===============================
+# Testing & Cache
+# ===============================
+.phpunit.result.cache
+/.phpunit.cache
+
+# ===============================
+# IDEs & Editors
+# ===============================
+/.idea
+/.vscode
+/.fleet
+/.nova
+/.zed
+.phpactor.json
+
+# ===============================
+# Local Development Tools
+# ===============================
+Homestead.json
+Homestead.yaml
+
+# ===============================
+# Redis
+# ===============================
+dump.rdb
+
