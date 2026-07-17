@@ -19,8 +19,13 @@ class StateController extends Controller
         try {
             $countryId = $request->country_id;
             $cacheKey = "state_list_country_{$countryId}";
+            
             $states = Cache::tags('state_list')->rememberForever($cacheKey, function () use ($countryId) {
-                return SetupState::where('country_id', $countryId)->orderBy('state_name', 'asc')->get();
+                // FIX: Eager load 'country' before retrieving the collection from the database
+                return SetupState::with('country')
+                    ->where('country_id', $countryId)
+                    ->orderBy('state_name', 'asc')
+                    ->get();
             });
 
             return response()->json([
@@ -28,8 +33,8 @@ class StateController extends Controller
                 'message' => 'States fetched successfully.',
                 'data' => StateResource::collection($states),
             ], 200);
+            
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while fetching states: ' . $e->getMessage(),

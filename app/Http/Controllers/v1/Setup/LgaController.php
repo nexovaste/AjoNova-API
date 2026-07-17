@@ -12,7 +12,6 @@ class LgaController extends Controller
 {
     public function index(Request $request)
     {
-
         $request->validate([
             'state_id' => 'required|exists:setup_states,state_id',
         ]);
@@ -20,8 +19,13 @@ class LgaController extends Controller
         try {
             $stateId = $request->state_id;
             $cacheKey = "lga_list_state_{$stateId}";
+            
             $lga = Cache::tags('lga_list')->rememberForever($cacheKey, function () use ($stateId) {
-                return SetupLga::where('state_id', $stateId)->orderBy('lga_name', 'asc')->get();
+                // FIX: Eager load the 'state' relationship before saving to cache
+                return SetupLga::with('state')
+                    ->where('state_id', $stateId)
+                    ->orderBy('lga_name', 'asc')
+                    ->get();
             });
 
             return response()->json([
@@ -29,8 +33,8 @@ class LgaController extends Controller
                 'message' => 'Local governments fetched successfully.',
                 'data' => LgaResource::collection($lga),
             ], 200);
+            
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while fetching local governments: ' . $e->getMessage(),
