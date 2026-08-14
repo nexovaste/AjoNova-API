@@ -7,13 +7,14 @@ use App\Models\Admin\LedgerEntry;
 use App\Models\Admin\Loan;
 use App\Models\Admin\LoanPolicy;
 use App\Models\Admin\LoanRepaymentSchedule;
+use App\Models\Admin\MemberContribution;
 use App\Models\Admin\MemberContributionSaving;
+use App\Models\Admin\MemberSaving;
 use App\Models\Admin\Wallet;
 use App\Models\Setup\SetupCounter;
 use App\Services\Cache\ClearCacheService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class LoanService
@@ -38,7 +39,7 @@ class LoanService
     ) {
         $loanPolicy = LoanPolicy::findOrFail(1);
         $userPolicy = MemberContributionSaving::where('user_id', $userId)->first();
-        $memberContributions = MemberContributionSaving::where('user_id', $userId)->get();
+        $memberContributions = MemberContribution::where('user_id', $userId)->get();
         $wallet = Wallet::where('user_id', $userId)->first();
 
         if ($loanPolicy->minimum_amount > $principalAmount) {

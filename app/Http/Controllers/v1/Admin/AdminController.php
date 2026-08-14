@@ -45,7 +45,7 @@ class AdminController extends Controller
                 })
                 ->orderBy('last_name', 'asc')
                 ->orderBy('staff_id', 'asc')
-                ->cursorPaginate(10);
+                ->cursorPaginate(30);
 
             if ($staffData->count() === 0) {
                 return response()->json([
