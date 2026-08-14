@@ -12,7 +12,6 @@ class LgaController extends Controller
 {
     public function index(Request $request)
     {
-
         $request->validate([
             'state_id' => 'required|exists:setup_states,state_id',
         ]);
@@ -21,8 +20,12 @@ class LgaController extends Controller
             $stateId = $request->state_id;
             $cacheKey = "lga_list_state_{$stateId}";
             $lga = Cache::tags('lga_list')->rememberForever($cacheKey, function () use ($stateId) {
-                return SetupLga::where('state_id', $stateId)->orderBy('lga_name', 'asc')->get();
+                return SetupLga::with('state')
+                    ->where('state_id', $stateId)
+                    ->orderBy('lga_name', 'asc')
+                    ->get();
             });
+
 
             return response()->json([
                 'success' => true,

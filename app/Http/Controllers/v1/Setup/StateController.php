@@ -19,9 +19,15 @@ class StateController extends Controller
         try {
             $countryId = $request->country_id;
             $cacheKey = "state_list_country_{$countryId}";
-            $states = Cache::tags('state_list')->rememberForever($cacheKey, function () use ($countryId) {
-                return SetupState::where('country_id', $countryId)->orderBy('state_name', 'asc')->get();
-            });
+            $states = Cache::tags('state_list')->rememberForever(
+                $cacheKey,
+                function () use ($countryId) {
+                    return SetupState::with('country')
+                        ->where('country_id', $countryId)
+                        ->orderBy('state_name', 'asc')
+                        ->get();
+                }
+            );
 
             return response()->json([
                 'success' => true,

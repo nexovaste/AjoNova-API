@@ -20,6 +20,7 @@ class MemberTargetSavingController extends Controller
     // Display a listing of the resource.
     public function index(Request $request)
     {
+        $userId = $request->header('X-User-ID');
         try {
             $cursor = $request->query('cursor');
             $cacheKey = "member_target_saving_list_" . ($cursor ?? 'first_page');
@@ -67,8 +68,8 @@ class MemberTargetSavingController extends Controller
 
                 $userId = $request->header('X-User-ID');
 
-                $targetSettings = MemberTargetSavingSetting::where('user_id', $userId)->first();
-                $user = User::where('user_id', $userId)->first();
+                $targetSettings = MemberTargetSavingSetting::where('user_id', $userId)->findOrFail();
+                $user = User::where('user_id', $userId)->findOrFail();
 
                 $ledgerEntry = WalletService::deposit(
                     $userId,
@@ -169,7 +170,7 @@ class MemberTargetSavingController extends Controller
         try {
             return DB::transaction(function () use ($request, $id) {
                 $userId = $request->header('X-User-ID');
-                $user = User::where('user_id', $userId)->first();
+                $user = User::where('user_id', $userId)->find();
 
                 WalletService::approveWithdrawal(
                     $id,
