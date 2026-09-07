@@ -27,7 +27,7 @@ use App\Http\Controllers\v1\Setup\StatusController;
 use App\Http\Controllers\v1\Setup\TitleController;
 use App\Http\Controllers\v1\User\Auth\UserAuthController;
 use App\Http\Controllers\v1\User\LoanController as UserLoanController;
-use App\Http\Controllers\v1\User\UserPassportController;
+use App\Http\Controllers\v1\Admin\UserPassportController;
 use Illuminate\Support\Facades\Route;
 
 
