@@ -25,26 +25,26 @@ class LoanResource extends JsonResource
             'loanReference' => $this->loan_reference,
             'requestAt' => Carbon::parse($this->requested_at)->toDateTimeString(),
             'disbursementAt' => $this->disbursement_at?->toDateTimeString(),
-            'attendedBy' => $this->attended_by,
-            'attendedAt' => Carbon::parse($this->attended_at)->toDateTimeString(),
+            'attendedBy' => ($this->relationLoaded('attendedByStaff') && $this->attendedByStaff) ? ($this->attendedByStaff->first_name . ' ' . $this->attendedByStaff->last_name) : 'N/A',
+            'attendedAt' => $this->attended_at ? Carbon::parse($this->attended_at)->toDateTimeString() : 'N/A',
             'rejectionReason' => $this->rejection_reason,
             'user' => [
-                'firstName' => $this->user->first_name ?? null,
-                'middleName' => $this->user->middle_name ?? null,
-                'lastName' => $this->user->last_name ?? null,
+                'firstName' => $this->user?->first_name ?? null,
+                'middleName' => $this->user?->middle_name ?? null,
+                'lastName' => $this->user?->last_name ?? null,
 
                 'title' => [
-                    'titleId' => $this->user->title->title_id ?? null,
-                    'titleName' => $this->user->title->title_name ?? null,
+                    'titleId' => $this->user?->title?->title_id ?? null,
+                    'titleName' => $this->user?->title?->title_name ?? null,
                 ],
             ],
 
             'status' => [
                 'statusId' => $this->status_id,
-                'statusName' => $this->status->status_name ?? null,
+                'statusName' => $this->status?->status_name ?? null,
             ],
             'passport' => [
-                'passportUrl' => $this->user->passport ? Storage::url("passports/userPictures/{$this->user->passport}") : null
+                'passportUrl' => $this->user?->passport ? Storage::url("passports/userPictures/{$this->user->passport}") : null
             ],
             'createdAt' => Carbon::parse($this->created_at)->toDateTimeString(),
             'updatedAt' => Carbon::parse($this->updated_at)->toDateTimeString(),

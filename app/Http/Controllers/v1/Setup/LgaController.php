@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\LgaResource;
 use App\Models\Setup\SetupLga;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+
 
 class LgaController extends Controller
 {

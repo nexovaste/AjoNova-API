@@ -323,18 +323,18 @@ class UserAuthController extends Controller
     public function fetchProfile()
     {
         $user = Auth::guard('user')->user();
-        $userData = Cache::remember("user_profile_{$user->user_id}", now()->addmonth(), function () use ($user) {
-            return new UserResource(
-                User::with([
-                    'title:title_id,title_name',
-                    'gender:gender_id,gender_name',
-                    'status:status_id,status_name',
-                    'lga:lga_id,lga_name,state_id',
-                    'lga.state:state_id,state_name,country_id',
-                    'lga.state.country:country_id,country_name',
-                ])->findOrFail($user->user_id)
-            );
-        });
+        Cache::forget("user_profile_{$user->user_id}");
+        $userData = new UserResource(
+            User::with([
+                'title:title_id,title_name',
+                'gender:gender_id,gender_name',
+                'status:status_id,status_name',
+                'lga:lga_id,lga_name,state_id',
+                'lga.state:state_id,state_name,country_id',
+                'lga.state.country:country_id,country_name',
+                'wallet',
+            ])->findOrFail($user->user_id)
+        );
         return response()->json([
             'success' => true,
             'message' => 'user profile fetched successfully.',
@@ -363,7 +363,7 @@ class UserAuthController extends Controller
     public function changePassword(Request $request)
     {
         $request->validate([
-            'oldPassword' => 'required|string|min:8',
+            'oldPassword' => 'required|string',
             'newPassword' => [
                 'required',
                 'confirmed',

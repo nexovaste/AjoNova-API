@@ -70,12 +70,16 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('report', ReportController::class)->only(['index']);
             Route::apiResource('loan-repayment-schedule', LoanRepaymentScheduleController::class)->only(['index']);
 
+            Route::get('dashboard-metrics', [ActivityLogController::class, 'dashboardMetrics']);
+            Route::get('dashboard-chart', [ActivityLogController::class, 'dashboardChart']);
             Route::get('activity-logs', [ActivityLogController::class, 'index']);
             Route::get('activity-logs/search', [ActivityLogController::class, 'search']);
             Route::get('activity-logs/unread-count', [ActivityLogController::class, 'unreadCount']);
             Route::get('activity-logs/{id}', [ActivityLogController::class, 'show']);
             Route::post('activity-logs/{id}/read', [ActivityLogController::class, 'markAsRead']);
+            Route::post('activity-logs/{id}/mark-as-read', [ActivityLogController::class, 'markAsRead']);
             Route::post('activity-logs/mark-all-read', [ActivityLogController::class, 'markAllAsRead']);
+            Route::post('activity-logs/mark-all-as-read', [ActivityLogController::class, 'markAllAsRead']);
             Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');

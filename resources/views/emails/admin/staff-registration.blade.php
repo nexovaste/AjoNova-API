@@ -137,12 +137,17 @@
             font-family: 'Consolas', 'Monaco', monospace;
             font-weight: 700;
             color: #1e3a1a;
-            font-size: 22px;
-            letter-spacing: 4px;
+            font-size: 20px;
+            letter-spacing: 2px;
             background: #ffffff;
             border-radius: 6px;
             border: 1px solid #f1f5f9;
-            display: inline-block;
+            display: block;
+            padding: 14px 16px;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         /* Polished Button */
@@ -209,8 +214,9 @@
             .email-header { padding: 30px 20px; }
             .header-title { font-size: 22px; }
             .logo-cell img { width: 65px; }
-            .email-body { padding: 35px 25px; }
-            .password-text { font-size: 18px; letter-spacing: 2px; }
+            .email-body { padding: 30px 18px; }
+            .password-container { padding: 20px 14px; }
+            .password-text { font-size: 15px; letter-spacing: 1px; padding: 12px 10px; }
         }
     </style>
 </head>

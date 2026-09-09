@@ -39,6 +39,10 @@ class ActivityLog extends Model
     public function performedByUser()
     {
         return $this->belongsTo(User::class, 'performed_by', 'user_id');    
-      
+    }
+
+    public function reads()
+    {
+        return $this->hasMany(ReadActivity::class, 'activity_log_id', 'activity_log_id');
     }
 }
