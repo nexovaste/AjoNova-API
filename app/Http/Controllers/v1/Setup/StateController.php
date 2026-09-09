@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\StateResource;
 use App\Models\Setup\SetupState;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class StateController extends Controller
 {
@@ -18,22 +17,18 @@ class StateController extends Controller
 
         try {
             $countryId = $request->country_id;
-            $cacheKey = "state_list_country_{$countryId}";
-            
-            $states = Cache::tags('state_list')->rememberForever($cacheKey, function () use ($countryId) {
-                // FIX: Eager load 'country' before retrieving the collection from the database
-                return SetupState::with('country')
-                    ->where('country_id', $countryId)
-                    ->orderBy('state_name', 'asc')
-                    ->get();
-            });
+
+            $states = SetupState::with('country')
+                ->where('country_id', $countryId)
+                ->orderBy('state_name', 'asc')
+                ->get();
 
             return response()->json([
                 'success' => true,
                 'message' => 'States fetched successfully.',
                 'data' => StateResource::collection($states),
             ], 200);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

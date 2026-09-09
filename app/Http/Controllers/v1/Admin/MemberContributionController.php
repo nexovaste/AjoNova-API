@@ -10,9 +10,8 @@ use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
 use App\Services\Cache\ClearCacheService;
 use App\Services\Finance\WalletService;
-use Illuminate\Container\Attributes\Auth;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -22,28 +21,24 @@ class MemberContributionController extends Controller
     public function index(Request $request)
     {
         try {
-            $userId = $request->header('X-User-ID');
+            $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID') ?? $request->query('user_id');
             $cursor = $request->query('cursor');
-            $cacheKey = "member_contribution_list_" . $userId . "_" . ($cursor ?? 'first_page');
-            $memberContribution = Cache::tags('member_contribution_list_' . $userId)->flexible(
+            $cacheKey = "member_contribution_list_" . ($userId ?? 'all') . "_" . ($cursor ?? 'first_page');
+            $memberContribution = Cache::tags('member_contribution_list_' . ($userId ?? 'all'))->flexible(
                 $cacheKey,
                 [now()->addMonth(), null],
                 function () use ($cursor, $userId) {
-                    return MemberContribution::with([
+                    $query = MemberContribution::with([
                         'status:status_id,status_name',
                         'ledger:ledger_entry_id,entry_type',
                         'paymentChannel:payment_channel_type_id,payment_channel_type_name'
-                    ])->where('user_id', $userId)->cursorPaginate(30, ['*'], 'cursor', $cursor);
+                    ]);
+                    if ($userId) {
+                        $query->where('user_id', $userId);
+                    }
+                    return $query->latest('member_contribution_id')->cursorPaginate(30, ['*'], 'cursor', $cursor);
                 }
             );
-
-            if ($memberContribution->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No member contributions records found.',
-                    'data' => []
-                ], 404);
-            }
 
             return response()->json([
                 'success' => true,
@@ -139,11 +134,12 @@ class MemberContributionController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:0.01',
+            'reason' => 'required|string|min:3',
         ]);
 
         try {
             return DB::transaction(function () use ($request) {
-                $userId = $request->header('X-User-ID');
+                $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID');
 
                 WalletService::withdraw(
                     $userId,
@@ -154,8 +150,11 @@ class MemberContributionController extends Controller
                     'user_id' => $userId,
                     'withdrawal_type' => 'CONTRIBUTION_WITHDRAWAL',
                     'amount' => $request->amount,
+                    'reason' => trim($request->reason),
                     'withdraw_at' => now(),
                 ]);
+
+                ClearCacheService::clearListCache('withdrawal_request_list');
 
                 return response()->json([
                     'success' => true,
@@ -179,16 +178,19 @@ class MemberContributionController extends Controller
 
         try {
             return DB::transaction(function () use ($request, $id) {
-                $userId = $request->header('X-User-ID');
-                $user = User::where('user_id', $userId)->first();
+                $withdrawalRequest = \App\Models\Admin\WithdrawalRequest::find($id);
+                $user = $withdrawalRequest ? User::where('user_id', $withdrawalRequest->user_id)->first() : null;
+                $userName = $user ? ($user->first_name . ' ' . $user->last_name) : 'Member';
 
                 WalletService::approveWithdrawal(
                     $id,
-                    $request->statusId,
+                    (int) $request->statusId,
                     $request->reason,
-                    'Withdrawal request '  . ' by ' . $user->first_name . ' ' . $user->last_name . ' has been approved ',
+                    'Withdrawal request by ' . $userName . ' has been processed',
                     null
                 );
+
+                ClearCacheService::clearListCache('withdrawal_request_list');
 
                 return response()->json([
                     'success' => true,

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\LgaResource;
 use App\Models\Setup\SetupLga;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+
 
 class LgaController extends Controller
 {
@@ -18,15 +18,11 @@ class LgaController extends Controller
 
         try {
             $stateId = $request->state_id;
-            $cacheKey = "lga_list_state_{$stateId}";
-            
-            $lga = Cache::tags('lga_list')->rememberForever($cacheKey, function () use ($stateId) {
-                // FIX: Eager load the 'state' relationship before saving to cache
-                return SetupLga::with('state')
-                    ->where('state_id', $stateId)
-                    ->orderBy('lga_name', 'asc')
-                    ->get();
-            });
+            $lga = SetupLga::with('state')
+                ->where('state_id', $stateId)
+                ->orderBy('lga_name', 'asc')
+                ->get();
+
 
             return response()->json([
                 'success' => true,

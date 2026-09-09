@@ -57,7 +57,6 @@ class AdminAuthController extends Controller
             }
 
             if ($staff->status_id !== 1) {
-
                 if ($passwordIsValid) {
                     return response()->json([
                         'success' => false,

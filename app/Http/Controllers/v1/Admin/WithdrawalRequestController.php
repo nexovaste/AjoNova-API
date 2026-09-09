@@ -24,22 +24,33 @@ class WithdrawalRequestController extends Controller
                     return WithdrawalRequest::with([
                         'status:status_id,status_name',
                         'user:user_id,title_id,first_name,middle_name,last_name,passport',
-                        'user.title:title_id,title_name'
+                        'user.title:title_id,title_name',
+                        'attendedByStaff:staff_id,first_name,last_name'
                     ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
                 }
             );
+
+            $pendingLoansCount = \App\Models\Admin\Loan::where('status_id', 5)->count();
+            $pendingWithdrawalsCount = WithdrawalRequest::where('status_id', 5)->count();
+            $summary = [
+                'pending_loans_count' => $pendingLoansCount,
+                'pending_withdrawals_count' => $pendingWithdrawalsCount,
+                'total_pending_count' => $pendingLoansCount + $pendingWithdrawalsCount,
+            ];
 
             if ($withdrawalRequestData->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No withdrawal requests found.',
+                    'summary' => $summary,
                     'data' => []
-                ], 404);
+                ], 200);
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Withdrawal requests fetched successfully.',
+                'summary' => $summary,
                 'data' => WithdrawalRequestResource::collection($withdrawalRequestData),
                 'pagination' => [
                     'next_cursor' => $withdrawalRequestData->nextCursor()?->encode(),

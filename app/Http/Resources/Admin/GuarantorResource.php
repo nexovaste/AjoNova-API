@@ -21,15 +21,15 @@ class GuarantorResource extends JsonResource
             'identificationNumber' => $this->id_number,
             'title' => [
                 'titleId' => $this->title_id ?? null,
-                'titleName' => $this->title->title_name ?? null,
+                'titleName' => $this->title?->title_name ?? null,
             ],
             'gender' => [
                 'genderId' => $this->gender_id ?? null,
-                'genderName' => $this->gender->gender_name ?? null,
+                'genderName' => $this->gender?->gender_name ?? null,
             ],
-              'meansOfIdentification' => [
+            'meansOfIdentification' => [
                 'meansOfIdentificationId' => $this->means_of_identification_id ?? null,
-                'meansOfIdentificationName' => $this->meansOfIdentification->means_of_identification_name ?? null,
+                'meansOfIdentificationName' => $this->meansOfIdentification?->means_of_identification_name ?? null,
             ]
         ];
     }

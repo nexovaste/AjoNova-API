@@ -12,6 +12,7 @@ use App\Services\Cache\ClearCacheService;
 use App\Services\Finance\WalletService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -21,25 +22,21 @@ class MemberTargetSavingController extends Controller
     public function index(Request $request)
     {
         try {
+            $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID') ?? $request->query('user_id');
             $cursor = $request->query('cursor');
-            $cacheKey = "member_target_saving_list_" . ($cursor ?? 'first_page');
-            $memberSaving = Cache::tags('member_target_saving_list_')->flexible($cacheKey,[now()->addMonth(), null],function () use ($cursor) {
-                    return MemberTargetSaving::with([
-                        'status:status_id,status_name',
-                        'ledger:ledger_entry_id,entry_type',
-                        'paymentChannel:payment_channel_type_id,payment_channel_type_name',
-                        'setting:member_target_saving_setting_id,target_name,target_amount,monthly_amount,duration_months,start_date,end_date'
-                    ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
+            $cacheKey = "member_target_saving_list_" . ($userId ?? 'all') . "_" . ($cursor ?? 'first_page');
+            $memberSaving = Cache::tags('member_target_saving_list_' . ($userId ?? 'all'))->flexible($cacheKey, [now()->addMonth(), null], function () use ($cursor, $userId) {
+                $query = MemberTargetSaving::with([
+                    'status:status_id,status_name',
+                    'ledger:ledger_entry_id,entry_type',
+                    'paymentChannel:payment_channel_type_id,payment_channel_type_name',
+                    'setting:member_target_saving_setting_id,target_name,target_amount,monthly_amount,duration_months,start_date,end_date'
+                ]);
+                if ($userId) {
+                    $query->where('user_id', $userId);
                 }
-            );
-
-            if ($memberSaving->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No member target savings records found.',
-                    'data' => []
-                ], 404);
-            }
+                return $query->latest('member_target_saving_id')->cursorPaginate(30, ['*'], 'cursor', $cursor);
+            });
 
             return response()->json([
                 'success' => true,
@@ -68,7 +65,20 @@ class MemberTargetSavingController extends Controller
                 $userId = $request->header('X-User-ID');
 
                 $targetSettings = MemberTargetSavingSetting::where('user_id', $userId)->first();
+                if (!$targetSettings) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Target saving cannot be processed. This member has not set up or configured a target savings plan yet.'
+                    ], 400);
+                }
+
                 $user = User::where('user_id', $userId)->first();
+                if (!$user) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'User record not found.'
+                    ], 404);
+                }
 
                 $ledgerEntry = WalletService::deposit(
                     $userId,
@@ -85,12 +95,12 @@ class MemberTargetSavingController extends Controller
                 if ($now->lt($startDate)) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Target saving cannot be processed. Your target saving start date is ' . $targetSettings->start_date->format('Y-m-d') . '. Please wait until the start date to make your first target saving.'
+                        'message' => 'Target saving cannot be processed. Target saving start date is ' . $startDate->format('Y-m-d') . '. Please wait until the start date to make a target saving.'
                     ], 400);
                 } elseif ($now->gt($endDate)) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Target saving cannot be processed. Your target saving end date is ' . $targetSettings->end_date->format('Y-m-d') . '. Your target saving period has ended.'
+                        'message' => 'Target saving cannot be processed. Target saving end date was ' . $endDate->format('Y-m-d') . '. Target saving period has ended.'
                     ], 400);
                 } else {
                     MemberTargetSaving::create([
@@ -127,11 +137,12 @@ class MemberTargetSavingController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:0.01',
+            'reason' => 'required|string|min:3',
         ]);
 
         try {
             return DB::transaction(function () use ($request) {
-                $userId = $request->header('X-User-ID');
+                $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID');
 
                 WalletService::withdraw(
                     $userId,
@@ -143,12 +154,15 @@ class MemberTargetSavingController extends Controller
                     'user_id' => $userId,
                     'withdrawal_type' => 'TARGET_WITHDRAWAL',
                     'amount' => $request->amount,
+                    'reason' => trim($request->reason),
                     'withdraw_at' => now(),
                 ]);
 
+                ClearCacheService::clearListCache('withdrawal_request_list');
+
                 return response()->json([
                     'success' => true,
-                    'message' => 'Target Savings withdrawn successfully'
+                    'message' => 'Target savings withdrawn successfully'
                 ], 200);
             });
         } catch (\Exception $e) {
@@ -168,15 +182,16 @@ class MemberTargetSavingController extends Controller
 
         try {
             return DB::transaction(function () use ($request, $id) {
-                $userId = $request->header('X-User-ID');
-                $user = User::where('user_id', $userId)->first();
+                $withdrawalRequest = \App\Models\Admin\WithdrawalRequest::find($id);
+                $user = $withdrawalRequest ? User::where('user_id', $withdrawalRequest->user_id)->first() : null;
+                $userName = $user ? ($user->first_name . ' ' . $user->last_name) : 'Member';
 
                 WalletService::approveWithdrawal(
                     $id,
                     $request->statusId,
                     $request->reason,
-                    'Withdrawal request '  . ' by ' . $user->first_name . ' ' . $user->last_name . ' has been approved ',
-                    null,
+                    'Withdrawal request by ' . $userName . ' has been processed',
+                    null
                 );
 
                 return response()->json([

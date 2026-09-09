@@ -18,23 +18,19 @@ class LoanController extends Controller
             $memberId = Auth::guard('user')->user()->user_id;
 
             $cursor = $request->query('cursor');
-            $cacheKey = "loan_list_" . $memberId . "_" . ($cursor ?? 'first_page');
-            $loanData = Cache::tags('loan_list')->flexible(
-                $cacheKey,
-                [now()->addMonth(), null],
-                function () use ($cursor, $memberId) {
-                    return Loan::where('user_id', $memberId)->with([
-                        'status:status_id,status_name',
-                    ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
-                }
-            );
+            $loanData = Loan::where('user_id', $memberId)->with([
+                'status:status_id,status_name',
+                'user:user_id,first_name,last_name,title_id,passport',
+                'user.title:title_id,title_name',
+                'attendedByStaff:staff_id,first_name,last_name'
+            ])->orderBy('loan_id', 'desc')->cursorPaginate(30, ['*'], 'cursor', $cursor);
 
             if ($loanData->isEmpty()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => true,
                     'message' => 'No loan records found.',
                     'data' => []
-                ], 404);
+                ], 200);
             }
 
             return response()->json([

@@ -15,6 +15,7 @@ use App\Models\Setup\SetupCounter;
 use App\Services\Cache\ClearCacheService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class LoanService
@@ -176,6 +177,9 @@ class LoanService
         } else {
             throw new \Exception('Invalid status ID. Only 1 (approved) or 8 (rejected) are allowed.');
         }
+
+        Cache::tags('loan_list')->flush();
+        Cache::tags('withdrawal_request_list')->flush();
         ClearCacheService::clearListCache('ledger_entries_user_' . $loan->user_id);
     }
 
