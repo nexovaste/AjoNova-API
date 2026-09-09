@@ -29,7 +29,7 @@ class AdminController extends Controller
             $admin = Auth::guard('admin')->user();
             $adminRoleId = $admin->roles->first();
 
-            $staffData = Staff::with([
+            $baseQuery = Staff::with([
                 'roles',
                 'permissions',
                 'title:title_id,title_name',
@@ -42,15 +42,41 @@ class AdminController extends Controller
                 ->where('staff_id', '!=', $admin->staff_id)
                 ->whereHas('roles', function ($query) use ($adminRoleId) {
                     $query->where('id', '>=', $adminRoleId);
-                })
+                });
+
+            $activeCount = (clone $baseQuery)->where('status_id', 1)->count();
+            $suspendedCount = (clone $baseQuery)->where('status_id', 3)->count();
+
+            if ($request->filled('status_id')) {
+                $baseQuery->where('status_id', $request->status_id);
+            }
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $baseQuery->where(function ($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('middle_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('mobile_number', 'like', "%{$search}%")
+                        ->orWhere('staff_id', 'like', "%{$search}%");
+                });
+            }
+
+            $staffData = $baseQuery
                 ->orderBy('last_name', 'asc')
                 ->orderBy('staff_id', 'asc')
-                ->cursorPaginate(10);
+                ->cursorPaginate(30);
 
             if ($staffData->count() === 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No staff records found.',
+                    'summary' => [
+                        'active_count' => $activeCount,
+                        'suspended_count' => $suspendedCount,
+                        'total_count' => $activeCount + $suspendedCount,
+                    ],
                     'data' => []
                 ], 200);
             }
@@ -58,6 +84,11 @@ class AdminController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Staff records fetched successfully.',
+                'summary' => [
+                    'active_count' => $activeCount,
+                    'suspended_count' => $suspendedCount,
+                    'total_count' => $activeCount + $suspendedCount,
+                ],
                 'data' => AdminResource::collection($staffData),
                 'pagination' => [
                     'per_page' => $staffData->perPage(),

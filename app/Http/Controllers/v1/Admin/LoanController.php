@@ -28,22 +28,33 @@ class LoanController extends Controller
                     return Loan::with([
                         'status:status_id,status_name',
                         'user:user_id,title_id,first_name,middle_name,last_name,passport',
-                        'user.title:title_id,title_name'
+                        'user.title:title_id,title_name',
+                        'attendedByStaff:staff_id,first_name,last_name'
                     ])->cursorPaginate(30, ['*'], 'cursor', $cursor);
                 }
             );
+
+            $pendingLoansCount = Loan::where('status_id', 5)->count();
+            $pendingWithdrawalsCount = \App\Models\Admin\WithdrawalRequest::where('status_id', 5)->count();
+            $summary = [
+                'pending_loans_count' => $pendingLoansCount,
+                'pending_withdrawals_count' => $pendingWithdrawalsCount,
+                'total_pending_count' => $pendingLoansCount + $pendingWithdrawalsCount,
+            ];
 
             if ($loanData->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No loan records found.',
+                    'summary' => $summary,
                     'data' => []
-                ], 404);
+                ], 200);
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Loan records fetched successfully.',
+                'summary' => $summary,
                 'data' => LoanResource::collection($loanData),
                 'pagination' => [
                     'next_cursor' => $loanData->nextCursor()?->encode(),
@@ -74,7 +85,7 @@ class LoanController extends Controller
             'address' => 'required|string|max:500',
             'occupation' => 'nullable|string|max:255',
             'meansOfIdentificationId' => 'required|exists:means_of_identifications,means_of_identification_id',
-            'identificationNumber' => 'required|string|max:255|unique:guarantors,id_number',
+            'identificationNumber' => 'required|string|max:255',
             'relationshipToBorrower' => 'required|string|max:255',
             'guaranteedAmount' => 'required|numeric|min:0.01',
         ]);
@@ -183,9 +194,10 @@ class LoanController extends Controller
 
             $guarantors = Cache::tags(['guarantor'])
                 ->remember($cacheKey, now()->addMinutes(10), function () use ($userId) {
-                    return Guarantor::whereHas('loan', function ($query) use ($userId) {
-                        $query->where('user_id', $userId);
-                    })
+                    return Guarantor::with(['title', 'gender', 'meansOfIdentification', 'status'])
+                        ->whereHas('loan', function ($query) use ($userId) {
+                            $query->where('user_id', $userId);
+                        })
                         ->orderBy('created_at', 'desc')
                         ->get();
                 });

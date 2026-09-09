@@ -10,9 +10,9 @@ class ActivityLogService
         string $description,
         string $userType,
         string $performedBy,
-        int $roleId,
-        array $metadata,
-        array $deviceInfo,
+        ?int $roleId = null,
+        array $metadata = [],
+        array $deviceInfo = [],
     ): void {
        
 
@@ -23,9 +23,9 @@ class ActivityLogService
             'action'       => $action,
             'description'  => $description,
             'metadata'     => $metadata,
-            'ip_address'   => $deviceInfo['ip_address'],
-            'device'       => $deviceInfo['device'],
-            'browser'      => $deviceInfo['browser'],
+            'ip_address'   => $deviceInfo['ip_address'] ?? request()->ip(),
+            'device'       => $deviceInfo['device'] ?? 'Unknown',
+            'browser'      => $deviceInfo['browser'] ?? 'Unknown',
             'created_at'   => now(),
         ];
 
