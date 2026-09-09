@@ -1,178 +1,330 @@
-# GAPOSA Cooperative Management System 🚀
+# AjoNova API 🚀
 
 ![CI](https://img.shields.io/badge/CI-Ready-success)
 ![PHP](https://img.shields.io/badge/PHP-8.4-blue)
 ![Laravel](https://img.shields.io/badge/Laravel-12-red)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-success)
 
-The **GAPOSA Cooperative Management System** is a **policy-driven, API-first financial management platform** developed for the **Gateway Polytechnic Saapade Cooperative Society (GAPOSA)**.
+**AjoNova API** is an **enterprise-grade, API-first cooperative financial management platform** designed for cooperative societies, credit unions, employee cooperatives, and other member-driven financial organizations.
 
-The system automates cooperative operations including **member management, savings and contributions, loan processing, interest computation, salary-based repayments, guarantor enforcement, and financial reporting**, with strong emphasis on **transparency, accountability, and auditability**.
+Built with **Laravel 12**, the platform automates cooperative operations including **member management, savings, contributions, loans, guarantors, repayments, wallets, accounting, and financial reporting** while maintaining strong emphasis on **security, transparency, accountability, and auditability**.
 
-This is a **production-oriented system**, designed with enterprise standards and not a demo or toy academic project.
-
----
-
-## 📑 Table of Contents
-
-- [Product Vision](#-product-vision)
-- [System Architecture](#-system-architecture)
-- [Technology Stack](#-technology-stack)
-- [Core System Features](#-core-system-features)
-- [Loan & Repayment Model](#-loan--repayment-model)
-- [API Documentation](#-api-documentation)
-- [API Testing (Postman)](#-api-testing-postman)
-- [API Documentation (Swagger / OpenAPI)](#-api-documentation-swagger--openapi)
-- [Security & Compliance](#-security--compliance)
-- [Local Development Setup](#-local-development-setup)
-- [Versioning & Release Notes](#-versioning--release-notes)
-- [Development Workflow](#-development-workflow)
-- [License](#-license)
-- [Institution](#-institution)
+AjoNova is engineered as a **production-ready financial SaaS platform**, not a demo or academic project.
 
 ---
 
-## 🧠 Product Vision
+# 📑 Table of Contents
 
-Many cooperative societies still rely on **manual records, spreadsheets, and fragmented processes**, leading to errors, delays, weak accountability, and difficulty in tracking loans, repayments, and guarantor obligations.
-
-The GAPOSA Cooperative Management System addresses these challenges by providing a **centralized, secure, and automated platform** that enforces cooperative policies while giving administrators and members **real-time visibility** into financial activities.
-
----
-
-## 🏗️ System Architecture
-
-- API-First Architecture
-- Single-Tenant Cooperative Design
-- Policy-Driven Business Logic
-- Stateless RESTful APIs
-- Modular Laravel Architecture
-- Role-Based Access Control (RBAC)
-
-The system is deployed for **one cooperative society (GAPOSA)**, with clearly separated **Admin** and **Member** access layers.
+* [Product Vision](#-product-vision)
+* [System Architecture](#-system-architecture)
+* [Technology Stack](#-technology-stack)
+* [Core Platform Features](#-core-platform-features)
+* [Loan & Repayment Engine](#-loan--repayment-engine)
+* [API Design](#-api-design)
+* [Security Best Practices](#-security-best-practices)
+* [Local Development Setup](#-local-development-setup)
+* [Product Roadmap](#-product-roadmap)
+* [Contributing](#-contributing)
+* [License](#-license)
+* [Company](#-company)
 
 ---
 
-## 🧰 Technology Stack
+# 🧠 Product Vision
 
-### Backend
-- **Laravel 12**
-- **PHP 8.4**
-- **MySQL**
-- **Redis** (optional for cache and queues)
+Many cooperative societies still rely on fragmented systems, spreadsheets, and manual record keeping, leading to operational inefficiencies, inaccurate financial records, poor transparency, and weak policy enforcement.
 
-### Frontend (Clients)
-- RESTful API Consumers
-- Web-based Admin and Member Portals
-
-### Tooling & Infrastructure
-- Git & GitHub
-- Laravel Queues & Jobs
-- Laravel Scheduler
-- Laravel Logging & Auditing
+AjoNova solves these challenges by providing a secure, centralized, and scalable financial platform that automates cooperative operations while enforcing organizational policies and providing real-time visibility into member financial activities.
 
 ---
 
-## ✨ Core System Features
+# 🏗️ System Architecture
 
-### 👥 Member Management
-- Member registration (Academic & Non-Academic)
-- Status management (Active, Suspended, Retired, Resigned, Dismissed)
-- Profile and employment record tracking
+* API-First Architecture
+* Policy-Driven Financial Engine
+* Modular Laravel Architecture
+* Stateless RESTful APIs
+* Role-Based Access Control (RBAC)
+* Financial Audit Trail
+* Queue-Based Background Processing
+* Horizontally Scalable
 
-### 💰 Savings & Contribution Management
-- Compulsory savings enforcement
-- Voluntary contribution support
-- Contribution history tracking
-- Refund handling on exit
-- Target savings (Ileya, Christmas, custom goals)
-
-### 🏦 Loan Management
-- Loan eligibility validation
-- Savings-based loan limits (e.g. 10× savings)
-- Configurable loan duration
-- Flat interest calculation
-- Loan approval workflows
-- Automated repayment schedules
-
-### 🔄 Loan Repayment & Deduction
-- Salary-based repayment tracking
-- Monthly repayment posting
-- Missed repayment detection
-- Loan completion and closure
-- Default escalation handling
-
-### 🤝 Guarantor Management
-- Guarantor assignment per loan
-- Exposure tracking
-- Automatic guarantor activation on default
-
-### 📊 Reports & Transparency
-- Member financial statements
-- Loan performance reports
-- Monthly financial summaries
-- Defaulters and risk reports
-- Exportable reports (PDF / Excel)
-
-### 🧾 Audit & Accountability
-- User activity logs
-- Financial audit trails
-- Policy change tracking
-- Read-only auditor access
+The platform separates business logic from presentation, allowing multiple frontend clients—including web portals and future mobile applications—to consume the same secure API.
 
 ---
 
-## 💳 Loan & Repayment Model
+# 🧰 Technology Stack
 
-- **Loan Eligibility**
-  - Minimum contribution period (e.g. 6 months)
-  - Active membership status
-  - No existing active loan
+## Backend
 
-- **Interest Model**
-  - Flat interest rate (e.g. 10%)
-  - Calculated at loan approval
-  - Spread evenly across repayment duration
+* Laravel 12
+* PHP 8.4
+* MySQL
+* Redis
 
-- **Repayment Flow**
-  - Salary deduction
-  - Wallet debit
-  - Loan balance reduction
-  - Automatic loan closure on full repayment
+## Frontend Clients
+
+* Next.js
+* RESTful API Consumption
+
+## Infrastructure & Tooling
+
+* GitHub Actions (CI)
+* Laravel Queues & Jobs
+* Laravel Scheduler
+* Laravel Logging
+* Redis Cache & Queues
 
 ---
 
-## 📡 API Documentation
+# ✨ Core Platform Features
 
-The GAPOSA Cooperative Management System exposes a **RESTful API** that powers both the **Admin Portal** and **Member Portal**.
+## 👥 Member Management
 
-### API Design Principles
-- Stateless requests
-- JSON request and response payloads
-- Secure token-based authentication
-- Role-based authorization for all protected routes
+* Member registration
+* Membership lifecycle management
+* Employment information
+* KYC & profile management
+* Member status tracking
+* Beneficiary management
 
-### API Base URL (Local)
+---
+
+## 💰 Savings & Contribution Management
+
+* Compulsory savings
+* Voluntary savings
+* Target savings
+* Special savings plans
+* Savings history
+* Refund processing
+
+---
+
+## 🏦 Loan Management
+
+* Loan application
+* Loan approval workflow
+* Eligibility validation
+* Savings-based loan limits
+* Multiple loan products
+* Interest computation
+* Loan schedules
+* Loan disbursement
+
+---
+
+## 💳 Loan Repayment Engine
+
+* Salary deductions
+* Wallet repayments
+* Manual repayments
+* Outstanding balance tracking
+* Missed payment detection
+* Automatic loan closure
+
+---
+
+## 🤝 Guarantor Management
+
+* Multiple guarantors
+* Exposure tracking
+* Guarantor approval workflow
+* Liability management
+* Default enforcement
+
+---
+
+## 💼 Wallet Management
+
+* Member wallets
+* Wallet funding
+* Internal transfers
+* Wallet transaction history
+* Balance management
+
+---
+
+## 📊 Reports & Analytics
+
+* Member statements
+* Savings reports
+* Loan reports
+* Financial summaries
+* Defaulters report
+* Risk analysis
+* Exportable reports
+
+---
+
+## 🔐 Authentication & Security
+
+* Token-based authentication
+* Password reset
+* Email verification
+* OTP verification
+* Session management
+* Device tracking
+
+---
+
+## 📝 Audit & Activity Logging
+
+* User activity logs
+* Financial audit trails
+* Security logs
+* Policy change history
+* Read-only audit records
+
+---
+
+## ⚡ Performance Optimization
+
+* Redis caching
+* Optimized queries
+* Queue processing
+* Background jobs
+* High-concurrency readiness
+
+---
+
+# 💳 Loan & Repayment Engine
+
+## Loan Eligibility
+
+* Configurable contribution period
+* Active membership validation
+* Savings threshold validation
+* Existing loan verification
+* Policy enforcement
+
+---
+
+## Interest Calculation
+
+Supports configurable loan products with customizable:
+
+* Flat Interest
+* Reducing Balance (Future)
+* Flexible repayment durations
+
+---
+
+## Repayment Methods
+
+* Salary Deduction
+* Wallet Debit
+* Manual Payment
+* Bank Transfer (Future)
+
+---
+
+# 📡 API Design
+
+AjoNova exposes a secure RESTful API powering all frontend applications.
+
+## API Principles
+
+* RESTful Architecture
+* Stateless Requests
+* JSON Payloads
+* Versioned APIs
+* Secure Authentication
+* Role-Based Authorization
+* Consistent Error Responses
+
+Example Local URL:
+
 ```text
 http://localhost/api
+```
 
-## 📦 Local Development Setup
+---
+
+# 🔒 Security Best Practices
+
+* Role-Based Access Control
+* Secure Authentication
+* Policy Enforcement
+* Financial Audit Trails
+* Environment-Based Configuration
+* Activity Logging
+* Input Validation
+* Secure File Handling
+
+---
+
+# 📦 Local Development Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/gaposa-cooperative-management-system.git
-cd gaposa-cooperative-management-system
+git clone https://github.com/nexovaste/AjoNova-API.git
+
+cd AjoNova-API
+
 composer install
+
 cp .env.example .env
+
 php artisan key:generate
+
 php artisan migrate
+
 php artisan serve
+```
 
-📄 License
+Redis is recommended for caching, queues, and scheduled jobs.
 
-This system is developed for GAPOSA Cooperative Society.
-Licensing and redistribution are subject to institutional approval.
+---
 
-🏢 Institution
+# 🗺️ Product Roadmap
 
-Gateway ICT Polytechnic Saapade
-Cooperative Management System (GAPOSA)
+Upcoming features include:
+
+* Multi-Tenant Cooperative Support
+* Mobile Applications
+* Digital Wallet
+* Payment Gateway Integration
+* SMS Notifications
+* Email Notifications
+* AI Financial Insights
+* Accounting Module
+* Budget Management
+* Investment Module
+* Dividend Management
+* Procurement Module
+
+---
+
+# 🤝 Contributing
+
+Development follows a structured Git workflow.
+
+* Create feature branches from `develop`
+* Submit Pull Requests to `develop`
+* Ensure CI checks pass before merging
+* Follow coding standards
+* Write reusable, maintainable code
+
+---
+
+# 📄 License
+
+AjoNova API is proprietary software developed and maintained by **Nexovaste Technologies**.
+
+License terms will be published as the platform evolves.
+
+---
+
+# 🏢 Company
+
+**Nexovaste Technologies**
+
+Building scalable, secure, and future-ready software solutions.
+
+🌐 https://github.com/nexovaste
+
+📧 [contact@nexovaste.com](mailto:contact@nexovaste.com)
+
+---
+
+> **AjoNova API** is built with enterprise engineering standards, security-first architecture, and long-term scalability at its core, delivering reliable and policy-driven financial management for modern cooperative societies.

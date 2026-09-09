@@ -29,8 +29,8 @@ class LgaController extends Controller
                 'message' => 'Local governments fetched successfully.',
                 'data' => LgaResource::collection($lga),
             ], 200);
+            
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while fetching local governments: ' . $e->getMessage(),

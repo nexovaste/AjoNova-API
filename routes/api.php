@@ -47,6 +47,7 @@ Route::prefix('v1')->group(function () {
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
             Route::post('staff-passport/{id}', [StaffPassportController::class, 'update']);
+            Route::post('user-passport/{id}', [UserPassportController::class, 'update']);
             Route::get('fetch-profile', [AdminAuthController::class, 'fetchProfile']);
             Route::post('logout', [AdminAuthController::class, 'logout']);
             Route::apiResource('loan-policies', LoanPolicyController::class)->except(['destroy', 'store']);
