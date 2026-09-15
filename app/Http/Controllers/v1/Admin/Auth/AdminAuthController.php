@@ -31,7 +31,9 @@ class AdminAuthController extends Controller
 
         try {
             $details = Config::requestDetails();
-            $staff = Staff::where('email', $request->emailAddress)->first();
+            $email = trim($request->emailAddress);
+            $password = trim($request->password);
+            $staff = Staff::where('email', $email)->first();
 
             if (!$staff) {
                 return response()->json([
@@ -40,7 +42,7 @@ class AdminAuthController extends Controller
                 ], 401);
             }
 
-            $passwordIsValid = Hash::check($request->password, $staff->password);
+            $passwordIsValid = Hash::check($password, $staff->password);
             if ($staff->status_id === 19) {
 
                 if ($passwordIsValid) {
