@@ -14,17 +14,36 @@ use Illuminate\Support\Facades\Cache;
 
 class LoanPolicyController extends Controller
 {
-    //  Display a listing of the resource.
+    // Display a listing of the resource.
     public function index()
     {
         try {
             Auth::guard('admin')->user();
+
+            if (LoanPolicy::count() === 0) {
+                LoanPolicy::create([
+                    'loan_multiplier' => 2,
+                    'minimum_amount' => 5000.00,
+                    'maximum_amount' => 500000.00,
+                    'min_duration_months' => 1,
+                    'max_duration_months' => 12,
+                    'interest_rate' => 5.00,
+                    'processing_fee' => 1.00,
+                    'penalty_rate' => 2.00,
+                    'eligibility_months' => 3,
+                    'allow_multiple_loans' => false,
+                    'status_id' => 1,
+                    'updated_by' => 'System',
+                ]);
+            }
+
             $cacheKey = "loan_policies_with_status";
             $loanPolicies = Cache::remember($cacheKey, now()->addMonth(), function () {
                 return LoanPolicy::with('status:status_id,status_name')
                     ->orderBy('created_at', 'desc')
                     ->get();
             });
+
             return response()->json([
                 'success' => true,
                 'message' => 'Loan policies retrieved successfully',
@@ -38,12 +57,56 @@ class LoanPolicyController extends Controller
         }
     }
 
+    // Display the specified resource.
+    public function show($id)
+    {
+        try {
+            $loanPolicy = LoanPolicy::with('status:status_id,status_name')->find($id);
+
+            if (!$loanPolicy) {
+                if ((int)$id === 1 || LoanPolicy::count() === 0) {
+                    $loanPolicy = LoanPolicy::create([
+                        'loan_multiplier' => 2,
+                        'minimum_amount' => 5000.00,
+                        'maximum_amount' => 500000.00,
+                        'min_duration_months' => 1,
+                        'max_duration_months' => 12,
+                        'interest_rate' => 5.00,
+                        'processing_fee' => 1.00,
+                        'penalty_rate' => 2.00,
+                        'eligibility_months' => 3,
+                        'allow_multiple_loans' => false,
+                        'status_id' => 1,
+                        'updated_by' => 'System',
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Loan policy not found.'
+                    ], 404);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Loan policy retrieved successfully',
+                'data' => new LoanPolicyResource($loanPolicy)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve loan policy: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     // Update the specified resource in storage.
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
             'loanMultiplier' => 'required|integer|min:1',
             'minimumAmount' => 'required|numeric|min:0',
+            'maximumAmount' => 'nullable|numeric|min:0',
             'minDurationMonths' => 'required|integer|min:1',
             'maxDurationMonths' => 'required|integer|min:1|gte:minDurationMonths',
             'interestRate' => 'required|numeric|min:0',
@@ -54,13 +117,25 @@ class LoanPolicyController extends Controller
         ]);
 
         try {
-            $loanPolicy = LoanPolicy::findOrFail($id);
-            $dataBeforeUpdate = $loanPolicy->getOriginal();
+            $loanPolicy = LoanPolicy::find($id);
+            if (!$loanPolicy) {
+                if ((int)$id === 1 || LoanPolicy::count() === 0) {
+                    $loanPolicy = new LoanPolicy();
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Loan policy not found.'
+                    ], 404);
+                }
+            }
+
+            $dataBeforeUpdate = $loanPolicy->exists ? $loanPolicy->getOriginal() : [];
             $admin = Auth::guard('admin')->user();
 
-            $loanPolicy->update([
+            $loanPolicy->fill([
                 'loan_multiplier' => $validated['loanMultiplier'],
                 'minimum_amount' => $validated['minimumAmount'],
+                'maximum_amount' => $validated['maximumAmount'] ?? null,
                 'min_duration_months' => $validated['minDurationMonths'],
                 'max_duration_months' => $validated['maxDurationMonths'],
                 'interest_rate' => $validated['interestRate'],
@@ -68,8 +143,10 @@ class LoanPolicyController extends Controller
                 'penalty_rate' => $validated['penaltyRate'] ?? 0,
                 'eligibility_months' => $validated['eligibilityMonths'],
                 'allow_multiple_loans' => $validated['allowMultipleLoans'],
-                'updated_by' => $admin->staff_id ?? 'system',
+                'status_id' => $loanPolicy->status_id ?? 1,
+                'updated_by' => $admin->staff_id ?? 'System',
             ]);
+            $loanPolicy->save();
 
             $dataAfterUpdate = $loanPolicy->getChanges();
             ActivityLogJob::dispatch(
@@ -89,7 +166,8 @@ class LoanPolicyController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Loan policy updated successfully'
+                'message' => 'Loan policy updated successfully',
+                'data' => new LoanPolicyResource($loanPolicy)
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

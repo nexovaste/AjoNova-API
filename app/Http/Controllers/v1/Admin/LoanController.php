@@ -69,6 +69,34 @@ class LoanController extends Controller
         }
     }
 
+    // Display the specified resource.
+    public function show(string $id)
+    {
+        try {
+            $loan = Loan::with([
+                'status:status_id,status_name',
+                'user:user_id,title_id,first_name,middle_name,last_name,passport',
+                'user.title:title_id,title_name',
+                'attendedByStaff:staff_id,first_name,last_name',
+                'guarantors.title:title_id,title_name',
+                'guarantors.gender:gender_id,gender_name',
+                'guarantors.meansOfIdentification:means_of_identification_id,identification_type',
+                'guarantors.status:status_id,status_name'
+            ])->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Loan record fetched successfully.',
+                'data' => new LoanResource($loan)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loan record not found: ' . $e->getMessage()
+            ], 404);
+        }
+    }
+
     // Store a newly created resource in storage.
 
     public function applyLoan(Request $request)
