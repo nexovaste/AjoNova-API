@@ -108,10 +108,15 @@ class UserAuthController extends Controller
                 Str::title($titleName)
             ));
 
-            return response()->json([
+            $resData = [
                 'success' => true,
                 'message' => 'OTP sent to your registered email address. Please verify to complete login.',
-            ], 200);
+            ];
+            if (config('app.debug')) {
+                $resData['otp'] = $otp;
+            }
+
+            return response()->json($resData, 200);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
