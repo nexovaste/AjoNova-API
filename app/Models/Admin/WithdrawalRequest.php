@@ -39,4 +39,9 @@ class WithdrawalRequest extends Model
     {
         return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
+
+    public function attendedByStaff()
+    {
+        return $this->belongsTo(Staff::class, 'attended_by', 'staff_id');
+    }
 }

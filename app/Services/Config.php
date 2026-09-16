@@ -11,7 +11,9 @@ class Config
     public static function requestDetails(): array
     {
         $agent = new Agent();
-        $location = Location::get(request()->ip());
+        $ip = request()->ip();
+        $isLocal = in_array($ip, ['127.0.0.1', '::1', 'localhost']) || str_starts_with($ip ?? '', '192.168.') || str_starts_with($ip ?? '', '10.') || str_starts_with($ip ?? '', '172.');
+        $location = !$isLocal ? Location::get($ip) : null;
         return [
             'url' => request()->fullUrl(),
             'method' => request()->method(),

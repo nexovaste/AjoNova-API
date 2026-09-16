@@ -16,9 +16,9 @@ class ActivityLogJob implements ShouldQueue
         protected string $description,
         protected string $userType,
         protected string $performedBy,
-        protected int $roleId,
-        protected array $metadata,
-        protected array $deviceInfo,
+        protected ?int $roleId = null,
+        protected array $metadata = [],
+        protected array $deviceInfo = [],
     ) {}
 
     public function handle(): void

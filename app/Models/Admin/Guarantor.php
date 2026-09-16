@@ -4,9 +4,9 @@ namespace App\Models\Admin;
 
 use App\Models\Setup\MeansOfIdentification;
 use App\Models\Setup\SetupGender;
+use App\Models\Setup\SetupStatus;
 use App\Models\Setup\SetupTitle;
 use Illuminate\Database\Eloquent\Model;
-use Predis\Response\Status;
 
 class Guarantor extends Model
 {
@@ -40,7 +40,7 @@ class Guarantor extends Model
 
     public function status()
     {
-        return $this->belongsTo(Status::class, 'status_id', 'status_id');
+        return $this->belongsTo(SetupStatus::class, 'status_id', 'status_id');
     }
 
     public function title()

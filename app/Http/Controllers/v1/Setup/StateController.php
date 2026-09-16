@@ -34,8 +34,8 @@ class StateController extends Controller
                 'message' => 'States fetched successfully.',
                 'data' => StateResource::collection($states),
             ], 200);
-        } catch (\Exception $e) {
 
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while fetching states: ' . $e->getMessage(),

@@ -8,6 +8,7 @@ use App\Models\Setup\SetupLga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
+
 class LgaController extends Controller
 {
     public function index(Request $request)
@@ -32,8 +33,8 @@ class LgaController extends Controller
                 'message' => 'Local governments fetched successfully.',
                 'data' => LgaResource::collection($lga),
             ], 200);
+            
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while fetching local governments: ' . $e->getMessage(),

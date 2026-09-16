@@ -22,8 +22,8 @@ class MemberTargetSavingResource extends JsonResource
             'currentAmount' => $this->current_amount,
             'reference' => $this->reference,
             'processedBy' => $this->processed_by,
-            'createdAt' => $this->created_at,
-            'updatedAt' => $this->updated_at,
+            'createdAt' => $this->created_at?->toDateTimeString(),
+            'updatedAt' => $this->updated_at?->toDateTimeString(),
             'status' => [
                 'statusId' => $this->status?->status_id,
                 'statusName' => $this->status?->status_name,

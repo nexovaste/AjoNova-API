@@ -93,6 +93,7 @@ class WalletService
 
     public static function approveWithdrawal($id, $statusId, $reason = null, $description = null, $reference = null)
     {
+        $statusId = (int) $statusId;
         $userInfo = WithdrawalRequest::findOrFail($id);
         $wallet = Wallet::where('user_id', $userInfo->user_id)->firstOrFail();
         $entryType = strtoupper($userInfo->withdrawal_type);
@@ -109,18 +110,18 @@ class WalletService
                 'is_approved' => true
             ]);
 
-            if ($entryType === 'CONTRIBUTION_WITHDRAWAL') {
-                $balanceBefore = $wallet->total_contributions + $userInfo->amount;
-                $balanceAfter = $wallet->total_contributions;
-            } elseif ($entryType === 'SAVINGS_WITHDRAWAL') {
+            if (str_contains($entryType, 'SAVINGS')) {
                 $balanceBefore = $wallet->total_saving_amount + $userInfo->amount;
                 $balanceAfter = $wallet->total_saving_amount;
-            } elseif ($entryType === 'LOCKED_WITHDRAWAL') {
+            } elseif (str_contains($entryType, 'LOCKED')) {
                 $balanceBefore = $wallet->locked_balance + $userInfo->amount;
                 $balanceAfter = $wallet->locked_balance;
-            } elseif ($entryType === 'TARGET_WITHDRAWAL') {
+            } elseif (str_contains($entryType, 'TARGET')) {
                 $balanceBefore = $wallet->total_target_amount + $userInfo->amount;
                 $balanceAfter = $wallet->total_target_amount;
+            } else {
+                $balanceBefore = $wallet->total_contributions + $userInfo->amount;
+                $balanceAfter = $wallet->total_contributions;
             }
 
             LedgerEntry::create([
@@ -143,19 +144,22 @@ class WalletService
                 'reason' => $reason,
             ]);
 
-            if ($entryType === 'CONTRIBUTION_WITHDRAWAL') {
-                $wallet->total_contributions += $userInfo->amount;
-            } elseif ($entryType === 'SAVINGS_WITHDRAWAL') {
+            if (str_contains($entryType, 'SAVINGS')) {
                 $wallet->total_saving_amount += $userInfo->amount;
-            } elseif ($entryType === 'LOCKED_WITHDRAWAL') {
+            } elseif (str_contains($entryType, 'LOCKED')) {
                 $wallet->locked_balance += $userInfo->amount;
-            } elseif ($entryType === 'TARGET_WITHDRAWAL') {
+            } elseif (str_contains($entryType, 'TARGET')) {
                 $wallet->total_target_amount += $userInfo->amount;
+            } else {
+                $wallet->total_contributions += $userInfo->amount;
             }
 
             $wallet->save();
-            Cache::forget("withdrawal_request_{$id}");
-            ClearCacheService::clearListCache("ledger_entries_user_{$userInfo->user_id}");
         }
+
+        Cache::tags('withdrawal_request_list')->flush();
+        Cache::tags('loan_list')->flush();
+        Cache::forget("withdrawal_request_{$id}");
+        ClearCacheService::clearListCache("ledger_entries_user_{$userInfo->user_id}");
     }
 }

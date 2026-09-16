@@ -12,6 +12,7 @@ use App\Models\User\User;
 use App\Services\Cache\ClearCacheService;
 use App\Services\Finance\WalletService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -23,28 +24,24 @@ class MemberSavingController extends Controller
     public function index(Request $request)
     {
         try {
-            $userId = $request->header('X-User-ID');
+            $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID') ?? $request->query('user_id');
             $cursor = $request->query('cursor');
-            $cacheKey = "member_saving_list_" . $userId . "_" . ($cursor ?? 'first_page');
-            $memberSaving = Cache::tags('member_saving_list_' . $userId)->flexible(
+            $cacheKey = "member_saving_list_" . ($userId ?? 'all') . "_" . ($cursor ?? 'first_page');
+            $memberSaving = Cache::tags('member_saving_list_' . ($userId ?? 'all'))->flexible(
                 $cacheKey,
                 [now()->addMonth(), null],
                 function () use ($cursor, $userId) {
-                    return MemberSaving::with([
+                    $query = MemberSaving::with([
                         'status:status_id,status_name',
                         'ledger:ledger_entry_id,entry_type',
                         'paymentChannel:payment_channel_type_id,payment_channel_type_name'
-                    ])->where('user_id', $userId)->cursorPaginate(30, ['*'], 'cursor', $cursor);
+                    ]);
+                    if ($userId) {
+                        $query->where('user_id', $userId);
+                    }
+                    return $query->latest('member_saving_id')->cursorPaginate(30, ['*'], 'cursor', $cursor);
                 }
             );
-
-            if ($memberSaving->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No member savings records found.',
-                    'data' => []
-                ], 404);
-            }
 
             return response()->json([
                 'success' => true,
@@ -141,11 +138,12 @@ class MemberSavingController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:0.01',
+            'reason' => 'required|string|min:3',
         ]);
 
         try {
             return DB::transaction(function () use ($request) {
-                $userId = $request->header('X-User-ID');
+                $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID');
 
                 WalletService::withdraw(
                     $userId,
@@ -157,8 +155,11 @@ class MemberSavingController extends Controller
                     'user_id' => $userId,
                     'withdrawal_type' => 'SAVINGS_WITHDRAWAL',
                     'amount' => $request->amount,
+                    'reason' => trim($request->reason),
                     'withdraw_at' => now(),
                 ]);
+
+                ClearCacheService::clearListCache('withdrawal_request_list');
 
                 return response()->json([
                     'success' => true,
@@ -177,12 +178,12 @@ class MemberSavingController extends Controller
     public function withdrawLockedBalance(Request $request)
     {
         $request->validate([
-            'reason' => 'required|string',
+            'reason' => 'required|string|min:3',
         ]);
 
         try {
             return DB::transaction(function () use ($request) {
-                $userId = $request->header('X-User-ID');
+                $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID');
                 $lockedBalance = Wallet::where('user_id', $userId)->value('locked_balance');
 
                 WalletService::withdraw(
@@ -195,8 +196,11 @@ class MemberSavingController extends Controller
                     'user_id' => $userId,
                     'withdrawal_type' => 'LOCKED_WITHDRAWAL',
                     'amount' => $lockedBalance,
+                    'reason' => trim($request->reason),
                     'withdraw_at' => now(),
                 ]);
+
+                ClearCacheService::clearListCache('withdrawal_request_list');
 
                 return response()->json([
                     'success' => true,
@@ -220,14 +224,15 @@ class MemberSavingController extends Controller
 
         try {
             return DB::transaction(function () use ($request, $id) {
-                $userId = $request->header('X-User-ID');
-                $user = User::where('user_id', $userId)->first();
+                $withdrawalRequest = \App\Models\Admin\WithdrawalRequest::find($id);
+                $user = $withdrawalRequest ? User::where('user_id', $withdrawalRequest->user_id)->first() : null;
+                $userName = $user ? ($user->first_name . ' ' . $user->last_name) : 'Member';
 
                 WalletService::approveWithdrawal(
                     $id,
                     $request->statusId,
                     $request->reason,
-                    'Withdrawal request '  . ' by ' . $user->first_name . ' ' . $user->last_name . ' has been approved ',
+                    'Withdrawal request by ' . $userName . ' has been processed',
                     null
                 );
 
