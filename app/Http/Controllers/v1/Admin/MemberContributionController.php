@@ -9,7 +9,9 @@ use App\Models\Admin\MemberContributionSaving;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
 use App\Services\Cache\ClearCacheService;
+use App\Services\Cache\TagCache;
 use App\Services\Finance\WalletService;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -105,7 +107,7 @@ class MemberContributionController extends Controller
                     null,
                     'Monthly contribution deposit for user ' . $user->first_name . ' ' . $user->last_name . ' for ' . now()->format('F Y')
                 );
-                Cache::tags('member_contribution_list_' . $userId)->flush();
+                TagCache::flush('member_contribution_list_' . $userId);
                 MemberContribution::create([
                     'user_id' => $userId,
                     'contribution_amount' => $contributionAmount,

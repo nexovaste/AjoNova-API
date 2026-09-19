@@ -4,7 +4,7 @@ namespace App\Http\Controllers\v1\Setup;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\MeansOfIdentificationResource;
 use App\Models\Setup\MeansOfIdentification;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Cache\TagCache;
 
 
 class MeansOfIdentificationController extends Controller
@@ -14,7 +14,7 @@ class MeansOfIdentificationController extends Controller
        try {
 
             $cacheKey = "identification_list";
-            $meansofidentification = Cache::tags('identification_list')->rememberForever($cacheKey, function () {
+            $meansofidentification = TagCache::rememberForever('identification_list', $cacheKey, function () {
                 return MeansOfIdentification::orderBy('means_of_identification_name', 'asc')->get();
             });
 

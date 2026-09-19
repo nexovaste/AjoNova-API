@@ -11,6 +11,7 @@ use App\Models\User\User;
 use App\Services\Cache\ClearCacheService;
 use App\Services\Finance\WalletService;
 use Carbon\Carbon;
+use App\Services\Cache\TagCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -117,7 +118,7 @@ class MemberTargetSavingController extends Controller
                     ]);
                 }
 
-                 Cache::tags('member_target_saving_list_' . $userId)->flush();
+                 TagCache::flush('member_target_saving_list_' . $userId);
 
                 return response()->json([
                     'success' => true,

@@ -8,6 +8,7 @@ use App\Http\Resources\Admin\LoanResource;
 use App\Models\Admin\Guarantor;
 use App\Models\Admin\Loan;
 use App\Services\LoanService;
+use App\Services\Cache\TagCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -21,7 +22,8 @@ class LoanController extends Controller
         try {
             $cursor = $request->query('cursor');
             $cacheKey = "loan_list_" . ($cursor ?? 'first_page');
-            $loanData = Cache::tags('loan_list')->flexible(
+            $loanData = TagCache::flexible(
+                'loan_list',
                 $cacheKey,
                 [now()->addMonth(), null],
                 function () use ($cursor) {
@@ -69,6 +71,34 @@ class LoanController extends Controller
         }
     }
 
+    // Display the specified resource.
+    public function show(string $id)
+    {
+        try {
+            $loan = Loan::with([
+                'status:status_id,status_name',
+                'user:user_id,title_id,first_name,middle_name,last_name,passport',
+                'user.title:title_id,title_name',
+                'attendedByStaff:staff_id,first_name,last_name',
+                'guarantors.title:title_id,title_name',
+                'guarantors.gender:gender_id,gender_name',
+                'guarantors.meansOfIdentification:means_of_identification_id,identification_type',
+                'guarantors.status:status_id,status_name'
+            ])->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Loan record fetched successfully.',
+                'data' => new LoanResource($loan)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loan record not found: ' . $e->getMessage()
+            ], 404);
+        }
+    }
+
     // Store a newly created resource in storage.
 
     public function applyLoan(Request $request)
@@ -109,8 +139,8 @@ class LoanController extends Controller
                     $request->input('relationshipToBorrower'),
                     $request->input('guaranteedAmount')
                 );
-                Cache::tags('loan_list')->flush();
-                Cache::tags(['guarantor'])->forget("guarantor_user_" . $userId);
+                TagCache::flush('loan_list');
+                TagCache::forget(['guarantor'], "guarantor_user_" . $userId);
                 return response()->json([
                     'success' => true,
                     'message' => 'Loan application submitted successfully'
@@ -143,7 +173,7 @@ class LoanController extends Controller
                     $request->input('statusId'),
                     $request->input('reason')
                 );
-                Cache::tags('loan_list')->flush();
+                TagCache::flush('loan_list');
                 return response()->json([
                     'success' => true,
                     'message' => 'Loan application processed successfully'

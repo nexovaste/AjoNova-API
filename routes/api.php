@@ -27,7 +27,7 @@ use App\Http\Controllers\v1\Setup\StatusController;
 use App\Http\Controllers\v1\Setup\TitleController;
 use App\Http\Controllers\v1\User\Auth\UserAuthController;
 use App\Http\Controllers\v1\User\LoanController as UserLoanController;
-use App\Http\Controllers\v1\User\UserPassportController;
+use App\Http\Controllers\v1\Admin\UserPassportController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -47,6 +47,7 @@ Route::prefix('v1')->group(function () {
             Route::post('change-password', [AdminAuthController::class, 'changePassword'])->middleware('throttle:5,1');
             Route::apiResource('users', UserManagementController::class)->middleware('permission:manage users');
             Route::post('staff-passport/{id}', [StaffPassportController::class, 'update']);
+            Route::post('user-passport/{id}', [UserPassportController::class, 'update']);
             Route::get('fetch-profile', [AdminAuthController::class, 'fetchProfile']);
             Route::post('logout', [AdminAuthController::class, 'logout']);
             Route::apiResource('loan-policies', LoanPolicyController::class)->except(['destroy', 'store']);
@@ -60,13 +61,14 @@ Route::prefix('v1')->group(function () {
             Route::post('target-savings-withdrawal-approval/{id}', [MemberTargetSavingController::class, 'approveWithdrawal']);
             Route::post('approve-loan/{id}', [LoanController::class, 'approveLoan']);
             Route::post('loan-repayment', [LoanController::class, 'loanRepayment']);
-            Route::apiResource('all-loans', LoanController::class)->only(['index']);
+            Route::apiResource('all-loans', LoanController::class)->only(['index', 'show']);
             Route::apiResource('member-contributions', MemberContributionController::class)->only(['index']);
             Route::apiResource('member-savings', MemberSavingController::class)->only(['index']);
             Route::apiResource('member-target-savings', MemberTargetSavingController::class)->only(['index']);
             Route::patch('update-contribution-amount', [MemberContributionController::class, 'updateContributionAmount']);
             Route::patch('update-savings-amount', [MemberSavingController::class, 'updateSavingsAmount']);
             Route::apiResource('withdrawal-requests', WithdrawalRequestController::class)->only(['index', 'show']);
+            Route::post('withdrawal-approval/{id}', [WithdrawalRequestController::class, 'approveWithdrawal']);
             Route::apiResource('report', ReportController::class)->only(['index']);
             Route::apiResource('loan-repayment-schedule', LoanRepaymentScheduleController::class)->only(['index']);
 
@@ -75,15 +77,18 @@ Route::prefix('v1')->group(function () {
             Route::get('activity-logs', [ActivityLogController::class, 'index']);
             Route::get('activity-logs/search', [ActivityLogController::class, 'search']);
             Route::get('activity-logs/unread-count', [ActivityLogController::class, 'unreadCount']);
+            Route::post('activity-logs/mark-all-read', [ActivityLogController::class, 'markAllAsRead']);
+            Route::post('activity-logs/mark-all-as-read', [ActivityLogController::class, 'markAllAsRead']);
             Route::get('activity-logs/{id}', [ActivityLogController::class, 'show']);
             Route::post('activity-logs/{id}/read', [ActivityLogController::class, 'markAsRead']);
             Route::post('activity-logs/{id}/mark-as-read', [ActivityLogController::class, 'markAsRead']);
             Route::post('activity-logs/mark-all-read', [ActivityLogController::class, 'markAllAsRead']);
             Route::post('activity-logs/mark-all-as-read', [ActivityLogController::class, 'markAllAsRead']);
             Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
+            Route::apiResource('role', RoleController::class);
+            Route::get('permissions', [RoleController::class, 'permissions']);
         });
         Route::post('finish-change-password', [AdminAuthController::class, 'finishChangePassword'])->middleware('throttle:5,1');
-        Route::apiResource('role', RoleController::class);
         Route::apiResource('staff', AdminController::class);
     });
 

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\GenderResource;
 use App\Models\Setup\SetupGender;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Cache\TagCache;
 
 class GenderController extends Controller
 {
@@ -14,7 +14,7 @@ class GenderController extends Controller
     {
         try {
             $cacheKey = "gender_list";
-            $gender = Cache::tags('gender_list')->rememberForever($cacheKey, function () {
+            $gender = TagCache::rememberForever('gender_list', $cacheKey, function () {
                 return SetupGender::orderBy('gender_name', 'asc')->get();
             });
 

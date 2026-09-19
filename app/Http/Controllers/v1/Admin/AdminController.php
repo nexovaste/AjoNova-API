@@ -27,7 +27,7 @@ class AdminController extends Controller
     {
         try {
             $admin = Auth::guard('admin')->user();
-            $adminRoleId = $admin->roles->first();
+            $adminRoleId = $admin->roles->first()?->id ?? 0;
 
             $baseQuery = Staff::with([
                 'roles',
@@ -182,21 +182,20 @@ class AdminController extends Controller
     public function show(string $id)
     {
         try {
-            $staffData = Cache::remember("staff_profile_{$id}", now()->addMonth(), function () use ($id) {
-                return new AdminResource(Staff::with([
-                    'title:title_id,title_name',
-                    'gender:gender_id,gender_name',
-                    'status:status_id,status_name',
-                    'lga:lga_id,lga_name,state_id',
-                    'lga.state:state_id,state_name,country_id',
-                    'lga.state.country:country_id,country_name'
-                ])->findOrFail($id));
-            });
+            $staff = Staff::with([
+                'roles:id,name',
+                'title:title_id,title_name',
+                'gender:gender_id,gender_name',
+                'status:status_id,status_name',
+                'lga:lga_id,lga_name,state_id',
+                'lga.state:state_id,state_name,country_id',
+                'lga.state.country:country_id,country_name'
+            ])->findOrFail($id);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Staff profile fetched successfully.',
-                'data' => $staffData
+                'data' => new AdminResource($staff)
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
