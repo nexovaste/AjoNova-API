@@ -11,6 +11,7 @@ use App\Models\User\User;
 use App\Services\Cache\ClearCacheService;
 use App\Services\Finance\WalletService;
 use Carbon\Carbon;
+use App\Services\Cache\TagCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -26,7 +27,7 @@ class MemberTargetSavingController extends Controller
             $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID') ?? $request->query('user_id');
             $cursor = $request->query('cursor');
             $cacheKey = "member_target_saving_list_" . ($userId ?? 'all') . "_" . ($cursor ?? 'first_page');
-            $memberSaving = Cache::tags('member_target_saving_list_' . ($userId ?? 'all'))->flexible($cacheKey, [now()->addMonth(), null], function () use ($cursor, $userId) {
+            $memberSaving = TagCache::flexible('member_target_saving_list_' . ($userId ?? 'all'), $cacheKey, [now()->addMonth(), null], function () use ($cursor, $userId) {
                 $query = MemberTargetSaving::with([
                     'status:status_id,status_name',
                     'ledger:ledger_entry_id,entry_type',
@@ -105,7 +106,7 @@ class MemberTargetSavingController extends Controller
                     ]);
                 }
 
-                 Cache::tags('member_target_saving_list_' . $userId)->flush();
+                 TagCache::flush('member_target_saving_list_' . $userId);
 
                 return response()->json([
                     'success' => true,

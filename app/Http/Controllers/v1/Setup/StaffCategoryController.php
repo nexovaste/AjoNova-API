@@ -4,7 +4,7 @@ namespace App\Http\Controllers\v1\Setup;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\StaffCategoryResource;
 use App\Models\Setup\StaffCategory;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Cache\TagCache;
 
 
 class StaffCategoryController extends Controller
@@ -14,7 +14,7 @@ class StaffCategoryController extends Controller
        try {
 
             $cacheKey = "staff_category_list";
-            $staffcategory = Cache::tags('staff_category_list')->rememberForever($cacheKey, function () {
+            $staffcategory = TagCache::rememberForever('staff_category_list', $cacheKey, function () {
                 return StaffCategory::orderBy('staff_category_name', 'asc')->get();
             });
 

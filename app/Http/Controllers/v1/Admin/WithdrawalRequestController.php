@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\WithdrawalRequestResource;
 use App\Models\Admin\WithdrawalRequest;
+use App\Services\Cache\TagCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -17,7 +18,8 @@ class WithdrawalRequestController extends Controller
         try {
             $cursor = $request->query('cursor');
             $cacheKey = "withdrawal_request_list_" . ($cursor ?? 'first_page');
-            $withdrawalRequestData = Cache::tags('withdrawal_request_list')->flexible(
+            $withdrawalRequestData = TagCache::flexible(
+                'withdrawal_request_list',
                 $cacheKey,
                 [now()->addMonth(), null],
                 function () use ($cursor) {

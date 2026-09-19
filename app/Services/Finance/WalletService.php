@@ -7,6 +7,7 @@ use App\Models\Admin\Wallet;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
 use App\Services\Cache\ClearCacheService;
+use App\Services\Cache\TagCache;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -157,8 +158,8 @@ class WalletService
             $wallet->save();
         }
 
-        Cache::tags('withdrawal_request_list')->flush();
-        Cache::tags('loan_list')->flush();
+        TagCache::flush('withdrawal_request_list');
+        TagCache::flush('loan_list');
         Cache::forget("withdrawal_request_{$id}");
         ClearCacheService::clearListCache("ledger_entries_user_{$userInfo->user_id}");
     }

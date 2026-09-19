@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\StatusResource;
 use App\Models\Setup\SetupStatus;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Cache\TagCache;
 
 class StatusController extends Controller
 {
@@ -21,7 +21,7 @@ class StatusController extends Controller
 
             $statusIds = $request->status_id;
             $cacheKey = 'status_' . implode('_', $statusIds);
-            $statuses = Cache::tags('setup_statuses')->rememberForever($cacheKey, function () use ($statusIds) {
+            $statuses = TagCache::rememberForever('setup_statuses', $cacheKey, function () use ($statusIds) {
                 return SetupStatus::whereIn('status_id', $statusIds)->get();
             });
 

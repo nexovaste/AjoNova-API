@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\ReportResource;
 use App\Models\Admin\LedgerEntry;
+use App\Services\Cache\TagCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -61,7 +62,7 @@ class ReportController extends Controller
             }
 
             $cacheKey = "ledger_entries_user_{$userId}_cursor_" . ($cursor ?? 'first_page');
-            $ledgerEntry = Cache::tags("ledger_entries_user_{$userId}")->flexible($cacheKey, [now()->addMonth(), null], function () use ($userId, $cursor) {
+            $ledgerEntry = TagCache::flexible("ledger_entries_user_{$userId}", $cacheKey, [now()->addMonth(), null], function () use ($userId, $cursor) {
                 return LedgerEntry::where('user_id', $userId)
                     ->orderBy('created_at', 'desc')
                     ->orderBy('ledger_entry_id', 'desc')

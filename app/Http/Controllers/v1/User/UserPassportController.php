@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v1\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\User\User;
+use App\Services\Cache\TagCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -34,7 +35,7 @@ class UserPassportController extends Controller
 
             $user->passport = $fileName;
             $user->save();
-            Cache::tags('user_list')->flush();
+            TagCache::flush('user_list');
             Cache::forget("user_profile_{$id}");
             return response()->json([
                 'success' => true,
