@@ -172,7 +172,7 @@ class MemberTargetSavingController extends Controller
             return DB::transaction(function () use ($request, $id) {
                 $userId = $request->header('X-User-ID');
                 $user = User::where('user_id', $userId)->find();
-
+                $userName = $user ? $user->first_name . ' ' . $user->last_name : 'Unknown User';
                 WalletService::approveWithdrawal(
                     $id,
                     $request->statusId,
