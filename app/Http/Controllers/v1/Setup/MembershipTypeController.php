@@ -4,7 +4,7 @@ namespace App\Http\Controllers\v1\Setup;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\MembershipTypeResource;
 use App\Models\Setup\MembershipType;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Cache\TagCache;
 
 
 class MembershipTypeController extends Controller
@@ -14,7 +14,7 @@ class MembershipTypeController extends Controller
        try {
 
             $cacheKey = "membership_list";
-            $membershiptype = Cache::tags('membership_list')->rememberForever($cacheKey, function () {
+            $membershiptype = TagCache::rememberForever('membership_list', $cacheKey, function () {
                 return MembershipType::orderBy('membership_type_name', 'asc')->get();
             });
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\LoanRepaymentScheduleResource;
 use App\Models\Admin\LoanRepaymentSchedule;
+use App\Services\Cache\TagCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -17,7 +18,7 @@ class LoanRepaymentScheduleController extends Controller
             $userId = $request->header('X-User-ID');
             $cursor = $request->query('cursor');
             $cacheKey = "loan_repayment_schedule_user_{$userId}_cursor_" . ($cursor ?? 'first_page');
-            $loanRepaymentSchedule = Cache::tags("loan_repayment_schedule_user_{$userId}")->flexible($cacheKey, [now()->addMonth(), null], function () use ($userId, $cursor) {
+            $loanRepaymentSchedule = TagCache::flexible("loan_repayment_schedule_user_{$userId}", $cacheKey, [now()->addMonth(), null], function () use ($userId, $cursor) {
                 return LoanRepaymentSchedule::with([
                     'status:status_id,status_name',
                 ])->orderBy('created_at', 'desc')

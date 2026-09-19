@@ -9,7 +9,7 @@ class ClearCacheService
     // Flush all cached cursor pages for staff list.
     public static function clearListCache($key): void
     {
-        Cache::tags($key)->flush();
+        TagCache::flush($key);
     }
 }
     
