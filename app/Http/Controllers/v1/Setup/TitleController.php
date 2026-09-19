@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\TitleResource;
 use App\Models\Setup\SetupTitle;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Cache\TagCache;
 
 class TitleController extends Controller
 {
@@ -15,7 +15,7 @@ class TitleController extends Controller
         try {
 
             $cacheKey = "title_list";
-            $titles = Cache::tags('title_list')->rememberForever($cacheKey, function () {
+            $titles = TagCache::rememberForever('title_list', $cacheKey, function () {
                 return SetupTitle::orderBy('title_name', 'asc')->get();
             });
 

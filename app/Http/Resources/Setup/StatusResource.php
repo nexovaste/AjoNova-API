@@ -12,6 +12,8 @@ class StatusResource extends JsonResource
         return [
             'status_id' => $this->status_id,
             'status_name' => $this->status_name,
+            'statusId' => $this->status_id,
+            'statusName' => $this->status_name,
         ];
     }
 }

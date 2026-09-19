@@ -5,7 +5,7 @@ namespace App\Http\Controllers\v1\Setup;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\PaymentChannelTypeResource;
 use App\Models\Setup\PaymentChannelType;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Cache\TagCache;
 
 
 class PaymentChannelTypeController extends Controller
@@ -15,7 +15,7 @@ class PaymentChannelTypeController extends Controller
         try {
 
             $cacheKey = "payment_channel_list";
-            $paymentchannel = Cache::tags('payment_channel_list')->rememberForever($cacheKey, function () {
+            $paymentchannel = TagCache::rememberForever('payment_channel_list', $cacheKey, function () {
                 return PaymentChannelType::orderBy('payment_channel_type_name', 'asc')->get();
             });
 

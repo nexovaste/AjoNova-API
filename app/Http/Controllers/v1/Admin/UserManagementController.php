@@ -13,6 +13,7 @@ use App\Models\Setup\SetupCounter;
 use App\Models\User\User;
 use App\Notifications\member\signupMail;
 use App\Services\Cache\ClearCacheService;
+use App\Services\Cache\TagCache;
 use App\Services\Config;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -29,35 +30,38 @@ class UserManagementController extends Controller
     public function index(Request $request)
     {
         try {
-            $baseQuery = User::with([
-                'title:title_id,title_name',
-                'staffCategory:staff_category_id,staff_category_name',
-                'membershipType:membership_type_id,membership_type_name',
-                'gender:gender_id,gender_name',
-                'status:status_id,status_name',
-                'lga:lga_id,lga_name,state_id',
-                'lga.state:state_id,state_name,country_id',
-                'lga.state.country:country_id,country_name',
-                'wallet',
-            ]);
+            $counts = DB::table('users')
+                ->select('status_id', DB::raw('count(*) as count'))
+                ->whereIn('status_id', [1, 3])
+                ->groupBy('status_id')
+                ->pluck('count', 'status_id');
+            $activeCount = (int) ($counts[1] ?? 0);
+            $suspendedCount = (int) ($counts[3] ?? 0);
 
-            $activeCount = (clone $baseQuery)->where('status_id', 1)->count();
-            $suspendedCount = (clone $baseQuery)->where('status_id', 3)->count();
+            $cursor = $request->query('cursor');
+            $search = $request->query('search');
+            $statusId = $request->query('status_id');
+            $membershipTypeId = $request->query('membership_type_id');
+            $staffCategoryId = $request->query('staff_category_id');
 
-            if ($request->filled('status_id')) {
-                $baseQuery->where('status_id', $request->status_id);
-            }
-
-            if ($request->filled('membership_type_id')) {
-                $baseQuery->where('membership_type_id', $request->membership_type_id);
-            }
-
-            if ($request->filled('staff_category_id')) {
-                $baseQuery->where('staff_category_id', $request->staff_category_id);
-            }
-
+            // If searching, execute directly without caching search queries
             if ($request->filled('search')) {
-                $search = $request->search;
+                $baseQuery = User::with([
+                    'title:title_id,title_name',
+                    'staffCategory:staff_category_id,staff_category_name',
+                    'membershipType:membership_type_id,membership_type_name',
+                    'gender:gender_id,gender_name',
+                    'status:status_id,status_name',
+                    'lga:lga_id,lga_name,state_id',
+                    'lga.state:state_id,state_name,country_id',
+                    'lga.state.country:country_id,country_name',
+                    'wallet',
+                ]);
+
+                if ($statusId) $baseQuery->where('status_id', $statusId);
+                if ($membershipTypeId) $baseQuery->where('membership_type_id', $membershipTypeId);
+                if ($staffCategoryId) $baseQuery->where('staff_category_id', $staffCategoryId);
+
                 $baseQuery->where(function ($q) use ($search) {
                     $q->where('first_name', 'like', "%{$search}%")
                         ->orWhere('middle_name', 'like', "%{$search}%")
@@ -67,38 +71,67 @@ class UserManagementController extends Controller
                         ->orWhere('user_id', 'like', "%{$search}%")
                         ->orWhere('membership_number', 'like', "%{$search}%");
                 });
-            }
 
-            $userData = $baseQuery
-                ->orderBy('last_name', 'asc')
-                ->cursorPaginate(30);
+                $userData = $baseQuery->orderBy('last_name', 'asc')->cursorPaginate(30);
 
-            if ($userData->isEmpty()) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'No member records found.',
+                    'success' => !$userData->isEmpty(),
+                    'message' => $userData->isEmpty() ? 'No member records found.' : 'Member records fetched successfully.',
                     'summary' => [
                         'active_count' => $activeCount,
                         'suspended_count' => $suspendedCount,
                         'total_count' => $activeCount + $suspendedCount,
                     ],
-                    'data' => []
+                    'data' => UserResource::collection($userData),
+                    'pagination' => [
+                        'next_cursor' => $userData->nextCursor()?->encode(),
+                        'previous_cursor' => $userData->previousCursor()?->encode(),
+                    ],
                 ], 200);
             }
 
+            // Normal paginated list with TagCache
+            $cacheKey = "user_list_cur_" . ($cursor ?? 'first') . "_st_" . ($statusId ?? 'all') . "_mem_" . ($membershipTypeId ?? 'all') . "_cat_" . ($staffCategoryId ?? 'all');
+
+            $cachedPayload = TagCache::flexible('user_list', $cacheKey, [now()->addMonth(), null], function () use ($cursor, $statusId, $membershipTypeId, $staffCategoryId) {
+                $baseQuery = User::with([
+                    'title:title_id,title_name',
+                    'staffCategory:staff_category_id,staff_category_name',
+                    'membershipType:membership_type_id,membership_type_name',
+                    'gender:gender_id,gender_name',
+                    'status:status_id,status_name',
+                    'lga:lga_id,lga_name,state_id',
+                    'lga.state:state_id,state_name,country_id',
+                    'lga.state.country:country_id,country_name',
+                    'wallet',
+                ]);
+
+                if ($statusId) $baseQuery->where('status_id', $statusId);
+                if ($membershipTypeId) $baseQuery->where('membership_type_id', $membershipTypeId);
+                if ($staffCategoryId) $baseQuery->where('staff_category_id', $staffCategoryId);
+
+                $userData = $baseQuery->orderBy('last_name', 'asc')->cursorPaginate(30);
+
+                return [
+                    'empty' => $userData->isEmpty(),
+                    'data' => UserResource::collection($userData)->resolve(),
+                    'pagination' => [
+                        'next_cursor' => $userData->nextCursor()?->encode(),
+                        'previous_cursor' => $userData->previousCursor()?->encode(),
+                    ],
+                ];
+            });
+
             return response()->json([
-                'success' => true,
-                'message' => 'Member records fetched successfully.',
+                'success' => !$cachedPayload['empty'],
+                'message' => $cachedPayload['empty'] ? 'No member records found.' : 'Member records fetched successfully.',
                 'summary' => [
                     'active_count' => $activeCount,
                     'suspended_count' => $suspendedCount,
                     'total_count' => $activeCount + $suspendedCount,
                 ],
-                'data' => UserResource::collection($userData),
-                'pagination' => [
-                    'next_cursor' => $userData->nextCursor()?->encode(),
-                    'previous_cursor' => $userData->previousCursor()?->encode(),
-                ],
+                'data' => $cachedPayload['data'],
+                'pagination' => $cachedPayload['pagination'],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -260,6 +293,9 @@ class UserManagementController extends Controller
                 }
             });
 
+            ClearCacheService::clearListCache('user_list');
+            TagCache::flush('user_list');
+
             try {
                 ActivityLogJob::dispatch(
                     modelClass: ActivityLog::class,
@@ -304,21 +340,26 @@ class UserManagementController extends Controller
     public function show(string $id)
     {
         try {
-            Cache::forget("user_profile_{$id}");
-            $userData = new UserResource(User::with([
-                'title:title_id,title_name',
-                'gender:gender_id,gender_name',
-                'status:status_id,status_name',
-                'lga:lga_id,lga_name,state_id',
-                'lga.state:state_id,state_name,country_id',
-                'lga.state.country:country_id,country_name',
-                'wallet'
-            ])->findOrFail($id));
+            $userResourceData = TagCache::flexible('user_list', "user_profile_{$id}", [now()->addMonth(), null], function () use ($id) {
+                $user = User::with([
+                    'title:title_id,title_name',
+                    'staffCategory:staff_category_id,staff_category_name',
+                    'membershipType:membership_type_id,membership_type_name',
+                    'gender:gender_id,gender_name',
+                    'status:status_id,status_name',
+                    'lga:lga_id,lga_name,state_id',
+                    'lga.state:state_id,state_name,country_id',
+                    'lga.state.country:country_id,country_name',
+                    'wallet'
+                ])->findOrFail($id);
+
+                return (new UserResource($user))->resolve();
+            });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Member profile fetched successfully.',
-                'data' => $userData
+                'data' => $userResourceData
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -438,6 +479,8 @@ class UserManagementController extends Controller
             ]);
 
             ClearCacheService::clearListCache('user_list');
+            TagCache::flush('user_list');
+            TagCache::forget('user_list', "user_profile_{$id}");
             Cache::forget("user_profile_{$id}");
         });
 

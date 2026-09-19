@@ -12,6 +12,8 @@ class TitleResource extends JsonResource
         return [
             'title_id' => $this->title_id,
             'title_name' => $this->title_name,
+            'titleId' => $this->title_id,
+            'titleName' => $this->title_name,
         ];
     }
 }

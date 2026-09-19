@@ -63,12 +63,9 @@ class UserResource extends JsonResource
             ],
             'wallet' => [
                 'totalContributions' => (float) (
-                    max(
-                        (float) ($this->relationLoaded('wallet')
-                            ? ($this->wallet?->total_contributions ?? 0)
-                            : (\Illuminate\Support\Facades\DB::table('wallets')->where('user_id', $this->user_id)->value('total_contributions') ?? 0)),
-                        (float) (\Illuminate\Support\Facades\DB::table('member_contributions')->where('user_id', $this->user_id)->sum('contribution_amount') ?? 0)
-                    )
+                    $this->relationLoaded('wallet')
+                        ? ($this->wallet?->total_contributions ?? 0)
+                        : (\Illuminate\Support\Facades\DB::table('wallets')->where('user_id', $this->user_id)->value('total_contributions') ?? 0)
                 ),
                 'totalSavingAmount' => $totalSavingAmount = (float) (
                     $this->relationLoaded('wallet')

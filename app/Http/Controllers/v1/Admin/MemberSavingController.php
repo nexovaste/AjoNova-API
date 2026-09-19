@@ -10,6 +10,7 @@ use App\Models\Admin\Wallet;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\User\User;
 use App\Services\Cache\ClearCacheService;
+use App\Services\Cache\TagCache;
 use App\Services\Finance\WalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,8 @@ class MemberSavingController extends Controller
             $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID') ?? $request->query('user_id');
             $cursor = $request->query('cursor');
             $cacheKey = "member_saving_list_" . ($userId ?? 'all') . "_" . ($cursor ?? 'first_page');
-            $memberSaving = Cache::tags('member_saving_list_' . ($userId ?? 'all'))->flexible(
+            $memberSaving = TagCache::flexible(
+                'member_saving_list_' . ($userId ?? 'all'),
                 $cacheKey,
                 [now()->addMonth(), null],
                 function () use ($cursor, $userId) {

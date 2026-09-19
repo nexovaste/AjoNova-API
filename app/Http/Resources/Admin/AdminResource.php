@@ -41,7 +41,9 @@ class AdminResource extends JsonResource
             'role' => [
                 'roleName' => $this->roles->first()?->name,
                 'roleId' => $this->roles->first()?->id,
-                'permissions' => $this->getAllPermissions()->pluck('name') ?? null,
+                'permissions' => ($this->relationLoaded('roles') && $this->roles->first()?->relationLoaded('permissions'))
+                    ? $this->roles->first()->permissions->pluck('name')
+                    : ($this->relationLoaded('permissions') ? $this->permissions->pluck('name') : null),
             ],
             'location' => [
                 'lgaId' => $this->lga_id ?? null,

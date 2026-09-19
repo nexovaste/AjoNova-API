@@ -5,7 +5,7 @@ namespace App\Http\Controllers\v1\Setup;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Setup\CountryResource;
 use App\Models\Setup\SetupCountry;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Cache\TagCache;
 
 
 class CountryController extends Controller
@@ -15,7 +15,7 @@ class CountryController extends Controller
         try {
 
             $cacheKey = "country_list";
-            $countries = Cache::tags('country_list')->rememberForever($cacheKey, function () {
+            $countries = TagCache::rememberForever('country_list', $cacheKey, function () {
                 return SetupCountry::orderBy('country_name', 'asc')->get();
             });
 
