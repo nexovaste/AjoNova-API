@@ -82,6 +82,8 @@ Route::prefix('v1')->group(function () {
             Route::get('activity-logs/{id}', [ActivityLogController::class, 'show']);
             Route::post('activity-logs/{id}/read', [ActivityLogController::class, 'markAsRead']);
             Route::post('activity-logs/{id}/mark-as-read', [ActivityLogController::class, 'markAsRead']);
+            Route::post('activity-logs/mark-all-read', [ActivityLogController::class, 'markAllAsRead']);
+            Route::post('activity-logs/mark-all-as-read', [ActivityLogController::class, 'markAllAsRead']);
             Route::get('activity-logs/{id}/read-by', [ActivityLogController::class, 'readBy']);
             Route::apiResource('role', RoleController::class);
             Route::get('permissions', [RoleController::class, 'permissions']);

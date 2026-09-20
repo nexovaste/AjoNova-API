@@ -28,8 +28,7 @@ class MemberSavingController extends Controller
             $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID') ?? $request->query('user_id');
             $cursor = $request->query('cursor');
             $cacheKey = "member_saving_list_" . ($userId ?? 'all') . "_" . ($cursor ?? 'first_page');
-            $memberSaving = TagCache::flexible(
-                'member_saving_list_' . ($userId ?? 'all'),
+            $memberSaving = Cache::tags('member_saving_list_' . ($userId ?? 'all'))->flexible(
                 $cacheKey,
                 [now()->addMonth(), null],
                 function () use ($cursor, $userId) {

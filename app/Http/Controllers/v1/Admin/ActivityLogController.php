@@ -24,7 +24,7 @@ class ActivityLogController extends Controller
 
         return ActivityLog::query()
             ->when(
-                !$isSuperAdmin && $staff && method_exists($staff, 'can') && !$staff->can('manage activity logs') &&
+                $staff && method_exists($staff, 'can') && !$staff->can('manage activity logs') &&
                     $staff->can('view subordinates activity logs'),
                 fn($q) =>
                 $q->whereHas(
@@ -34,7 +34,7 @@ class ActivityLogController extends Controller
                 )
             )
             ->when(
-                !$isSuperAdmin && $staff && method_exists($staff, 'can') && !$staff->can('manage activity logs') &&
+                $staff && method_exists($staff, 'can') && !$staff->can('manage activity logs') &&
                     !$staff->can('view subordinates activity logs'),
                 fn($q) =>
                 $q->where('performed_by', $staff?->staff_id)
