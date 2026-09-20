@@ -74,6 +74,7 @@ class UserManagementController extends Controller
                 ->orderBy('last_name', 'asc')
                 ->cursorPaginate(30);
 
+            if ($userData->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No member records found.',
@@ -85,38 +86,6 @@ class UserManagementController extends Controller
                     'data' => []
                 ], 200);
             }
-
-            // Normal paginated list with TagCache
-            $cacheKey = "user_list_cur_" . ($cursor ?? 'first') . "_st_" . ($statusId ?? 'all') . "_mem_" . ($membershipTypeId ?? 'all') . "_cat_" . ($staffCategoryId ?? 'all');
-
-            $cachedPayload = TagCache::flexible('user_list', $cacheKey, [now()->addMonth(), null], function () use ($cursor, $statusId, $membershipTypeId, $staffCategoryId) {
-                $baseQuery = User::with([
-                    'title:title_id,title_name',
-                    'staffCategory:staff_category_id,staff_category_name',
-                    'membershipType:membership_type_id,membership_type_name',
-                    'gender:gender_id,gender_name',
-                    'status:status_id,status_name',
-                    'lga:lga_id,lga_name,state_id',
-                    'lga.state:state_id,state_name,country_id',
-                    'lga.state.country:country_id,country_name',
-                    'wallet',
-                ]);
-
-                if ($statusId) $baseQuery->where('status_id', $statusId);
-                if ($membershipTypeId) $baseQuery->where('membership_type_id', $membershipTypeId);
-                if ($staffCategoryId) $baseQuery->where('staff_category_id', $staffCategoryId);
-
-                $userData = $baseQuery->orderBy('last_name', 'asc')->cursorPaginate(30);
-
-                return [
-                    'empty' => $userData->isEmpty(),
-                    'data' => UserResource::collection($userData)->resolve(),
-                    'pagination' => [
-                        'next_cursor' => $userData->nextCursor()?->encode(),
-                        'previous_cursor' => $userData->previousCursor()?->encode(),
-                    ],
-                ];
-            });
 
             return response()->json([
                 'success' => true,
@@ -131,8 +100,6 @@ class UserManagementController extends Controller
                     'next_cursor' => $userData->nextCursor()?->encode(),
                     'previous_cursor' => $userData->previousCursor()?->encode(),
                 ],
-                'data' => $cachedPayload['data'],
-                'pagination' => $cachedPayload['pagination'],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
