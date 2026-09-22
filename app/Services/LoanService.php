@@ -179,8 +179,8 @@ class LoanService
             throw new \Exception('Invalid status ID. Only 1 (approved) or 8 (rejected) are allowed.');
         }
 
-        TagCache::flush('loan_list');
-        TagCache::flush('withdrawal_request_list');
+        Cache::tags('loan_list')->flush();
+        Cache::tags('withdrawal_request_list')->flush();
         ClearCacheService::clearListCache('ledger_entries_user_' . $loan->user_id);
     }
 

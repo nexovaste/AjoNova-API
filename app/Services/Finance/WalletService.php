@@ -158,8 +158,8 @@ class WalletService
             $wallet->save();
         }
 
-        TagCache::flush('withdrawal_request_list');
-        TagCache::flush('loan_list');
+        Cache::tags('withdrawal_request_list')->flush();
+        Cache::tags('loan_list')->flush();
         Cache::forget("withdrawal_request_{$id}");
         ClearCacheService::clearListCache("ledger_entries_user_{$userInfo->user_id}");
     }

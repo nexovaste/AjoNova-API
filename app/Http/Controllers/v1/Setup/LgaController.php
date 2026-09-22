@@ -8,6 +8,7 @@ use App\Models\Setup\SetupLga;
 use Illuminate\Http\Request;
 
 
+
 class LgaController extends Controller
 {
     public function index(Request $request)

@@ -26,8 +26,7 @@ class MemberContributionController extends Controller
             $userId = Auth::guard('user')->user()?->user_id ?? $request->header('X-User-ID') ?? $request->query('user_id');
             $cursor = $request->query('cursor');
             $cacheKey = "member_contribution_list_" . ($userId ?? 'all') . "_" . ($cursor ?? 'first_page');
-            $memberContribution = TagCache::flexible(
-                'member_contribution_list_' . ($userId ?? 'all'),
+            $memberContribution = Cache::tags('member_contribution_list_' . ($userId ?? 'all'))->flexible(
                 $cacheKey,
                 [now()->addMonth(), null],
                 function () use ($cursor, $userId) {

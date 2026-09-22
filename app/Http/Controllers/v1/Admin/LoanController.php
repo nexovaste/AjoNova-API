@@ -222,7 +222,8 @@ class LoanController extends Controller
             $userId = Auth::guard('user')->user()->user_id;
             $cacheKey = "guarantor_user_" . $userId;
 
-            $guarantors = TagCache::remember(['guarantor'], $cacheKey, now()->addMinutes(10), function () use ($userId) {
+            $guarantors = Cache::tags(['guarantor'])
+                ->remember($cacheKey, now()->addMinutes(10), function () use ($userId) {
                     return Guarantor::with(['title', 'gender', 'meansOfIdentification', 'status'])
                         ->whereHas('loan', function ($query) use ($userId) {
                             $query->where('user_id', $userId);
