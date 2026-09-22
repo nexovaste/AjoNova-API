@@ -15,7 +15,7 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         try {
-            $userId = $request->header('X-User-ID');
+            $userId = $request->header('X-User-ID') ?? $request->query('user_id');
             $cursor = $request->query('cursor');
             $cacheKey = "ledger_entries_user_{$userId}_cursor_" . ($cursor ?? 'first_page');
             $ledgerEntry = TagCache::flexible("ledger_entries_user_{$userId}", $cacheKey, [now()->addMonth(), null], function () use ($userId, $cursor) {
@@ -26,10 +26,10 @@ class ReportController extends Controller
             }); 
             if ($ledgerEntry->isEmpty()) {
                 return response()->json([
-                    'success' => false, 
+                    'success' => true, 
                     'message' => 'No records found.',
                     'data' => []
-                ], 404);
+                ], 200);
             }
             return response()->json([
                 'success' => true,
