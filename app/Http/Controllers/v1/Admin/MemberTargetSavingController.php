@@ -63,7 +63,7 @@ class MemberTargetSavingController extends Controller
 
             return DB::transaction(function () use ($request) {
 
-                $userId = $request->header('X-User-ID');
+                $userId = $request->header('X-User-ID') ?? $request->input('userId');
 
                 $targetSettings = MemberTargetSavingSetting::where('user_id', $userId)->first();
                 if (!$targetSettings) {

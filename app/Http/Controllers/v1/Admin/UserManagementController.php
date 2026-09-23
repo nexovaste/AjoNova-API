@@ -319,7 +319,7 @@ class UserManagementController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Member profile fetched successfully.',
-                'data' => $userResourceData
+                'data' => $userData
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

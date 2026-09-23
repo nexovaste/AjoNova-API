@@ -33,7 +33,7 @@ class LoanService
         $phoneNumber,
         $email,
         $address,
-        $occupation = null,
+        $occupation,
         $meansOfIdentificationId,
         $identificationNumber,
         $relationshipToBorrower,
