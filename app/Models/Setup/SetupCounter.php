@@ -14,7 +14,10 @@ class SetupCounter extends Model
 
     public static function generateCustomId($counterId)
     {
-        $counter = self::where('counter_id', $counterId)->first();
+        $counter = self::firstOrCreate(
+            ['counter_id' => $counterId],
+            ['counter_value' => 0, 'counter_description' => 'COUNTER FOR ' . $counterId]
+        );
         $counter->increment('counter_value');
         $currentValue = $counter->counter_value;
         if ($currentValue < 10) {$no = '00' . $currentValue;} 

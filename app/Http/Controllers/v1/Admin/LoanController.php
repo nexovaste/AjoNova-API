@@ -190,10 +190,10 @@ class LoanController extends Controller
     public function loanRepayment(Request $request)
     {
         try {
-            $installmentNumber = $request->header('X-Installment-Number');
-            $loanId = $request->header('X-Loan-ID');
-            $userId = $request->header('X-User-ID');
-            $amount = $request->header('X-Amount');
+            $installmentNumber = $request->header('X-Installment-Number') ?? $request->input('installmentNumber') ?? 1;
+            $loanId = $request->header('X-Loan-ID') ?? $request->input('loanId');
+            $userId = $request->header('X-User-ID') ?? $request->input('userId');
+            $amount = $request->header('X-Amount') ?? $request->input('amount');
             return DB::transaction(function () use ($installmentNumber, $loanId, $userId, $amount) {
 
                 LoanService::loanRepayment(
