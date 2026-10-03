@@ -15,7 +15,6 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         try {
-            $userId = $request->header('X-User-ID') ?? $request->query('user_id');
             $userId = auth('user')->id() 
                 ?? $request->header('X-User-ID') 
                 ?? auth('admin')->id();
