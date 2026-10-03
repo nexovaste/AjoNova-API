@@ -172,6 +172,10 @@ class EndToEndSystemTest extends TestCase
                 'homeAddress' => '15 Victoria Island, Lagos',
                 'monthlySalary' => 200000,
                 'savingAmount' => 15000,
+                'targetName' => 'Personal Project',
+                'targetAmount' => 100000,
+                'startDate' => now()->format('Y-m-d'),
+                'durationMonths' => 6,
             ]);
         $this->assertContains($nonMemberRegRes->getStatusCode(), [200, 201]);
         self::$testNonMember = User::where('email', $nonMemberEmail)->first();
@@ -463,6 +467,7 @@ class EndToEndSystemTest extends TestCase
             DB::table('otps')->where('user_id', $nonUserId)->delete();
             DB::table('user_devices')->where('user_id', $nonUserId)->delete();
             DB::table('member_contribution_savings')->where('user_id', $nonUserId)->delete();
+            DB::table('member_target_saving_settings')->where('user_id', $nonUserId)->delete();
             DB::table('wallets')->where('user_id', $nonUserId)->delete();
             DB::table('users')->where('user_id', $nonUserId)->delete();
         }
