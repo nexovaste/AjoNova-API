@@ -15,7 +15,7 @@ class LoanRepaymentScheduleController extends Controller
     public function index(Request $request)
     {
         try {
-            $userId = $request->header('X-User-ID');
+            $userId = $request->header('X-User-ID') ?? $request->query('user_id');
             $cursor = $request->query('cursor');
             $cacheKey = "loan_repayment_schedule_user_{$userId}_cursor_" . ($cursor ?? 'first_page');
             $loanRepaymentSchedule = TagCache::flexible("loan_repayment_schedule_user_{$userId}", $cacheKey, [now()->addMonth(), null], function () use ($userId, $cursor) {
@@ -28,10 +28,10 @@ class LoanRepaymentScheduleController extends Controller
             });
             if ($loanRepaymentSchedule->isEmpty()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => true,
                     'message' => 'No records found.',
                     'data' => []
-                ], 404);
+                ], 200);
             }
             return response()->json([
                 'success' => true,

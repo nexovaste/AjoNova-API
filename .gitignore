@@ -2,6 +2,8 @@
 # OS / System files
 # ===============================
 *.log
+*.pdf
+*manual*.html
 .DS_Store
 Thumbs.db
 
