@@ -15,11 +15,14 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         try {
-            $userId = auth('user')->id() 
+            $userId = $request->query('user_id')
                 ?? $request->header('X-User-ID') 
-                ?? auth('admin')->id();
+                ?? auth('user')->id();
 
-            $query = LedgerEntry::where('user_id', $userId);
+            $query = LedgerEntry::query();
+            if ($userId) {
+                $query->where('user_id', $userId);
+            }
 
             if ($request->filled('month') && $request->filled('year')) {
                 $query->whereMonth('created_at', $request->month)

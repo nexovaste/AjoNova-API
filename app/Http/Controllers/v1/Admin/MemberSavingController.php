@@ -69,7 +69,7 @@ class MemberSavingController extends Controller
 
         try {
             return DB::transaction(function () use ($request) {
-                $userId = $request->header('X-User-ID');
+                $userId = $request->header('X-User-ID') ?? $request->input('userId') ?? $request->query('user_id');
 
                 MemberContributionSaving::where('user_id', $userId)->update([
                     'saving_amount' => $request->savingsAmount,

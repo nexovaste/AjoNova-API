@@ -222,6 +222,7 @@ class AdminController extends Controller
             'dateOfBirth' => 'nullable|date|before:today',
             'nin' => ['nullable', 'string', 'unique:staff,nin,' . $id . ',staff_id', 'regex:/^[0-9]{11}$/'],
             'statusId' => 'required|integer|exists:setup_statuses,status_id',
+            'roleId' => 'nullable|integer|exists:roles,id',
         ]);
 
 
@@ -258,6 +259,12 @@ class AdminController extends Controller
                 'status_id'      => $request->statusId,
                 'updated_by'     => $admin ? $admin->staff_id : null,
             ]);
+
+            if ($request->filled('roleId')) {
+                $role = Role::findById($request->roleId, 'admin');
+                $updateAdmin->syncRoles([$role]);
+            }
+            $updateAdmin->load('roles');
 
             ClearCacheService::clearListCache('staff_list');
             Cache::forget("staff_profile_{$id}");
