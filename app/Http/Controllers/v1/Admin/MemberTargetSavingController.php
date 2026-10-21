@@ -69,7 +69,7 @@ class MemberTargetSavingController extends Controller
                 if (!$targetSettings) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Target saving cannot be processed. This member has not set up or configured a target savings plan yet.'
+                        'message' => 'This member did not register for the target savings plan.'
                     ], 400);
                 }
 

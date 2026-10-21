@@ -92,6 +92,38 @@ class UserResource extends JsonResource
                         : (\Illuminate\Support\Facades\DB::table('wallets')->where('user_id', $this->user_id)->value('outstanding_loan_balance') ?? 0)
                 ),
             ],
+            'plans' => [
+                'hasContribution' => (bool) (
+                    (int) ($this->membership_type_id ?? 0) === 1 &&
+                    ((float) ($this->relationLoaded('contributionSavings') ? ($this->contributionSavings?->contribution_amount ?? 0) : (\Illuminate\Support\Facades\DB::table('member_contribution_savings')->where('user_id', $this->user_id)->value('contribution_amount') ?? 0)) > 0)
+                ),
+                'contributionAmount' => (float) (
+                    $this->relationLoaded('contributionSavings')
+                        ? ($this->contributionSavings?->contribution_amount ?? 0)
+                        : (\Illuminate\Support\Facades\DB::table('member_contribution_savings')->where('user_id', $this->user_id)->value('contribution_amount') ?? 0)
+                ),
+                'hasCompulsorySavings' => (bool) (
+                    ((float) ($this->relationLoaded('contributionSavings') ? ($this->contributionSavings?->saving_amount ?? 0) : (\Illuminate\Support\Facades\DB::table('member_contribution_savings')->where('user_id', $this->user_id)->value('saving_amount') ?? 0)) > 0)
+                ),
+                'compulsorySavingAmount' => (float) (
+                    $this->relationLoaded('contributionSavings')
+                        ? ($this->contributionSavings?->saving_amount ?? 0)
+                        : (\Illuminate\Support\Facades\DB::table('member_contribution_savings')->where('user_id', $this->user_id)->value('saving_amount') ?? 0)
+                ),
+                'hasTargetSavings' => (bool) (
+                    $this->relationLoaded('targetSavingSetting')
+                        ? !is_null($this->targetSavingSetting)
+                        : \Illuminate\Support\Facades\DB::table('member_target_saving_settings')->where('user_id', $this->user_id)->whereNull('deleted_at')->exists()
+                ),
+                'targetSetting' => ($targetSetting = $this->relationLoaded('targetSavingSetting') ? $this->targetSavingSetting : \App\Models\Admin\MemberTargetSavingSetting::where('user_id', $this->user_id)->first()) ? [
+                    'targetName' => $targetSetting->target_name,
+                    'targetAmount' => (float) $targetSetting->target_amount,
+                    'monthlyAmount' => (float) $targetSetting->monthly_amount,
+                    'durationMonths' => (int) $targetSetting->duration_months,
+                    'startDate' => $targetSetting->start_date?->format('Y-m-d'),
+                    'endDate' => $targetSetting->end_date?->format('Y-m-d'),
+                ] : null,
+            ],
         ];
     }
 }

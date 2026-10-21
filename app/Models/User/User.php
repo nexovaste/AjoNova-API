@@ -110,6 +110,16 @@ class User extends Authenticatable
         return $this->hasMany(MemberTargetSaving::class, 'user_id', 'user_id');
     }
 
+    public function contributionSavings()
+    {
+        return $this->hasOne(\App\Models\Admin\MemberContributionSaving::class, 'user_id', 'user_id');
+    }
+
+    public function targetSavingSetting()
+    {
+        return $this->hasOne(\App\Models\Admin\MemberTargetSavingSetting::class, 'user_id', 'user_id');
+    }
+
     public function loans()
     {
         return $this->hasMany(Loan::class, 'user_id', 'user_id');

@@ -23,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\GlobalApiKey::class,     
         ]);
 
+        $middleware->redirectGuestsTo(fn () => null);
+
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
@@ -39,11 +41,9 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (AuthenticationException $e, $request) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'Unauthenticated.',
-                    'type' => 'AUTH_ERROR'
-                ], 401);
-            }
+            return response()->json([
+                'message' => 'Unauthenticated.',
+                'type' => 'AUTH_ERROR'
+            ], 401);
         });
     })->create();

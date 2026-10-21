@@ -115,9 +115,11 @@ class AdminController extends Controller
             'lastName'      => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
             'genderId' => 'required|int|exists:setup_genders,gender_id',
             'emailAddress' => 'required|string|email|unique:staff,email',
-            'mobileNumber' => ['required', 'string', 'unique:staff,mobile_number', 'regex:/^\+?[1-9]\d{1,14}$/',],
+            'mobileNumber' => ['required', 'string', 'unique:staff,mobile_number', 'regex:/^(0|\+234)[0-9]{10}$/'],
             'homeAddress' => 'nullable|string',
             'roleId' => 'required|int|exists:roles,id'
+        ], [
+            'mobileNumber.regex' => 'The mobile number must start with 0 or +234 followed by 10 digits (e.g. 09100000000 or +2349100000000).',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -216,13 +218,15 @@ class AdminController extends Controller
             'lastName' => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
             'genderId' => 'required|integer|exists:setup_genders,gender_id',
             'emailAddress' => 'required|string|email|unique:staff,email,' . $id . ',staff_id',
-            'mobileNumber' => ['required', 'string', 'unique:staff,mobile_number,' . $id . ',staff_id', 'regex:/^\+?[1-9]\d{1,14}$/'],
+            'mobileNumber' => ['required', 'string', 'unique:staff,mobile_number,' . $id . ',staff_id', 'regex:/^(0|\+234)[0-9]{10}$/'],
             'homeAddress' => 'required|string',
             'lgaId' => 'nullable|integer|exists:setup_lgas,lga_id',
             'dateOfBirth' => 'nullable|date|before:today',
             'nin' => ['nullable', 'string', 'unique:staff,nin,' . $id . ',staff_id', 'regex:/^[0-9]{11}$/'],
             'statusId' => 'required|integer|exists:setup_statuses,status_id',
             'roleId' => 'nullable|integer|exists:roles,id',
+        ], [
+            'mobileNumber.regex' => 'The mobile number must start with 0 or +234 followed by 10 digits (e.g. 09132587949 or +2349132587949).',
         ]);
 
 

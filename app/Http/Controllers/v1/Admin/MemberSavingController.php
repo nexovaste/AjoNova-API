@@ -98,10 +98,23 @@ class MemberSavingController extends Controller
 
                 $userId = $request->header('X-User-ID') ?? $request->input('userId');
 
+                $user = User::where('user_id', $userId)->first();
+                if (!$user) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'User record not found.'
+                    ], 404);
+                }
+
                 $savingAmount = MemberContributionSaving::where('user_id', $userId)
                     ->value('saving_amount');
 
-                $user = User::where('user_id', $userId)->first();
+                if (empty($savingAmount) || (float) $savingAmount <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'This member did not register for the compulsory savings plan or has no active savings amount set.'
+                    ], 400);
+                }
 
                 $ledgerEntry =  WalletService::deposit(
                     $userId,

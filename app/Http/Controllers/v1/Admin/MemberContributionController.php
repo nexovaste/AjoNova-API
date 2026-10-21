@@ -96,10 +96,30 @@ class MemberContributionController extends Controller
 
                 $userId = $request->header('X-User-ID') ?? $request->input('userId');
 
+                $user = User::where('user_id', $userId)->first();
+                if (!$user) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'User record not found.'
+                    ], 404);
+                }
+
+                if ((int) $user->membership_type_id === 2) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'This user is a Non-member and did not register for the monthly contribution plan.'
+                    ], 400);
+                }
+
                 $contributionAmount = MemberContributionSaving::where('user_id', $userId)
                     ->value('contribution_amount');
 
-                $user = User::where('user_id', $userId)->first();
+                if (empty($contributionAmount) || (float) $contributionAmount <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'This member did not register for the contribution plan or has no active contribution amount set.'
+                    ], 400);
+                }
 
                 $ledgerEntry = WalletService::deposit(
                     $userId,

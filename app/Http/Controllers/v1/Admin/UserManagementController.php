@@ -40,10 +40,13 @@ class UserManagementController extends Controller
                 'lga.state:state_id,state_name,country_id',
                 'lga.state.country:country_id,country_name',
                 'wallet',
+                'contributionSavings',
+                'targetSavingSetting'
             ]);
 
             $activeCount = (clone $baseQuery)->where('status_id', 1)->count();
             $suspendedCount = (clone $baseQuery)->where('status_id', 3)->count();
+            $totalCount = (clone $baseQuery)->count();
 
             if ($request->filled('status_id')) {
                 $baseQuery->where('status_id', $request->status_id);
@@ -81,7 +84,7 @@ class UserManagementController extends Controller
                     'summary' => [
                         'active_count' => $activeCount,
                         'suspended_count' => $suspendedCount,
-                        'total_count' => $activeCount + $suspendedCount,
+                        'total_count' => $totalCount,
                     ],
                     'data' => []
                 ], 200);
@@ -93,7 +96,7 @@ class UserManagementController extends Controller
                 'summary' => [
                     'active_count' => $activeCount,
                     'suspended_count' => $suspendedCount,
-                    'total_count' => $activeCount + $suspendedCount,
+                    'total_count' => $totalCount,
                 ],
                 'data' => UserResource::collection($userData),
                 'pagination' => [
@@ -125,7 +128,7 @@ class UserManagementController extends Controller
                 'lastName' => ['required', 'string', 'regex:/^[A-Za-z\s\'-]+$/', 'min:2', 'max:50'],
                 'genderId' => 'required|integer|exists:setup_genders,gender_id',
                 'emailAddress' => 'required|string|email|max:255|unique:users,email',
-                'mobileNumber' => ['required', 'string', 'unique:users,mobile_number'],
+                'mobileNumber' => ['required', 'string', 'unique:users,mobile_number', 'regex:/^(0|\+234)[0-9]{10}$/'],
                 'homeAddress' => 'nullable|string|max:255',
                 'dateJoined' => ['nullable', 'date'],
 
@@ -167,6 +170,7 @@ class UserManagementController extends Controller
                 'emailAddress.unique' => 'This email address is already registered.',
                 'mobileNumber.required' => 'Mobile number is required.',
                 'mobileNumber.unique' => 'This mobile number is already registered.',
+                'mobileNumber.regex' => 'The mobile number must start with 0 or +234 followed by 10 digits (e.g. 09132587949 or +2349132587949).',
                 'contributionAmount.required_if' => 'Contribution amount is required for this membership type.',
                 'contributionAmount.numeric' => 'Contribution amount must be a valid number.',
                 'contributionAmount.min' => 'Contribution amount cannot be negative.',
@@ -356,12 +360,16 @@ class UserManagementController extends Controller
             Cache::forget("user_profile_{$id}");
             $userData = new UserResource(User::with([
                 'title:title_id,title_name',
+                'staffCategory:staff_category_id,staff_category_name',
+                'membershipType:membership_type_id,membership_type_name',
                 'gender:gender_id,gender_name',
                 'status:status_id,status_name',
                 'lga:lga_id,lga_name,state_id',
                 'lga.state:state_id,state_name,country_id',
                 'lga.state.country:country_id,country_name',
-                'wallet'
+                'wallet',
+                'contributionSavings',
+                'targetSavingSetting'
             ])->findOrFail($id));
 
             return response()->json([
@@ -394,7 +402,7 @@ class UserManagementController extends Controller
                 'dateOfBirth' => 'nullable|date',
                 'genderId' => 'nullable|integer|exists:setup_genders,gender_id',
                 'emailAddress' => 'required|string|email|max:255|unique:users,email,' . $id . ',user_id',
-                'mobileNumber' => ['required', 'string', 'unique:users,mobile_number,' . $id . ',user_id', 'regex:/^\\+?[1-9]\\d{1,14}$/'],
+                'mobileNumber' => ['required', 'string', 'unique:users,mobile_number,' . $id . ',user_id', 'regex:/^(0|\+234)[0-9]{10}$/'],
                 'homeAddress' => 'nullable|string|max:255',
                 'lgaId' => 'nullable|integer|exists:setup_lgas,lga_id',
                 'nin' => 'nullable|string|max:20',
@@ -427,7 +435,7 @@ class UserManagementController extends Controller
                 'emailAddress.unique' => 'This email address is already registered to another member.',
                 'mobileNumber.required' => 'Mobile number is required.',
                 'mobileNumber.unique' => 'This mobile number is already registered to another member.',
-                'mobileNumber.regex' => 'Please enter a valid mobile number.',
+                'mobileNumber.regex' => 'The mobile number must start with 0 or +234 followed by 10 digits (e.g. 09100000000 or +2349100000000).',
                 'lgaId.exists' => 'The selected LGA is invalid.',
                 'nin.max' => 'NIN cannot exceed 20 characters.',
                 'statusId.required' => 'Please select a status.',
